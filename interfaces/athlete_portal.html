@@ -49,17 +49,17 @@
   <header class="border-b border-brand-border bg-[#0D1424]/90 backdrop-blur sticky top-0 z-50 px-4 sm:px-6 py-4">
     <div class="max-w-4xl mx-auto flex items-center justify-between">
       <div class="flex items-center space-x-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center text-white font-teko text-2xl font-bold shadow-lg shadow-cyan-500/20">
-          MR
+        <div id="athlete-avatar" class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center text-white font-teko text-2xl font-bold shadow-lg shadow-cyan-500/20">
+          AT
         </div>
         <div>
           <div class="flex items-center space-x-2">
-            <h1 class="text-base font-bold text-white">Marco Rossi</h1>
+            <h1 id="athlete-name" class="text-base font-bold text-white">Il Tuo Profilo</h1>
             <span class="px-2 py-0.5 text-[10px] font-semibold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 rounded-full">
               ATLETA
             </span>
           </div>
-          <p class="text-xs text-slate-400">Head Coach: <strong class="text-brand-yellow">Andrea Cordera</strong> • Milano</p>
+          <p class="text-xs text-slate-400">Head Coach: <strong class="text-brand-yellow">Andrea Cordera</strong><span id="athlete-city"></span></p>
         </div>
       </div>
 
@@ -81,8 +81,8 @@
     <div class="glass-card rounded-2xl p-6 border-l-4 border-l-brand-yellow shadow-xl relative overflow-hidden">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
         <div>
-          <span class="text-xs text-slate-400 uppercase tracking-wider font-semibold">Oggi • Giovedì 12 Novembre</span>
-          <h2 class="text-2xl font-bold text-white mt-0.5">☀️ Buongiorno Marco!</h2>
+          <span id="today-date" class="text-xs text-slate-400 uppercase tracking-wider font-semibold">Oggi</span>
+          <h2 id="athlete-greeting" class="text-2xl font-bold text-white mt-0.5">☀️ Buongiorno Atleta!</h2>
         </div>
         <div class="flex items-center gap-2">
           <span class="px-3 py-1 text-xs font-bold rounded-lg bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5">
@@ -107,7 +107,7 @@
         <div class="mt-2 flex flex-wrap gap-2 text-xs text-slate-300">
           <span class="px-2 py-0.5 bg-slate-800 rounded">Cardio: &lt; 142 bpm (Zona 2 pura)</span>
           <span class="px-2 py-0.5 bg-slate-800 rounded">Recupero: 60s tra gli allunghi</span>
-          <span class="px-2 py-0.5 bg-slate-800 rounded text-cyan-300">Meteo Milano: ⛅ 16°C</span>
+          <span id="athlete-weather" class="px-2 py-0.5 bg-slate-800 rounded text-cyan-300">Meteo: ⛅ In aggiornamento</span>
         </div>
       </div>
 
@@ -395,6 +395,61 @@
       showToast(`✅ <strong>Nota inviata al Coach Andrea!</strong><br>"${note}"<br><span class="text-[11px] text-slate-400">Notifica recapitata nella Coach Inbox.</span>`, 'success');
       noteInput.value = "";
     }
+
+    function initAthleteProfile() {
+      try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const rawName = urlParams.get('name') || urlParams.get('athlete') || '';
+        const rawCity = urlParams.get('city') || '';
+
+        const displayName = rawName ? decodeURIComponent(rawName).trim() : 'Il Tuo Profilo';
+        const firstName = rawName ? displayName.split(/\s+/)[0] : 'Atleta';
+
+        let initials = 'AT';
+        if (rawName) {
+          const parts = displayName.split(/\s+/);
+          if (parts.length >= 2) {
+            initials = (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+          } else if (parts.length === 1 && parts[0].length >= 1) {
+            initials = parts[0].substring(0, 2).toUpperCase();
+          }
+        }
+
+        const nameEl = document.getElementById('athlete-name');
+        if (nameEl) nameEl.textContent = displayName;
+
+        const avatarEl = document.getElementById('athlete-avatar');
+        if (avatarEl) avatarEl.textContent = initials;
+
+        const greetingEl = document.getElementById('athlete-greeting');
+        if (greetingEl) {
+          greetingEl.textContent = `☀️ Buongiorno ${firstName}!`;
+        }
+
+        const cityEl = document.getElementById('athlete-city');
+        if (cityEl && rawCity) {
+          cityEl.textContent = ` • ${decodeURIComponent(rawCity).trim()}`;
+        }
+
+        const todayEl = document.getElementById('today-date');
+        if (todayEl) {
+          const now = new Date();
+          const formatted = now.toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' });
+          const capitalized = formatted.charAt(0).toUpperCase() + formatted.slice(1);
+          todayEl.textContent = `Oggi • ${capitalized}`;
+        }
+
+        const weatherEl = document.getElementById('athlete-weather');
+        if (weatherEl) {
+          const cityLabel = rawCity ? decodeURIComponent(rawCity).trim() : 'Locale';
+          weatherEl.textContent = `Meteo ${cityLabel}: ⛅ 16°C`;
+        }
+      } catch (e) {
+        console.warn('Errore inizializzazione profilo atleta:', e);
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', initAthleteProfile);
   </script>
 </body>
 </html>
