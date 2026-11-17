@@ -156,17 +156,27 @@
       </div>
     </div>
 
-    <!-- TABS -->
-    <div class="flex space-x-2 border-b border-slate-800 pb-2" role="tablist" aria-label="Sezioni Coach Dashboard">
-      <button onclick="switchTab('roster')" id="tab-roster" role="tab" aria-selected="true" aria-controls="content-roster" class="px-4 py-2 text-sm font-semibold rounded-lg bg-brand-yellow text-slate-950 flex items-center gap-2 transition">
-        <i class="fa-solid fa-address-book" aria-hidden="true"></i> Roster Atleti
-      </button>
-      <button onclick="switchTab('inbox')" id="tab-inbox" role="tab" aria-selected="false" aria-controls="content-inbox" class="px-4 py-2 text-sm font-medium rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 flex items-center gap-2 transition">
-        <i class="fa-solid fa-envelope-open-text" aria-hidden="true"></i> Coach Inbox Note <span id="inbox-tab-badge" class="px-1.5 py-0.5 text-[10px] bg-slate-800 text-slate-400 rounded-full font-bold">0</span>
-      </button>
-      <button onclick="switchTab('onboarding')" id="tab-onboarding" role="tab" aria-selected="false" aria-controls="content-onboarding" class="px-4 py-2 text-sm font-medium rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 flex items-center gap-2 transition">
-        <i class="fa-solid fa-user-check" aria-hidden="true"></i> Coda Iscrizioni & Validazione <span id="pending-badge" onclick="switchTab('onboarding'); event.stopPropagation();" class="px-1.5 py-0.5 text-[10px] bg-slate-800 text-slate-400 rounded-full font-bold cursor-pointer">0</span>
-      </button>
+    <!-- TABS & QUICK TOOLS -->
+    <div class="flex flex-wrap items-center justify-between border-b border-slate-800 pb-2 gap-2" role="toolbar" aria-label="Navigazione e Strumenti Coach">
+      <div class="flex space-x-2" role="tablist" aria-label="Sezioni Coach Dashboard">
+        <button onclick="switchTab('roster')" id="tab-roster" role="tab" aria-selected="true" aria-controls="content-roster" class="px-4 py-2 text-sm font-semibold rounded-lg bg-brand-yellow text-slate-950 flex items-center gap-2 transition">
+          <i class="fa-solid fa-address-book" aria-hidden="true"></i> Roster Atleti
+        </button>
+        <button onclick="switchTab('inbox')" id="tab-inbox" role="tab" aria-selected="false" aria-controls="content-inbox" class="px-4 py-2 text-sm font-medium rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 flex items-center gap-2 transition">
+          <i class="fa-solid fa-envelope-open-text" aria-hidden="true"></i> Coach Inbox Note <span id="inbox-tab-badge" class="px-1.5 py-0.5 text-[10px] bg-slate-800 text-slate-400 rounded-full font-bold">0</span>
+        </button>
+        <button onclick="switchTab('onboarding')" id="tab-onboarding" role="tab" aria-selected="false" aria-controls="content-onboarding" class="px-4 py-2 text-sm font-medium rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 flex items-center gap-2 transition">
+          <i class="fa-solid fa-user-check" aria-hidden="true"></i> Coda Iscrizioni & Validazione <span id="pending-badge" onclick="switchTab('onboarding'); event.stopPropagation();" class="px-1.5 py-0.5 text-[10px] bg-slate-800 text-slate-400 rounded-full font-bold cursor-pointer">0</span>
+        </button>
+      </div>
+
+      <!-- QUICK LINK HUB ANAGRAFICA -->
+      <div class="flex items-center gap-2">
+        <a id="btn-anagrafica-hub" href="https://docs.google.com/spreadsheets/d/1yG5GAx8fg4zPkXwJvzJGXkWYnI2OoBzN_g-sczs6Mss/edit" target="_blank" rel="noopener noreferrer" class="px-3 py-2 text-xs font-semibold bg-slate-800/90 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-lg flex items-center gap-1.5 transition shadow-sm" title="Registro Atleti e Hub Anagrafica Generale">
+          <i class="fa-solid fa-table-list text-amber-400" aria-hidden="true"></i> Anagrafica Hub
+          <i class="fa-solid fa-arrow-up-right-from-square text-[10px] opacity-70" aria-hidden="true"></i>
+        </a>
+      </div>
     </div>
 
     <!-- TAB 1: ROSTER ATLETI -->
@@ -218,9 +228,6 @@
             </a>
             <a href="https://docs.google.com/spreadsheets/d/1vFskJozbqLWUZA6sui1iI47MaTGrC0X2qIzS72iRoeM/edit" target="_blank" class="px-3 py-2 text-xs font-medium bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-200 flex items-center gap-1.5 transition" title="Archivio Attività Garmin">
               <i class="fa-solid fa-person-running text-sky-400"></i> File Attività
-            </a>
-            <a href="https://docs.google.com/spreadsheets/d/1yG5GAx8fg4zPkXwJvzJGXkWYnI2OoBzN_g-sczs6Mss/edit" target="_blank" class="px-3 py-2 text-xs font-medium bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-200 flex items-center gap-1.5 transition" title="Registro Atleti e Hub Anagrafica">
-              <i class="fa-solid fa-address-book text-amber-400"></i> Anagrafica Hub
             </a>
           </div>
         </div>
@@ -1293,7 +1300,7 @@
     function handleRejectApplicantClick(btn) {
       const reqId = btn ? btn.getAttribute("data-req-id") : "";
       if (!reqId) return;
-      rejectApplicant(reqId);
+      rejectApplicant(reqId, btn);
     }
 
     async function approveApplicant(name, slug, chatId, reqId, btnEl) {
@@ -1356,22 +1363,99 @@
       switchTab("roster");
     }
 
-    function rejectApplicant(reqId) {
-      if (confirm("Vuoi davvero rifiutare questa richiesta di iscrizione?")) {
-        if (reqId) {
-          currentApplicants = currentApplicants.filter((a, idx) => {
-            const id = (a && a.rowIndex != null && a.rowIndex !== "") ? a.rowIndex : idx + 1;
-            return String(id) !== String(reqId);
+    async function rejectApplicant(reqId, btn) {
+      const entry = normalizedApplicantsById[String(reqId)] || {};
+      const athleteName = String(entry.name || "questo atleta").trim();
+      const athleteChat = String(entry.chatId || "").trim();
+      if (!confirm(`Vuoi davvero rifiutare la richiesta di iscrizione di ${athleteName}? Lo stato verrà impostato come RIFIUTATO nel foglio.`)) {
+        return;
+      }
+      if (!isAuthenticated || !CURRENT_TOKEN) {
+        lockDashboardUI();
+        if (window.UIFeedback) {
+          UIFeedback.toast({
+            title: "Autenticazione richiesta",
+            message: "Inserisci un codice OTP valido per rifiutare la candidatura.",
+            type: "error"
           });
-        } else {
-          currentApplicants = [];
         }
-        renderPendingRequests(currentApplicants);
-        UIFeedback.toast({
-          title: "Richiesta rifiutata",
-          message: "La candidatura è stata rimossa dalla coda di validazione.",
-          type: "info"
+        return;
+      }
+
+      const originalHtml = btn ? btn.innerHTML : "";
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Rifiuto in corso...';
+      }
+
+      try {
+        const resp = await fetch(WEBHOOK_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({
+            action: "reject_athlete",
+            coach_token: CURRENT_TOKEN,
+            rowIndex: reqId,
+            chat_id: athleteChat,
+            name: entry.name || ""
+          })
         });
+        let data = null;
+        try {
+          data = await resp.json();
+        } catch (parseErr) {
+          data = null;
+        }
+
+        if (data && data.status === "unauthorized") {
+          lockDashboardUI();
+          if (window.UIFeedback) {
+            UIFeedback.toast({
+              title: "Sessione scaduta",
+              message: escapeHtml(data.message || "Token Coach non valido o scaduto. Ripeti il login OTP."),
+              type: "error"
+            });
+          }
+          return;
+        }
+
+        if (!data || data.status !== "ok") {
+          if (window.UIFeedback) {
+            UIFeedback.toast({
+              title: "Errore rifiuto candidatura",
+              message: escapeHtml((data && data.message) || "Impossibile aggiornare lo stato nel foglio."),
+              type: "error"
+            });
+          }
+          return;
+        }
+
+        currentApplicants = currentApplicants.filter((a, idx) => {
+          const id = (a && a.rowIndex != null && a.rowIndex !== "") ? a.rowIndex : idx + 1;
+          return String(id) !== String(reqId);
+        });
+        renderPendingRequests(currentApplicants);
+        if (window.UIFeedback) {
+          UIFeedback.toast({
+            title: "Richiesta rifiutata",
+            message: `Candidatura di ${escapeHtml(athleteName)} rifiutata (Stato: RIFIUTATO nel foglio).`,
+            type: "info"
+          });
+        }
+      } catch (err) {
+        console.warn("Errore rifiuto candidatura:", err);
+        if (window.UIFeedback) {
+          UIFeedback.toast({
+            title: "Errore di rete",
+            message: "Impossibile contattare il backend per rifiutare la candidatura.",
+            type: "error"
+          });
+        }
+      } finally {
+        if (btn && btn.isConnected !== false) {
+          btn.disabled = false;
+          btn.innerHTML = originalHtml;
+        }
       }
     }
 
