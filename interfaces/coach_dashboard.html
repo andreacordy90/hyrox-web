@@ -688,9 +688,12 @@
                   </div>
                 </div>
 
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2 flex-wrap">
                   <button onclick="syncGarminAthlete('${escapeHtml(ath.garmin_email || ath.name)}', this)" class="px-3 py-2 text-xs font-medium bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 rounded-lg flex items-center gap-1.5 transition" title="Aggiorna calendario Garmin (0 token)">
                     <i class="fa-solid fa-arrows-rotate"></i> Aggiorna Garmin
+                  </button>
+                  <button onclick="sendQuestionnaireToAthlete('${escapeHtml(ath.name)}', '${escapeHtml(ath.chat_id || '')}', this)" class="btn-sm btn-outline btn-secondary px-3 py-2 text-xs font-medium bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-lg flex items-center gap-1.5 transition" style="margin-left: 6px;" title="Invia link questionario Telegram all'atleta">
+                    <i class="fa-solid fa-clipboard-question"></i> Invia Questionario
                   </button>
                   <a href="${sheetLink}" target="_blank" class="px-3 py-2 text-xs font-medium bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-200 flex items-center gap-1.5 transition">
                     <i class="fa-solid fa-table text-emerald-400"></i> Foglio Atleta
@@ -1311,6 +1314,102 @@
       } finally {
         btn.disabled = false;
         btn.innerHTML = original;
+      }
+    }
+
+    async function sendQuestionnaireToAthlete(name, chatId, btn) {
+      const cleanChatId = String(chatId || "").trim();
+      const safeName = String(name || "Atleta").trim() || "Atleta";
+      if (!cleanChatId) {
+        if (window.UIFeedback) {
+          UIFeedback.toast({
+            title: "Chat ID mancante",
+            message: "L'atleta non ha un Chat ID Telegram registrato.",
+            type: "warning"
+          });
+        }
+        return;
+      }
+      if (!isAuthenticated || !CURRENT_TOKEN) {
+        lockDashboardUI();
+        if (window.UIFeedback) {
+          UIFeedback.toast({
+            title: "Autenticazione richiesta",
+            message: "Inserisci un codice OTP valido per inviare il questionario.",
+            type: "error"
+          });
+        }
+        return;
+      }
+
+      const originalHtml = btn ? btn.innerHTML : "";
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Invio...';
+      }
+
+      try {
+        const resp = await fetch(WEBHOOK_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({
+            action: "send_athlete_questionnaire",
+            coach_token: CURRENT_TOKEN,
+            athlete_name: safeName,
+            chat_id: cleanChatId
+          })
+        });
+        let data = null;
+        try {
+          data = await resp.json();
+        } catch (parseErr) {
+          data = null;
+        }
+
+        if (data && data.status === "unauthorized") {
+          lockDashboardUI();
+          if (window.UIFeedback) {
+            UIFeedback.toast({
+              title: "Sessione scaduta",
+              message: data.message || "Token Coach non valido o scaduto. Ripeti il login OTP.",
+              type: "error"
+            });
+          }
+          return;
+        }
+
+        if (data && data.status === "error") {
+          if (window.UIFeedback) {
+            UIFeedback.toast({
+              title: "Errore invio questionario",
+              message: escapeHtml(data.message || "Impossibile inviare il questionario."),
+              type: "error"
+            });
+          }
+          return;
+        }
+
+        if (window.UIFeedback) {
+          UIFeedback.toast({
+            title: "Questionario Inviato",
+            message: "Notifica Telegram inviata a " + escapeHtml(safeName),
+            type: "success"
+          });
+        }
+      } catch (err) {
+        console.warn("Errore invio questionario:", err);
+        if (window.UIFeedback) {
+          UIFeedback.toast({
+            title: "Errore di rete",
+            message: "Impossibile contattare il backend per inviare il questionario.",
+            type: "error"
+          });
+        }
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = originalHtml;
+        }
       }
     }
 
