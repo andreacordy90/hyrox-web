@@ -75,6 +75,19 @@
       </div>
 
       <form id="athlete-onboard-form" onsubmit="submitAthleteForm(event)" novalidate class="space-y-5 text-xs">
+
+        <!-- BANNER PRECOMPILAZIONE DA LINK COACH (HIDDEN INITIALLY) -->
+        <div id="prefill-banner" role="status" aria-live="polite" class="hidden flex items-start gap-3 p-3.5 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-200">
+          <i class="fa-solid fa-circle-check text-cyan-400 text-base mt-0.5" aria-hidden="true"></i>
+          <div class="space-y-0.5">
+            <p class="font-bold text-white text-xs">
+              Aggiornamento profilo anamnestico in corso <span id="prefill-athlete-label"></span>
+            </p>
+            <p class="text-[11px] text-cyan-200/80">
+              I tuoi identificativi Telegram/Nome sono stati precompilati dal link del Coach. Verifica i campi e compila il questionario tecnico qui sotto.
+            </p>
+          </div>
+        </div>
         
         <!-- SEZIONE 1: ANAGRAFICA -->
         <fieldset class="space-y-3">
@@ -101,7 +114,12 @@
             <i class="fa-brands fa-telegram" aria-hidden="true"></i> 2. Connessione Bot Telegram
           </legend>
           <div>
-            <label for="at-chat" class="block text-slate-200 font-semibold mb-1">Il tuo Telegram ID Numerico *</label>
+            <div class="flex items-center justify-between mb-1">
+              <label for="at-chat" class="block text-slate-200 font-semibold">Il tuo Telegram ID Numerico *</label>
+              <span id="prefill-chat-badge" class="hidden inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 text-[10px] font-semibold">
+                <i class="fa-solid fa-check" aria-hidden="true"></i> Confermato dal Coach
+              </span>
+            </div>
             <input type="number" id="at-chat" required placeholder="es. 987654321" aria-required="true" aria-describedby="err-at-chat hint-at-chat" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-cyan-400 text-xs">
             <span id="err-at-chat" class="text-red-400 text-[11px] hidden mt-1 block" role="alert">Inserisci il tuo ID numerico di Telegram</span>
             <p id="hint-at-chat" class="text-[11px] text-slate-300 mt-1.5 bg-slate-900/60 p-2.5 rounded-lg border border-slate-800">
@@ -176,13 +194,14 @@
           </div>
         </fieldset>
 
-        <!-- SEZIONE 5: QUESTIONARIO ANAMNESTICO COMPLETO -->
-        <fieldset id="athletic-questionnaire-section" class="space-y-4 pt-3 border-t border-slate-800">
+        <!-- SEZIONE 5: QUESTIONARIO TECNICO / ANAMNESTICO COMPLETO -->
+        <fieldset id="athletic-questionnaire-section" class="space-y-6 pt-3 border-t border-slate-800">
           <legend class="text-sm font-bold text-purple-400 uppercase tracking-wider flex items-center gap-2">
-            <i class="fa-solid fa-clipboard-list" aria-hidden="true"></i> 5. Questionario Anamnestico Completo
+            <i class="fa-solid fa-clipboard-list" aria-hidden="true"></i> 5. Questionario Tecnico / Anamnestico Completo
           </legend>
 
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <!-- 5.0 PROFILO BASE -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label for="at-focus" class="block text-slate-200 font-semibold mb-1">Focus Obiettivo *</label>
               <select id="at-focus" name="focus" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-purple-400 text-xs">
@@ -209,47 +228,6 @@
                 <option value="Avanzato / Agonista">Avanzato / Agonista</option>
               </select>
             </div>
-          </div>
-
-          <div>
-            <span class="block text-slate-200 font-semibold mb-2">Attrezzatura Disponibile (seleziona tutto ciò a cui hai accesso)</span>
-            <div id="at-equipment" role="group" aria-label="Attrezzatura disponibile" class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              <label class="flex items-center space-x-2.5 p-2.5 bg-slate-900/60 rounded-xl border border-slate-800 cursor-pointer hover:border-slate-700">
-                <input type="checkbox" name="equipment" value="Slitta Sled Push/Pull" class="w-4 h-4 text-brand-yellow rounded focus:ring-0">
-                <span class="text-slate-200">Slitta Sled Push/Pull</span>
-              </label>
-              <label class="flex items-center space-x-2.5 p-2.5 bg-slate-900/60 rounded-xl border border-slate-800 cursor-pointer hover:border-slate-700">
-                <input type="checkbox" name="equipment" value="Rower" class="w-4 h-4 text-brand-yellow rounded focus:ring-0">
-                <span class="text-slate-200">Rower</span>
-              </label>
-              <label class="flex items-center space-x-2.5 p-2.5 bg-slate-900/60 rounded-xl border border-slate-800 cursor-pointer hover:border-slate-700">
-                <input type="checkbox" name="equipment" value="SkiErg" class="w-4 h-4 text-brand-yellow rounded focus:ring-0">
-                <span class="text-slate-200">SkiErg</span>
-              </label>
-              <label class="flex items-center space-x-2.5 p-2.5 bg-slate-900/60 rounded-xl border border-slate-800 cursor-pointer hover:border-slate-700">
-                <input type="checkbox" name="equipment" value="Echo Bike" class="w-4 h-4 text-brand-yellow rounded focus:ring-0">
-                <span class="text-slate-200">Echo Bike</span>
-              </label>
-              <label class="flex items-center space-x-2.5 p-2.5 bg-slate-900/60 rounded-xl border border-slate-800 cursor-pointer hover:border-slate-700">
-                <input type="checkbox" name="equipment" value="Wallballs &amp; Sandbags" class="w-4 h-4 text-brand-yellow rounded focus:ring-0">
-                <span class="text-slate-200">Wallballs &amp; Sandbags</span>
-              </label>
-              <label class="flex items-center space-x-2.5 p-2.5 bg-slate-900/60 rounded-xl border border-slate-800 cursor-pointer hover:border-slate-700">
-                <input type="checkbox" name="equipment" value="Manubri/Kettlebell pesanti" class="w-4 h-4 text-brand-yellow rounded focus:ring-0">
-                <span class="text-slate-200">Manubri/Kettlebell pesanti</span>
-              </label>
-              <label class="flex items-center space-x-2.5 p-2.5 bg-slate-900/60 rounded-xl border border-slate-800 cursor-pointer hover:border-slate-700">
-                <input type="checkbox" name="equipment" value="Tapis Roulant inclinabile" class="w-4 h-4 text-brand-yellow rounded focus:ring-0">
-                <span class="text-slate-200">Tapis Roulant inclinabile</span>
-              </label>
-              <label class="flex items-center space-x-2.5 p-2.5 bg-slate-900/60 rounded-xl border border-slate-800 cursor-pointer hover:border-slate-700">
-                <input type="checkbox" name="equipment" value="Percorsi collinari/trail" class="w-4 h-4 text-brand-yellow rounded focus:ring-0">
-                <span class="text-slate-200">Percorsi collinari/trail</span>
-              </label>
-            </div>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label for="at-nutrition" class="block text-slate-200 font-semibold mb-1">Supporto Nutrizionale</label>
               <select id="at-nutrition" name="nutrition" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-purple-400 text-xs">
@@ -258,9 +236,220 @@
                 <option value="Nessun supporto richiesto">Nessun supporto richiesto</option>
               </select>
             </div>
+          </div>
+
+          <!-- 5A: SELETTORE MULTI-DISCIPLINA -->
+          <div class="space-y-2.5 pt-3 border-t border-slate-800/80">
             <div>
-              <label for="at-injuries" class="block text-slate-200 font-semibold mb-1">Infortuni Pregressi o Fastidi Articolari (Facoltativo)</label>
-              <textarea id="at-injuries" name="injuries" rows="2" placeholder="es. Fastidio al ginocchio, pregressa distorsione caviglia, nessuna limitazione..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-white focus:outline-none focus:border-purple-400 text-xs resize-none"></textarea>
+              <span class="block text-slate-200 font-bold text-xs uppercase tracking-wider text-purple-300">
+                5A. Discipline Praticate (Multi-disciplina)
+              </span>
+              <p class="text-[11px] text-slate-400 mt-0.5">Seleziona tutte le discipline che vuoi includere nella tua programmazione settimanale.</p>
+            </div>
+            <div id="at-disciplines" role="group" aria-label="Discipline praticate" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
+              <label class="relative flex items-center gap-3 p-3 bg-slate-900/70 rounded-xl border border-slate-800 cursor-pointer hover:border-purple-500/50 transition has-[:checked]:border-brand-yellow has-[:checked]:bg-brand-yellow/10">
+                <input type="checkbox" name="disciplines" value="Corsa su strada" class="w-4 h-4 text-brand-yellow rounded focus:ring-0">
+                <span class="w-8 h-8 rounded-lg bg-cyan-500/15 text-cyan-400 flex items-center justify-center shrink-0">
+                  <i class="fa-solid fa-person-running" aria-hidden="true"></i>
+                </span>
+                <span class="font-semibold text-slate-100">Corsa su strada</span>
+              </label>
+
+              <label class="relative flex items-center gap-3 p-3 bg-slate-900/70 rounded-xl border border-slate-800 cursor-pointer hover:border-purple-500/50 transition has-[:checked]:border-brand-yellow has-[:checked]:bg-brand-yellow/10">
+                <input type="checkbox" name="disciplines" value="Cyclette" class="w-4 h-4 text-brand-yellow rounded focus:ring-0">
+                <span class="w-8 h-8 rounded-lg bg-amber-500/15 text-amber-400 flex items-center justify-center shrink-0">
+                  <i class="fa-solid fa-bicycle" aria-hidden="true"></i>
+                </span>
+                <span class="font-semibold text-slate-100">Cyclette / Bici indoor</span>
+              </label>
+
+              <label class="relative flex items-center gap-3 p-3 bg-slate-900/70 rounded-xl border border-slate-800 cursor-pointer hover:border-purple-500/50 transition has-[:checked]:border-brand-yellow has-[:checked]:bg-brand-yellow/10">
+                <input type="checkbox" name="disciplines" value="Nuoto" class="w-4 h-4 text-brand-yellow rounded focus:ring-0">
+                <span class="w-8 h-8 rounded-lg bg-sky-500/15 text-sky-400 flex items-center justify-center shrink-0">
+                  <i class="fa-solid fa-person-swimming" aria-hidden="true"></i>
+                </span>
+                <span class="font-semibold text-slate-100">Nuoto</span>
+              </label>
+
+              <label class="relative flex items-center gap-3 p-3 bg-slate-900/70 rounded-xl border border-slate-800 cursor-pointer hover:border-purple-500/50 transition has-[:checked]:border-brand-yellow has-[:checked]:bg-brand-yellow/10">
+                <input type="checkbox" name="disciplines" value="Palestra" class="w-4 h-4 text-brand-yellow rounded focus:ring-0">
+                <span class="w-8 h-8 rounded-lg bg-purple-500/15 text-purple-400 flex items-center justify-center shrink-0">
+                  <i class="fa-solid fa-dumbbell" aria-hidden="true"></i>
+                </span>
+                <span class="font-semibold text-slate-100">Palestra / Sala Pesi (Forza)</span>
+              </label>
+
+              <label class="relative flex items-center gap-3 p-3 bg-slate-900/70 rounded-xl border border-slate-800 cursor-pointer hover:border-purple-500/50 transition has-[:checked]:border-brand-yellow has-[:checked]:bg-brand-yellow/10">
+                <input type="checkbox" name="disciplines" value="HYROX" class="w-4 h-4 text-brand-yellow rounded focus:ring-0">
+                <span class="w-8 h-8 rounded-lg bg-brand-yellow/15 text-brand-yellow flex items-center justify-center shrink-0">
+                  <i class="fa-solid fa-fire-flame-curved" aria-hidden="true"></i>
+                </span>
+                <span class="font-semibold text-slate-100">HYROX</span>
+              </label>
+
+              <label class="relative flex items-center gap-3 p-3 bg-slate-900/70 rounded-xl border border-slate-800 cursor-pointer hover:border-purple-500/50 transition has-[:checked]:border-brand-yellow has-[:checked]:bg-brand-yellow/10">
+                <input type="checkbox" name="disciplines" value="Spartan" class="w-4 h-4 text-brand-yellow rounded focus:ring-0">
+                <span class="w-8 h-8 rounded-lg bg-red-500/15 text-red-400 flex items-center justify-center shrink-0">
+                  <i class="fa-solid fa-medal" aria-hidden="true"></i>
+                </span>
+                <span class="font-semibold text-slate-100">Spartan Race</span>
+              </label>
+
+              <label class="relative flex items-center gap-3 p-3 bg-slate-900/70 rounded-xl border border-slate-800 cursor-pointer hover:border-purple-500/50 transition has-[:checked]:border-brand-yellow has-[:checked]:bg-brand-yellow/10">
+                <input type="checkbox" name="disciplines" value="Trail" class="w-4 h-4 text-brand-yellow rounded focus:ring-0">
+                <span class="w-8 h-8 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center shrink-0">
+                  <i class="fa-solid fa-mountain" aria-hidden="true"></i>
+                </span>
+                <span class="font-semibold text-slate-100">Trail Running / Montagna</span>
+              </label>
+            </div>
+            <div>
+              <label for="at-discipline-notes" class="block text-slate-300 font-semibold mb-1">Priorità discipline o livello Nuoto/Bici (Facoltativo)</label>
+              <input type="text" id="at-discipline-notes" placeholder="es. Corsa focus principale, Nuoto livello intermedio 2x/sett, Bici solo scarico..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-white focus:outline-none focus:border-purple-400 text-xs">
+            </div>
+          </div>
+
+          <!-- 5B: PALESTRA, ATTREZZATURA & LOGISTICA -->
+          <div class="space-y-3 pt-3 border-t border-slate-800/80">
+            <span class="block text-slate-200 font-bold text-xs uppercase tracking-wider text-purple-300">
+              5B. Palestra, Attrezzatura &amp; Logistica
+            </span>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label for="at-gym-access" class="block text-slate-200 font-semibold mb-1">Frequenti una palestra? *</label>
+                <select id="at-gym-access" name="gym_access" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-purple-400 text-xs">
+                  <option value="Palestra attrezzata completa">Sì — Palestra con sala pesi completa</option>
+                  <option value="Box CrossFit/HYROX">Box CrossFit / Centro HYROX</option>
+                  <option value="Home Gym">Home Gym (attrezzatura propria)</option>
+                  <option value="Solo corpo libero / outdoor">Solo corpo libero / Outdoor</option>
+                </select>
+              </div>
+              <div>
+                <label for="at-gym-notes" class="block text-slate-200 font-semibold mb-1">Note logistica palestra / carichi (Facoltativo)</label>
+                <input type="text" id="at-gym-notes" name="gym_notes" placeholder="es. Manubri max 24kg, pista slitta 15m, accesso piscina lun/mer..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-purple-400 text-xs">
+              </div>
+            </div>
+
+            <div>
+              <span class="block text-slate-200 font-semibold mb-2">Attrezzatura a disposizione (seleziona tutto ciò a cui hai accesso)</span>
+              <div id="at-equipment" role="group" aria-label="Attrezzatura disponibile" class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <label class="flex items-center space-x-2.5 p-2.5 bg-slate-900/60 rounded-xl border border-slate-800 cursor-pointer hover:border-slate-700">
+                  <input type="checkbox" name="equipment" value="Slitta Sled Push/Pull" class="w-4 h-4 text-brand-yellow rounded focus:ring-0">
+                  <span class="text-slate-200">Slitta Sled Push/Pull</span>
+                </label>
+                <label class="flex items-center space-x-2.5 p-2.5 bg-slate-900/60 rounded-xl border border-slate-800 cursor-pointer hover:border-slate-700">
+                  <input type="checkbox" name="equipment" value="Tapis Roulant inclinabile" class="w-4 h-4 text-brand-yellow rounded focus:ring-0">
+                  <span class="text-slate-200">Tapis Roulant inclinabile</span>
+                </label>
+                <label class="flex items-center space-x-2.5 p-2.5 bg-slate-900/60 rounded-xl border border-slate-800 cursor-pointer hover:border-slate-700">
+                  <input type="checkbox" name="equipment" value="Rower" class="w-4 h-4 text-brand-yellow rounded focus:ring-0">
+                  <span class="text-slate-200">Ergometro Row (Rower)</span>
+                </label>
+                <label class="flex items-center space-x-2.5 p-2.5 bg-slate-900/60 rounded-xl border border-slate-800 cursor-pointer hover:border-slate-700">
+                  <input type="checkbox" name="equipment" value="SkiErg" class="w-4 h-4 text-brand-yellow rounded focus:ring-0">
+                  <span class="text-slate-200">Ergometro Ski (SkiErg)</span>
+                </label>
+                <label class="flex items-center space-x-2.5 p-2.5 bg-slate-900/60 rounded-xl border border-slate-800 cursor-pointer hover:border-slate-700">
+                  <input type="checkbox" name="equipment" value="Echo Bike / BikeErg" class="w-4 h-4 text-brand-yellow rounded focus:ring-0">
+                  <span class="text-slate-200">Ergometro Bike (Echo Bike / BikeErg)</span>
+                </label>
+                <label class="flex items-center space-x-2.5 p-2.5 bg-slate-900/60 rounded-xl border border-slate-800 cursor-pointer hover:border-slate-700">
+                  <input type="checkbox" name="equipment" value="Wallballs &amp; Sandbags" class="w-4 h-4 text-brand-yellow rounded focus:ring-0">
+                  <span class="text-slate-200">Sandbag &amp; Wallballs</span>
+                </label>
+                <label class="flex items-center space-x-2.5 p-2.5 bg-slate-900/60 rounded-xl border border-slate-800 cursor-pointer hover:border-slate-700">
+                  <input type="checkbox" name="equipment" value="Manubri/Kettlebell pesanti" class="w-4 h-4 text-brand-yellow rounded focus:ring-0">
+                  <span class="text-slate-200">Manubri / Kettlebell</span>
+                </label>
+                <label class="flex items-center space-x-2.5 p-2.5 bg-slate-900/60 rounded-xl border border-slate-800 cursor-pointer hover:border-slate-700">
+                  <input type="checkbox" name="equipment" value="Sbarra trazioni" class="w-4 h-4 text-brand-yellow rounded focus:ring-0">
+                  <span class="text-slate-200">Sbarra trazioni</span>
+                </label>
+                <label class="flex items-center space-x-2.5 p-2.5 bg-slate-900/60 rounded-xl border border-slate-800 cursor-pointer hover:border-slate-700">
+                  <input type="checkbox" name="equipment" value="Percorsi collinari/trail" class="w-4 h-4 text-brand-yellow rounded focus:ring-0">
+                  <span class="text-slate-200">Accesso a salite / colline outdoor</span>
+                </label>
+                <label class="flex items-center space-x-2.5 p-2.5 bg-slate-900/60 rounded-xl border border-slate-800 cursor-pointer hover:border-slate-700">
+                  <input type="checkbox" name="equipment" value="Piscina (25m/50m)" class="w-4 h-4 text-brand-yellow rounded focus:ring-0">
+                  <span class="text-slate-200">Accesso piscina (25m / 50m)</span>
+                </label>
+                <label class="flex items-center space-x-2.5 p-2.5 bg-slate-900/60 rounded-xl border border-slate-800 cursor-pointer hover:border-slate-700">
+                  <input type="checkbox" name="equipment" value="Rulli/Cyclette" class="w-4 h-4 text-brand-yellow rounded focus:ring-0">
+                  <span class="text-slate-200">Rulli / Cyclette indoor</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- 5C: GARE IN PROGRAMMA (DINAMICO) -->
+          <div class="space-y-3 pt-3 border-t border-slate-800/80">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div>
+                <span class="block text-slate-200 font-bold text-xs uppercase tracking-wider text-brand-yellow">
+                  5C. Gare in Programma
+                </span>
+                <p class="text-[11px] text-slate-400">Inserisci una o più gare già iscritte o nel mirino (verranno caricate nel tuo tab Gare).</p>
+              </div>
+              <button type="button" onclick="addRaceRow()" aria-label="Aggiungi gara in programma" class="self-start sm:self-auto inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand-yellow/15 hover:bg-brand-yellow/25 text-brand-yellow border border-brand-yellow/30 font-bold text-xs transition">
+                <i class="fa-solid fa-plus" aria-hidden="true"></i> Aggiungi Gara
+              </button>
+            </div>
+            <div id="races-list" class="space-y-3" aria-label="Elenco gare in programma"></div>
+          </div>
+
+          <!-- 5D: FERIE & PERIODI DI STOP (DINAMICO) -->
+          <div class="space-y-3 pt-3 border-t border-slate-800/80">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div>
+                <span class="block text-slate-200 font-bold text-xs uppercase tracking-wider text-cyan-300">
+                  5D. Ferie &amp; Periodi di Stop / Indisponibilità
+                </span>
+                <p class="text-[11px] text-slate-400">Segnala vacanze, trasferte o periodi con disponibilità ridotta per pianificare scarico o riposo.</p>
+              </div>
+              <button type="button" onclick="addVacationRow()" aria-label="Aggiungi periodo ferie" class="self-start sm:self-auto inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 border border-cyan-500/30 font-bold text-xs transition">
+                <i class="fa-solid fa-plus" aria-hidden="true"></i> Aggiungi Periodo Ferie
+              </button>
+            </div>
+            <div id="vacations-list" class="space-y-3" aria-label="Elenco periodi di ferie"></div>
+          </div>
+
+          <!-- 5E: INFORTUNI & LIMITAZIONI ARTICOLARI -->
+          <div class="space-y-2.5 pt-3 border-t border-slate-800/80">
+            <div>
+              <span class="block text-slate-200 font-bold text-xs uppercase tracking-wider text-rose-300">
+                5E. Infortuni &amp; Limitazioni Articolari
+              </span>
+              <p class="text-[11px] text-slate-400">Seleziona eventuali zone delicate e indica movimenti o carichi da evitare.</p>
+            </div>
+            <div id="at-injury-zones" role="group" aria-label="Zone articolari delicate o infortuni" class="flex flex-wrap gap-2">
+              <label class="inline-flex items-center gap-2 px-3 py-1.5 bg-slate-900/70 rounded-lg border border-slate-800 cursor-pointer hover:border-rose-500/40 has-[:checked]:border-rose-400 has-[:checked]:bg-rose-500/10">
+                <input type="checkbox" name="injury_zones" value="Ginocchia" class="w-3.5 h-3.5 text-rose-400 rounded focus:ring-0">
+                <span class="text-slate-200">Ginocchia</span>
+              </label>
+              <label class="inline-flex items-center gap-2 px-3 py-1.5 bg-slate-900/70 rounded-lg border border-slate-800 cursor-pointer hover:border-rose-500/40 has-[:checked]:border-rose-400 has-[:checked]:bg-rose-500/10">
+                <input type="checkbox" name="injury_zones" value="Tendini / Achilleo" class="w-3.5 h-3.5 text-rose-400 rounded focus:ring-0">
+                <span class="text-slate-200">Tendini / Achilleo</span>
+              </label>
+              <label class="inline-flex items-center gap-2 px-3 py-1.5 bg-slate-900/70 rounded-lg border border-slate-800 cursor-pointer hover:border-rose-500/40 has-[:checked]:border-rose-400 has-[:checked]:bg-rose-500/10">
+                <input type="checkbox" name="injury_zones" value="Schiena / Lombare" class="w-3.5 h-3.5 text-rose-400 rounded focus:ring-0">
+                <span class="text-slate-200">Schiena / Lombare</span>
+              </label>
+              <label class="inline-flex items-center gap-2 px-3 py-1.5 bg-slate-900/70 rounded-lg border border-slate-800 cursor-pointer hover:border-rose-500/40 has-[:checked]:border-rose-400 has-[:checked]:bg-rose-500/10">
+                <input type="checkbox" name="injury_zones" value="Spalle" class="w-3.5 h-3.5 text-rose-400 rounded focus:ring-0">
+                <span class="text-slate-200">Spalle</span>
+              </label>
+              <label class="inline-flex items-center gap-2 px-3 py-1.5 bg-slate-900/70 rounded-lg border border-slate-800 cursor-pointer hover:border-rose-500/40 has-[:checked]:border-rose-400 has-[:checked]:bg-rose-500/10">
+                <input type="checkbox" name="injury_zones" value="Caviglie" class="w-3.5 h-3.5 text-rose-400 rounded focus:ring-0">
+                <span class="text-slate-200">Caviglie</span>
+              </label>
+              <label class="inline-flex items-center gap-2 px-3 py-1.5 bg-slate-900/70 rounded-lg border border-slate-800 cursor-pointer hover:border-rose-500/40 has-[:checked]:border-rose-400 has-[:checked]:bg-rose-500/10">
+                <input type="checkbox" name="injury_zones" value="Anche / Bacino" class="w-3.5 h-3.5 text-rose-400 rounded focus:ring-0">
+                <span class="text-slate-200">Anche / Bacino</span>
+              </label>
+            </div>
+            <div>
+              <label for="at-injuries" class="block text-slate-200 font-semibold mb-1">Dettaglio Infortuni Pregressi &amp; Movimenti da Evitare (Facoltativo)</label>
+              <textarea id="at-injuries" name="injuries" rows="2" placeholder="es. Fastidio al ginocchio destro in discesa, evitare affondi profondi o box jump..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-white focus:outline-none focus:border-purple-400 text-xs resize-none"></textarea>
             </div>
           </div>
         </fieldset>
@@ -318,10 +507,214 @@
   <script>
     const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxPti1imOEgoYrJimCthCMkCyqwmTFwbIMOZoclu9ayNaC5WdkVjMfUlU3naunw_vJNuw/exec";
 
+    /**
+     * Aggiorna i titoli numerati delle righe gare dopo aggiunta o rimozione.
+     */
+    function renumberRaceRows() {
+      const rows = document.querySelectorAll('#races-list .race-row');
+      rows.forEach(function (row, idx) {
+        const titleEl = row.querySelector('.race-row-title');
+        if (titleEl) {
+          titleEl.textContent = 'Gara #' + (idx + 1);
+        }
+      });
+    }
+
+    /**
+     * Aggiunge dinamicamente una card gara nel contenitore #races-list.
+     */
+    function addRaceRow() {
+      const list = document.getElementById('races-list');
+      if (!list) return;
+      const idx = list.querySelectorAll('.race-row').length + 1;
+      const card = document.createElement('div');
+      card.className = 'race-row p-3.5 bg-slate-900/70 rounded-xl border border-slate-800 space-y-3';
+      card.innerHTML = [
+        '<div class="flex items-center justify-between border-b border-slate-800/80 pb-2">',
+        '<span class="race-row-title font-bold text-brand-yellow text-xs">Gara #' + idx + '</span>',
+        '<button type="button" onclick="removeRaceRow(this)" aria-label="Rimuovi gara" class="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 text-[11px] font-semibold transition">',
+        '<i class="fa-solid fa-trash-can" aria-hidden="true"></i> Rimuovi',
+        '</button>',
+        '</div>',
+        '<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">',
+        '<div>',
+        '<label class="block text-slate-300 font-semibold mb-1">Nome Gara &amp; Localit&agrave;</label>',
+        '<input type="text" class="race-name w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-brand-yellow text-xs" placeholder="es. HYROX Milano, Spartan Orte, Trail 42K">',
+        '</div>',
+        '<div>',
+        '<label class="block text-slate-300 font-semibold mb-1">Tipologia Gara</label>',
+        '<select class="race-discipline w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-brand-yellow text-xs">',
+        '<option value="HYROX">HYROX</option>',
+        '<option value="Spartan">Spartan</option>',
+        '<option value="Trail">Trail Running</option>',
+        '<option value="Corsa su strada">Corsa su strada</option>',
+        '<option value="Triathlon/Nuoto">Triathlon / Nuoto</option>',
+        '<option value="Altro">Altro</option>',
+        '</select>',
+        '</div>',
+        '</div>',
+        '<div class="grid grid-cols-1 sm:grid-cols-4 gap-3">',
+        '<div>',
+        '<label class="block text-slate-300 font-semibold mb-1">Data Gara</label>',
+        '<input type="date" class="race-date w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-brand-yellow text-xs">',
+        '</div>',
+        '<div>',
+        '<label class="block text-slate-300 font-semibold mb-1">Distanza (km)</label>',
+        '<input type="number" step="0.1" min="0" class="race-distance w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-brand-yellow text-xs" placeholder="es. 21.1 o 8.0">',
+        '</div>',
+        '<div>',
+        '<label class="block text-slate-300 font-semibold mb-1">Dislivello D+ (m)</label>',
+        '<input type="number" step="10" min="0" class="race-elevation w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-brand-yellow text-xs" placeholder="es. 1200">',
+        '</div>',
+        '<div>',
+        '<label class="block text-slate-300 font-semibold mb-1">Priorit&agrave;</label>',
+        '<select class="race-priority w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-brand-yellow text-xs">',
+        '<option value="A - Gara Obiettivo">Gara Obiettivo (A)</option>',
+        '<option value="B - Gara di Passaggio">Gara di Passaggio (B)</option>',
+        '<option value="C - Allenamento">Allenamento (C)</option>',
+        '</select>',
+        '</div>',
+        '</div>',
+        '<div>',
+        '<label class="block text-slate-300 font-semibold mb-1">Note Gara (Facoltativo)</label>',
+        '<input type="text" class="race-notes w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-brand-yellow text-xs" placeholder="es. Categoria Open Men, obiettivo sub 1h20...">',
+        '</div>'
+      ].join('');
+      list.appendChild(card);
+      renumberRaceRows();
+    }
+
+    /**
+     * Rimuove la riga gara associata al pulsante cliccato e rinumera.
+     */
+    function removeRaceRow(btn) {
+      const row = btn.closest('.race-row');
+      if (row) {
+        row.remove();
+        renumberRaceRows();
+      }
+    }
+
+    /**
+     * Aggiorna i titoli numerati dei periodi ferie dopo aggiunta o rimozione.
+     */
+    function renumberVacationRows() {
+      const rows = document.querySelectorAll('#vacations-list .vacation-row');
+      rows.forEach(function (row, idx) {
+        const titleEl = row.querySelector('.vacation-row-title');
+        if (titleEl) {
+          titleEl.textContent = 'Periodo #' + (idx + 1);
+        }
+      });
+    }
+
+    /**
+     * Aggiunge dinamicamente una card periodo ferie/indisponibilità in #vacations-list.
+     */
+    function addVacationRow() {
+      const list = document.getElementById('vacations-list');
+      if (!list) return;
+      const idx = list.querySelectorAll('.vacation-row').length + 1;
+      const card = document.createElement('div');
+      card.className = 'vacation-row p-3.5 bg-slate-900/70 rounded-xl border border-slate-800 space-y-3';
+      card.innerHTML = [
+        '<div class="flex items-center justify-between border-b border-slate-800/80 pb-2">',
+        '<span class="vacation-row-title font-bold text-cyan-300 text-xs">Periodo #' + idx + '</span>',
+        '<button type="button" onclick="removeVacationRow(this)" aria-label="Rimuovi periodo ferie" class="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 text-[11px] font-semibold transition">',
+        '<i class="fa-solid fa-trash-can" aria-hidden="true"></i> Rimuovi',
+        '</button>',
+        '</div>',
+        '<div class="grid grid-cols-1 sm:grid-cols-3 gap-3">',
+        '<div>',
+        '<label class="block text-slate-300 font-semibold mb-1">Dal (Data Inizio)</label>',
+        '<input type="date" class="vacation-start w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-cyan-400 text-xs">',
+        '</div>',
+        '<div>',
+        '<label class="block text-slate-300 font-semibold mb-1">Al (Data Fine)</label>',
+        '<input type="date" class="vacation-end w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-cyan-400 text-xs">',
+        '</div>',
+        '<div>',
+        '<label class="block text-slate-300 font-semibold mb-1">Modalit&agrave;</label>',
+        '<select class="vacation-mode w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-cyan-400 text-xs">',
+        '<option value="Riposo Totale">Riposo Totale</option>',
+        '<option value="Scarico Attivo con corsa leggera">Scarico Attivo con corsa leggera</option>',
+        '<option value="Viaggio">Viaggio</option>',
+        '</select>',
+        '</div>',
+        '</div>',
+        '<div>',
+        '<label class="block text-slate-300 font-semibold mb-1">Note (Facoltativo)</label>',
+        '<input type="text" class="vacation-notes w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-cyan-400 text-xs" placeholder="es. Ferie mare — solo corsa/nuoto, Trasferta lavoro...">',
+        '</div>'
+      ].join('');
+      list.appendChild(card);
+      renumberVacationRows();
+    }
+
+    /**
+     * Rimuove la riga ferie associata al pulsante cliccato e rinumera.
+     */
+    function removeVacationRow(btn) {
+      const row = btn.closest('.vacation-row');
+      if (row) {
+        row.remove();
+        renumberVacationRows();
+      }
+    }
+
+    /**
+     * Precompila Telegram ID e Nome atleta dai parametri URL (?chat_id=...&name=...)
+     * mostrando il banner informativo senza bloccare la modifica dei campi.
+     */
+    function prefillFromQueryParams() {
+      const params = new URLSearchParams(window.location.search);
+      const chatId = (params.get('chat_id') || params.get('chatId') || '').trim();
+      const athleteName = (params.get('name') || '').trim();
+
+      const inputChat = document.getElementById('at-chat');
+      const inputName = document.getElementById('at-name');
+      const banner = document.getElementById('prefill-banner');
+      const labelEl = document.getElementById('prefill-athlete-label');
+      const chatBadge = document.getElementById('prefill-chat-badge');
+
+      if (chatId && inputChat) {
+        inputChat.value = chatId;
+        inputChat.classList.add('border-emerald-500/60');
+        if (chatBadge) {
+          chatBadge.classList.remove('hidden');
+        }
+      }
+
+      if (athleteName && inputName) {
+        inputName.value = athleteName;
+        inputName.classList.add('border-emerald-500/60');
+      }
+
+      if ((chatId || athleteName) && banner) {
+        if (labelEl) {
+          labelEl.textContent = athleteName ? ('per ' + athleteName) : ('per ID Telegram ' + chatId);
+        }
+        banner.classList.remove('hidden');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      prefillFromQueryParams();
+      if (document.querySelectorAll('#races-list .race-row').length === 0) {
+        addRaceRow();
+      }
+      if (document.querySelectorAll('#vacations-list .vacation-row').length === 0) {
+        addVacationRow();
+      }
+    });
+
+    /**
+     * Valida i campi obbligatori e le date ferie, costruisce il payload esteso
+     * per action="submit_onboarding" e invia i dati al webhook GAS.
+     */
     async function submitAthleteForm(e) {
       e.preventDefault();
 
-      // Reset errori
       const errName = document.getElementById('err-at-name');
       const errCity = document.getElementById('err-at-city');
       const errChat = document.getElementById('err-at-chat');
@@ -335,6 +728,11 @@
       inputName.removeAttribute('aria-invalid');
       inputCity.removeAttribute('aria-invalid');
       inputChat.removeAttribute('aria-invalid');
+
+      document.querySelectorAll('#vacations-list .vacation-end').forEach(function (el) {
+        el.removeAttribute('aria-invalid');
+        el.classList.remove('border-red-500');
+      });
 
       let firstInvalid = null;
 
@@ -366,6 +764,26 @@
         return;
       }
 
+      // Validazione date ferie (Al >= Dal)
+      const vacationRows = Array.from(document.querySelectorAll('#vacations-list .vacation-row'));
+      for (let i = 0; i < vacationRows.length; i++) {
+        const startEl = vacationRows[i].querySelector('.vacation-start');
+        const endEl = vacationRows[i].querySelector('.vacation-end');
+        const startVal = startEl ? startEl.value.trim() : '';
+        const endVal = endEl ? endEl.value.trim() : '';
+        if (startVal && endVal && endVal < startVal) {
+          endEl.setAttribute('aria-invalid', 'true');
+          endEl.classList.add('border-red-500');
+          endEl.focus();
+          UIFeedback.toast({
+            title: "Date ferie non valide",
+            message: "La data di fine ('Al') deve essere successiva o uguale alla data di inizio ('Dal').",
+            type: 'warning'
+          });
+          return;
+        }
+      }
+
       const btn = e.target.querySelector('button[type="submit"]');
       const originalText = btn.innerHTML;
       btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin" aria-hidden="true"></i> Invio in corso al Coach...';
@@ -383,9 +801,68 @@
       const focus = document.getElementById('at-focus').value;
       const daysPerWeek = parseInt(document.getElementById('at-days').value, 10) || 4;
       const fitnessLevel = document.getElementById('at-fitness-level').value;
-      const equipment = Array.from(document.querySelectorAll('#at-equipment input[type="checkbox"]:checked')).map(cb => cb.value);
-      const injuries = document.getElementById('at-injuries').value.trim();
       const nutrition = document.getElementById('at-nutrition').value;
+
+      const disciplines = Array.from(document.querySelectorAll('#at-disciplines input[type="checkbox"]:checked')).map(function (cb) {
+        return cb.value;
+      });
+      const disciplineNotesEl = document.getElementById('at-discipline-notes');
+      const disciplineNotes = disciplineNotesEl ? disciplineNotesEl.value.trim() : '';
+
+      const gymAccess = document.getElementById('at-gym-access').value;
+      const gymNotes = document.getElementById('at-gym-notes').value.trim();
+      const equipment = Array.from(document.querySelectorAll('#at-equipment input[type="checkbox"]:checked')).map(function (cb) {
+        return cb.value;
+      });
+
+      const races = Array.from(document.querySelectorAll('#races-list .race-row')).map(function (row) {
+        const raceName = (row.querySelector('.race-name').value || '').trim();
+        const raceDiscipline = row.querySelector('.race-discipline').value;
+        const raceDate = (row.querySelector('.race-date').value || '').trim();
+        const distRaw = row.querySelector('.race-distance').value;
+        const elevRaw = row.querySelector('.race-elevation').value;
+        const racePriority = row.querySelector('.race-priority').value;
+        const raceNotes = (row.querySelector('.race-notes').value || '').trim();
+
+        const hasData = Boolean(raceName || raceDate || distRaw || elevRaw || raceNotes);
+        if (!hasData) return null;
+
+        return {
+          name: raceName,
+          discipline: raceDiscipline,
+          date: raceDate,
+          distance_km: distRaw !== '' ? (parseFloat(distRaw) || 0) : null,
+          elevation_gain_m: elevRaw !== '' ? (parseInt(elevRaw, 10) || 0) : null,
+          priority: racePriority,
+          notes: raceNotes
+        };
+      }).filter(Boolean);
+
+      const vacations = vacationRows.map(function (row) {
+        const startDate = (row.querySelector('.vacation-start').value || '').trim();
+        const endDate = (row.querySelector('.vacation-end').value || '').trim();
+        const mode = row.querySelector('.vacation-mode').value;
+        const rawNotes = (row.querySelector('.vacation-notes').value || '').trim();
+
+        const hasData = Boolean(startDate || endDate || rawNotes);
+        if (!hasData) return null;
+
+        return {
+          start_date: startDate,
+          end_date: endDate,
+          mode: mode,
+          notes: rawNotes ? (mode + ' — ' + rawNotes) : mode,
+          raw_notes: rawNotes
+        };
+      }).filter(Boolean);
+
+      const injuryZones = Array.from(document.querySelectorAll('#at-injury-zones input[type="checkbox"]:checked')).map(function (cb) {
+        return cb.value;
+      });
+      const injuryText = document.getElementById('at-injuries').value.trim();
+      const injuries = (injuryZones.length > 0 && injuryText)
+        ? ('[' + injuryZones.join(', ') + '] ' + injuryText)
+        : (injuryText || injuryZones.join(', '));
 
       const payload = {
         action: "submit_onboarding",
@@ -401,8 +878,25 @@
         focus: focus,
         days_per_week: daysPerWeek,
         fitness_level: fitnessLevel,
+        disciplines: disciplines,
+        discipline_notes: disciplineNotes,
+        gym_access: gymAccess,
+        gym_notes: gymNotes,
         equipment: equipment,
+        gym_equipment: {
+          access: gymAccess,
+          equipment: equipment,
+          notes: gymNotes
+        },
+        races: races,
+        vacations: vacations,
+        injury_zones: injuryZones,
         injuries: injuries,
+        injury_notes: {
+          zones: injuryZones,
+          notes: injuryText,
+          summary: injuries
+        },
         nutrition: nutrition,
         submitted_at: new Date().toISOString()
       };
@@ -425,7 +919,6 @@
         duration: 5000
       });
 
-      // Mostra messaggio di successo
       document.getElementById('athlete-onboard-form').classList.add('hidden');
       const successBox = document.getElementById('success-box');
       successBox.classList.remove('hidden');
