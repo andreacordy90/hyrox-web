@@ -774,6 +774,57 @@
           const scale = String(item.scale || "N/D");
           const water = String(item.water || "2.5 L");
 
+          const rawFocus = item.focus || (item.questionnaire && item.questionnaire.focus) || "";
+          const focus = String(rawFocus).trim() || "Non specificato";
+
+          const rawDays = item.days_per_week != null && item.days_per_week !== ""
+            ? item.days_per_week
+            : (item.available_days != null && item.available_days !== ""
+              ? item.available_days
+              : (item.questionnaire && (item.questionnaire.days_per_week != null
+                ? item.questionnaire.days_per_week
+                : (item.questionnaire.schedule && item.questionnaire.schedule.days_per_week))));
+          const daysLabel = rawDays != null && String(rawDays).trim() !== ""
+            ? `${String(rawDays).trim()} gg/sett`
+            : "N/D";
+
+          const rawLevel = item.fitness_level || (item.questionnaire && item.questionnaire.fitness_level) || "";
+          const fitnessLevel = String(rawLevel).trim() || "Non specificato";
+
+          const rawNutrSource = item.nutrition || item.nutrition_notes || (item.questionnaire && (item.questionnaire.nutrition_notes || item.questionnaire.nutrition)) || "";
+          const rawNutrValue = rawNutrSource && typeof rawNutrSource === "object"
+            ? (rawNutrSource.diet_mode || "")
+            : rawNutrSource;
+          const nutrition = String(rawNutrValue).trim() || "Non specificato";
+
+          const rawInjuries = item.injuries || item.health_notes || (item.questionnaire && (item.questionnaire.injuries || item.questionnaire.health_notes)) || "";
+          const injuries = String(rawInjuries).trim();
+
+          const rawEquip = item.equipment != null ? item.equipment : (item.questionnaire && item.questionnaire.equipment);
+          let equipItems = [];
+          let equipKnown = false;
+          let hasSled = false;
+          if (Array.isArray(rawEquip)) {
+            equipKnown = true;
+            equipItems = rawEquip.map(v => String(v).trim()).filter(Boolean);
+            hasSled = equipItems.some(v => v.toLowerCase().includes("slitta") || v.toLowerCase().includes("sled"));
+          } else if (rawEquip && typeof rawEquip === "object") {
+            equipKnown = true;
+            hasSled = Boolean(rawEquip.has_sled);
+            if (hasSled) equipItems.push("Slitta Sled Push/Pull");
+            if (Array.isArray(rawEquip.ergometers)) {
+              rawEquip.ergometers.forEach(e => { if (String(e).trim()) equipItems.push(String(e).trim()); });
+            }
+            if (rawEquip.has_wallballs_sandbags) equipItems.push("Wallballs & Sandbags");
+            if (rawEquip.has_farmers_weights) equipItems.push("Manubri/Kettlebell pesanti");
+            if (rawEquip.has_incline_treadmill) equipItems.push("Tapis Roulant inclinabile");
+            if (rawEquip.has_trail_access) equipItems.push("Percorsi collinari/trail");
+          } else if (typeof rawEquip === "string" && rawEquip.trim()) {
+            equipKnown = true;
+            equipItems = rawEquip.split(",").map(s => s.trim()).filter(Boolean);
+            hasSled = equipItems.some(v => v.toLowerCase().includes("slitta") || v.toLowerCase().includes("sled"));
+          }
+
           const initials = name.split(" ").filter(Boolean).map(p => p[0]).slice(0, 2).join("").toUpperCase() || "AT";
           const slug = name.toLowerCase().replace(/\s+/g, "_");
           normalizedApplicantsById[reqIdStr] = { reqId: reqIdStr, name, slug, chatId: rawChatId };
@@ -789,6 +840,32 @@
           const safeSleep = escapeHtml(sleep);
           const safeScale = escapeHtml(scale);
           const safeWater = escapeHtml(water);
+          const safeFocus = escapeHtml(focus);
+          const safeDaysLabel = escapeHtml(daysLabel);
+          const safeFitnessLevel = escapeHtml(fitnessLevel);
+          const safeNutrition = escapeHtml(nutrition);
+          const safeInjuries = escapeHtml(injuries);
+
+          const sledBadgeHtml = equipKnown
+            ? (hasSled
+              ? '<span class="px-2 py-0.5 text-[11px] font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 rounded-lg">Slitta: SI</span>'
+              : '<span class="px-2 py-0.5 text-[11px] font-semibold bg-amber-500/15 text-amber-300 border border-amber-500/30 rounded-lg">Slitta: NO</span>')
+            : '<span class="px-2 py-0.5 text-[11px] font-semibold bg-slate-800 text-slate-400 border border-slate-700 rounded-lg">Attrezzatura: N/D</span>';
+
+          const equipBadgesHtml = equipItems.length > 0
+            ? equipItems.map(eq => `<span class="px-2 py-0.5 text-[11px] bg-slate-800 text-slate-200 border border-slate-700 rounded-lg">${escapeHtml(eq)}</span>`).join("")
+            : (equipKnown ? '<span class="text-xs text-slate-400">Nessuna attrezzatura selezionata</span>' : "");
+
+          const injuriesBlockHtml = injuries
+            ? `
+              <div class="bg-amber-500/10 p-3.5 rounded-xl border border-amber-500/20 text-xs space-y-1">
+                <span class="text-amber-300 font-semibold uppercase text-[10px] flex items-center gap-1.5">
+                  <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> Note Fisiche / Infortuni Pregressi
+                </span>
+                <p class="text-slate-200">${safeInjuries}</p>
+              </div>
+            `
+            : "";
 
           return `
             <div id="applicant-card-${safeReqId}" class="glass-card p-6 rounded-2xl border-l-4 border-l-brand-yellow space-y-5">
@@ -801,6 +878,9 @@
                     <div class="flex items-center gap-2 flex-wrap">
                       <h4 class="text-base font-bold text-white">${safeName}</h4>
                       <span class="px-2 py-0.5 text-[10px] font-semibold bg-amber-500/20 text-amber-300 rounded">DA VALIDARE</span>
+                      <span class="px-2 py-0.5 text-[10px] font-semibold bg-purple-500/20 text-purple-300 border border-purple-500/30 rounded">${safeFocus}</span>
+                      <span class="px-2 py-0.5 text-[10px] font-semibold bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 rounded">${safeDaysLabel}</span>
+                      <span class="px-2 py-0.5 text-[10px] font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 rounded">${safeFitnessLevel}</span>
                     </div>
                     <p class="text-xs text-slate-400 mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1">
                       <span>Inviata: <strong class="text-slate-200">${safeDate}</strong></span>
@@ -835,10 +915,20 @@
                   <strong class="text-cyan-400">${safeWater}</strong>
                 </div>
                 <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800">
-                  <span class="text-slate-400 block mb-1">STATUS</span>
-                  <strong class="text-amber-400">In Attesa di Approvazione</strong>
+                  <span class="text-slate-400 block mb-1">NUTRIZIONE</span>
+                  <strong class="text-slate-200">${safeNutrition}</strong>
                 </div>
               </div>
+
+              <div class="bg-slate-900/50 p-3.5 rounded-xl border border-slate-800/80 text-xs space-y-2">
+                <span class="text-slate-400 font-semibold uppercase text-[10px] block">Profilo Anamnestico &amp; Attrezzatura Disponibile:</span>
+                <div class="flex flex-wrap items-center gap-1.5">
+                  ${sledBadgeHtml}
+                  ${equipBadgesHtml}
+                </div>
+              </div>
+
+              ${injuriesBlockHtml}
 
               <div class="bg-slate-900/40 p-3.5 rounded-xl border border-slate-800/80 text-xs space-y-1">
                 <span class="text-slate-400 font-semibold uppercase text-[10px]">Obiettivo Sportivo Inserito:</span>

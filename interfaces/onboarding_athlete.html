@@ -176,10 +176,99 @@
           </div>
         </fieldset>
 
-        <!-- SEZIONE 5: NOTE & OBIETTIVI -->
+        <!-- SEZIONE 5: QUESTIONARIO ANAMNESTICO COMPLETO -->
+        <fieldset id="athletic-questionnaire-section" class="space-y-4 pt-3 border-t border-slate-800">
+          <legend class="text-sm font-bold text-purple-400 uppercase tracking-wider flex items-center gap-2">
+            <i class="fa-solid fa-clipboard-list" aria-hidden="true"></i> 5. Questionario Anamnestico Completo
+          </legend>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+              <label for="at-focus" class="block text-slate-200 font-semibold mb-1">Focus Obiettivo *</label>
+              <select id="at-focus" name="focus" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-purple-400 text-xs">
+                <option value="HYROX">HYROX</option>
+                <option value="UTMB / Trail Running">UTMB / Trail Running</option>
+                <option value="Ibrido HYROX + Trail" selected>Ibrido HYROX + Trail</option>
+                <option value="Fitness Generale &amp; Longevità">Fitness Generale &amp; Longevità</option>
+              </select>
+            </div>
+            <div>
+              <label for="at-days" class="block text-slate-200 font-semibold mb-1">Giorni a Settimana *</label>
+              <select id="at-days" name="days_per_week" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-purple-400 text-xs">
+                <option value="3">3 giorni / settimana</option>
+                <option value="4" selected>4 giorni / settimana</option>
+                <option value="5">5 giorni / settimana</option>
+                <option value="6">6 giorni / settimana</option>
+              </select>
+            </div>
+            <div>
+              <label for="at-fitness-level" class="block text-slate-200 font-semibold mb-1">Livello Atletico Attuale *</label>
+              <select id="at-fitness-level" name="fitness_level" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-purple-400 text-xs">
+                <option value="Principiante">Principiante</option>
+                <option value="Intermedio" selected>Intermedio</option>
+                <option value="Avanzato / Agonista">Avanzato / Agonista</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <span class="block text-slate-200 font-semibold mb-2">Attrezzatura Disponibile (seleziona tutto ciò a cui hai accesso)</span>
+            <div id="at-equipment" role="group" aria-label="Attrezzatura disponibile" class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <label class="flex items-center space-x-2.5 p-2.5 bg-slate-900/60 rounded-xl border border-slate-800 cursor-pointer hover:border-slate-700">
+                <input type="checkbox" name="equipment" value="Slitta Sled Push/Pull" class="w-4 h-4 text-brand-yellow rounded focus:ring-0">
+                <span class="text-slate-200">Slitta Sled Push/Pull</span>
+              </label>
+              <label class="flex items-center space-x-2.5 p-2.5 bg-slate-900/60 rounded-xl border border-slate-800 cursor-pointer hover:border-slate-700">
+                <input type="checkbox" name="equipment" value="Rower" class="w-4 h-4 text-brand-yellow rounded focus:ring-0">
+                <span class="text-slate-200">Rower</span>
+              </label>
+              <label class="flex items-center space-x-2.5 p-2.5 bg-slate-900/60 rounded-xl border border-slate-800 cursor-pointer hover:border-slate-700">
+                <input type="checkbox" name="equipment" value="SkiErg" class="w-4 h-4 text-brand-yellow rounded focus:ring-0">
+                <span class="text-slate-200">SkiErg</span>
+              </label>
+              <label class="flex items-center space-x-2.5 p-2.5 bg-slate-900/60 rounded-xl border border-slate-800 cursor-pointer hover:border-slate-700">
+                <input type="checkbox" name="equipment" value="Echo Bike" class="w-4 h-4 text-brand-yellow rounded focus:ring-0">
+                <span class="text-slate-200">Echo Bike</span>
+              </label>
+              <label class="flex items-center space-x-2.5 p-2.5 bg-slate-900/60 rounded-xl border border-slate-800 cursor-pointer hover:border-slate-700">
+                <input type="checkbox" name="equipment" value="Wallballs &amp; Sandbags" class="w-4 h-4 text-brand-yellow rounded focus:ring-0">
+                <span class="text-slate-200">Wallballs &amp; Sandbags</span>
+              </label>
+              <label class="flex items-center space-x-2.5 p-2.5 bg-slate-900/60 rounded-xl border border-slate-800 cursor-pointer hover:border-slate-700">
+                <input type="checkbox" name="equipment" value="Manubri/Kettlebell pesanti" class="w-4 h-4 text-brand-yellow rounded focus:ring-0">
+                <span class="text-slate-200">Manubri/Kettlebell pesanti</span>
+              </label>
+              <label class="flex items-center space-x-2.5 p-2.5 bg-slate-900/60 rounded-xl border border-slate-800 cursor-pointer hover:border-slate-700">
+                <input type="checkbox" name="equipment" value="Tapis Roulant inclinabile" class="w-4 h-4 text-brand-yellow rounded focus:ring-0">
+                <span class="text-slate-200">Tapis Roulant inclinabile</span>
+              </label>
+              <label class="flex items-center space-x-2.5 p-2.5 bg-slate-900/60 rounded-xl border border-slate-800 cursor-pointer hover:border-slate-700">
+                <input type="checkbox" name="equipment" value="Percorsi collinari/trail" class="w-4 h-4 text-brand-yellow rounded focus:ring-0">
+                <span class="text-slate-200">Percorsi collinari/trail</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label for="at-nutrition" class="block text-slate-200 font-semibold mb-1">Supporto Nutrizionale</label>
+              <select id="at-nutrition" name="nutrition" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-purple-400 text-xs">
+                <option value="Richiedo piano nutrizionale e integrazione">Richiedo piano nutrizionale e integrazione</option>
+                <option value="Gestione autonoma con monitoraggio" selected>Gestione autonoma con monitoraggio</option>
+                <option value="Nessun supporto richiesto">Nessun supporto richiesto</option>
+              </select>
+            </div>
+            <div>
+              <label for="at-injuries" class="block text-slate-200 font-semibold mb-1">Infortuni Pregressi o Fastidi Articolari (Facoltativo)</label>
+              <textarea id="at-injuries" name="injuries" rows="2" placeholder="es. Fastidio al ginocchio, pregressa distorsione caviglia, nessuna limitazione..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-white focus:outline-none focus:border-purple-400 text-xs resize-none"></textarea>
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- SEZIONE 6: NOTE & OBIETTIVI -->
         <fieldset class="space-y-3 pt-3 border-t border-slate-800">
           <legend class="text-sm font-bold text-slate-200 uppercase tracking-wider flex items-center gap-2">
-            <i class="fa-solid fa-bullseye" aria-hidden="true"></i> 5. Obiettivi & Note per Coach Andrea
+            <i class="fa-solid fa-bullseye" aria-hidden="true"></i> 6. Obiettivi & Note per Coach Andrea
           </legend>
           <div>
             <label for="at-goals" class="block text-slate-200 font-semibold mb-1">Qual è la tua gara obiettivo principale?</label>
@@ -291,6 +380,12 @@
       const time = document.getElementById('at-time').value;
       const email = document.getElementById('at-garmin-email').value.trim();
       const goals = document.getElementById('at-goals').value.trim();
+      const focus = document.getElementById('at-focus').value;
+      const daysPerWeek = parseInt(document.getElementById('at-days').value, 10) || 4;
+      const fitnessLevel = document.getElementById('at-fitness-level').value;
+      const equipment = Array.from(document.querySelectorAll('#at-equipment input[type="checkbox"]:checked')).map(cb => cb.value);
+      const injuries = document.getElementById('at-injuries').value.trim();
+      const nutrition = document.getElementById('at-nutrition').value;
 
       const payload = {
         action: "submit_onboarding",
@@ -303,6 +398,12 @@
         habitual_time: time,
         garmin_email: email,
         goals: goals,
+        focus: focus,
+        days_per_week: daysPerWeek,
+        fitness_level: fitnessLevel,
+        equipment: equipment,
+        injuries: injuries,
+        nutrition: nutrition,
         submitted_at: new Date().toISOString()
       };
 
