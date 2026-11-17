@@ -650,6 +650,46 @@
     }
 
     // --- SEZIONE 1: ROSTER ATLETI REALI ---
+    function renderDisciplineBadges(disciplines) {
+      if (!Array.isArray(disciplines) || disciplines.length === 0) return "";
+      const map = {
+        "HYROX": { icon: "fa-dumbbell", cls: "bg-amber-500/15 text-amber-300 border-amber-500/30" },
+        "Spartan": { icon: "fa-shield-halved", cls: "bg-red-500/15 text-red-300 border-red-500/30" },
+        "Trail": { icon: "fa-mountain", cls: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30" },
+        "Corsa su strada": { icon: "fa-person-running", cls: "bg-cyan-500/15 text-cyan-300 border-cyan-500/30" },
+        "Cyclette": { icon: "fa-bicycle", cls: "bg-blue-500/15 text-blue-300 border-blue-500/30" },
+        "Nuoto": { icon: "fa-person-swimming", cls: "bg-sky-500/15 text-sky-300 border-sky-500/30" },
+        "Palestra": { icon: "fa-weight-hanging", cls: "bg-purple-500/15 text-purple-300 border-purple-500/30" }
+      };
+      const badgesHtml = disciplines.map(d => {
+        const rawName = String(d == null ? "" : d).trim();
+        if (!rawName) return "";
+        const cfg = map[rawName] || { icon: "fa-trophy", cls: "bg-slate-700/40 text-slate-300 border-slate-600/40" };
+        const safeName = escapeHtml(rawName);
+        return `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium border ${cfg.cls}"><i class="fa-solid ${cfg.icon} text-[10px]" aria-hidden="true"></i>${safeName}</span>`;
+      }).filter(Boolean).join("");
+      return badgesHtml ? `<div class="flex flex-wrap gap-1.5 mt-2.5">${badgesHtml}</div>` : "";
+    }
+
+    function buildAthleteQuestionnaireUrl(chatId, name) {
+      let baseUrl = "https://andreacordy90.github.io/hyrox-web/interfaces/onboarding_athlete.html";
+      if (window.location && window.location.protocol && window.location.protocol.startsWith("http")) {
+        if (typeof URL === "function" && window.location.href) {
+          baseUrl = new URL("onboarding_athlete.html", window.location.href).href.split("?")[0];
+        } else if (window.location.href) {
+          baseUrl = window.location.href.split("?")[0].replace(/[^/]*$/, "onboarding_athlete.html");
+        } else {
+          baseUrl = "onboarding_athlete.html";
+        }
+      }
+      const cleanChatId = String(chatId || "").trim();
+      const cleanName = String(name || "").trim();
+      const params = [];
+      if (cleanChatId) params.push(`chat_id=${encodeURIComponent(cleanChatId)}`);
+      if (cleanName) params.push(`name=${encodeURIComponent(cleanName)}`);
+      return params.length ? `${baseUrl}?${params.join("&")}` : baseUrl;
+    }
+
     function renderAthletes(athletes) {
       const grid = document.getElementById("athletes-grid");
       const emptyState = document.getElementById("athletes-empty-state");
@@ -672,6 +712,43 @@
           const attivitaLink = ath.attivita_sheet_url
             ? escapeHtml(ath.attivita_sheet_url)
             : (ath.attivita_sheet_id ? `https://docs.google.com/spreadsheets/d/${escapeHtml(ath.attivita_sheet_id)}/edit` : "");
+          const questionnaireUrl = buildAthleteQuestionnaireUrl(ath.chat_id || "", ath.name || "");
+          const disciplinesHtml = renderDisciplineBadges(ath.disciplines);
+
+          let nextRaceHtml = "";
+          if (ath.next_race && ath.next_race.name) {
+            const raceName = escapeHtml(ath.next_race.name);
+            const raceDate = ath.next_race.date ? escapeHtml(ath.next_race.date) : "";
+            const hasDist = ath.next_race.distance_km !== null && ath.next_race.distance_km !== undefined && String(ath.next_race.distance_km).trim() !== "";
+            const raceDist = hasDist ? `${escapeHtml(String(ath.next_race.distance_km))} km` : "";
+            const hasDPlus = ath.next_race.elevation_gain_m !== null && ath.next_race.elevation_gain_m !== undefined && Number(ath.next_race.elevation_gain_m) > 0;
+            const raceDPlus = hasDPlus ? `${escapeHtml(String(ath.next_race.elevation_gain_m))}m D+` : "";
+            const details = [raceDate, raceDist, raceDPlus].filter(Boolean).join(" • ");
+            nextRaceHtml = `
+              <div class="mt-3 p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-300 flex items-start gap-2">
+                <i class="fa-solid fa-flag-checkered mt-0.5 text-emerald-400" aria-hidden="true"></i>
+                <div>
+                  <span class="font-semibold text-emerald-200">Prossima Gara: ${raceName}</span>
+                  ${details ? `<div class="text-[11px] text-emerald-300/90 mt-0.5">${details}</div>` : ""}
+                </div>
+              </div>`;
+          }
+
+          let vacationHtml = "";
+          if (ath.upcoming_vacation && ath.upcoming_vacation.start_date) {
+            const vStart = escapeHtml(ath.upcoming_vacation.start_date);
+            const vEnd = ath.upcoming_vacation.end_date ? escapeHtml(ath.upcoming_vacation.end_date) : "";
+            const vNotes = ath.upcoming_vacation.notes ? escapeHtml(ath.upcoming_vacation.notes) : "";
+            const period = vEnd ? `Dal ${vStart} al ${vEnd}` : `Dal ${vStart}`;
+            vacationHtml = `
+              <div class="mt-2.5 p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-xs text-amber-300 flex items-start gap-2">
+                <i class="fa-solid fa-umbrella-beach mt-0.5 text-amber-400" aria-hidden="true"></i>
+                <div>
+                  <span class="font-semibold text-amber-200">Ferie: ${period}</span>
+                  ${vNotes ? `<div class="text-[11px] text-amber-300/90 mt-0.5">${vNotes}</div>` : ""}
+                </div>
+              </div>`;
+          }
 
           return `
             <div class="glass-card rounded-2xl p-6 border-l-4 border-l-cyan-400 hover:border-slate-700 transition">
@@ -686,11 +763,14 @@
                       <span class="px-2 py-0.5 text-xs font-semibold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 rounded-md">CLIENTE</span>
                       <span class="px-2 py-0.5 text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-md">ATTIVO</span>
                     </div>
-                    <p class="text-xs text-slate-400 mt-1 flex items-center gap-3">
+                    <p class="text-xs text-slate-400 mt-1 flex items-center gap-3 flex-wrap">
                       <span><i class="fa-solid fa-location-dot text-slate-500"></i> ${safeCity}</span>
                       <span><i class="fa-brands fa-telegram text-sky-400"></i> Chat ID: <code>${safeChatId}</code></span>
                       <span><i class="fa-solid fa-bullseye text-orange-400"></i> ${safeGoals}</span>
                     </p>
+                    ${disciplinesHtml}
+                    ${nextRaceHtml}
+                    ${vacationHtml}
                   </div>
                 </div>
 
@@ -698,7 +778,7 @@
                   <button onclick="syncGarminAthlete('${escapeHtml(ath.garmin_email || ath.name)}', this)" class="px-3 py-2 text-xs font-medium bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 rounded-lg flex items-center gap-1.5 transition" title="Aggiorna calendario Garmin (0 token)">
                     <i class="fa-solid fa-arrows-rotate"></i> Aggiorna Garmin
                   </button>
-                  <button onclick="sendQuestionnaireToAthlete('${escapeHtml(ath.name)}', '${escapeHtml(ath.chat_id || '')}', this)" class="btn-sm btn-outline btn-secondary px-3 py-2 text-xs font-medium bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-lg flex items-center gap-1.5 transition" style="margin-left: 6px;" title="Invia link questionario Telegram all'atleta">
+                  <button onclick="sendQuestionnaireToAthlete('${escapeHtml(ath.name)}', '${escapeHtml(ath.chat_id || '')}', this)" data-questionnaire-url="${escapeHtml(questionnaireUrl)}" class="btn-sm btn-outline btn-secondary px-3 py-2 text-xs font-medium bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-lg flex items-center gap-1.5 transition" style="margin-left: 6px;" title="Invia link questionario Telegram all'atleta">
                     <i class="fa-solid fa-clipboard-question"></i> Invia Questionario
                   </button>
                   <a href="${sheetLink}" target="_blank" class="px-3 py-2 text-xs font-medium bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-200 flex items-center gap-1.5 transition">
@@ -1400,9 +1480,10 @@
         }
 
         if (window.UIFeedback) {
+          const prefilledUrl = buildAthleteQuestionnaireUrl(cleanChatId, safeName);
           UIFeedback.toast({
             title: "Questionario Inviato",
-            message: "Notifica Telegram inviata a " + escapeHtml(safeName),
+            message: `Notifica Telegram inviata a ${escapeHtml(safeName)}<br><code class="text-[10px]">${escapeHtml(prefilledUrl)}</code>`,
             type: "success"
           });
         }
