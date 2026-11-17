@@ -693,6 +693,7 @@
     function renderAthletes(athletes) {
       const grid = document.getElementById("athletes-grid");
       const emptyState = document.getElementById("athletes-empty-state");
+      window._activeAthletesMap = {};
 
       if (!athletes || athletes.length === 0) {
         if (grid) grid.innerHTML = "";
@@ -702,7 +703,9 @@
 
       if (emptyState) emptyState.classList.add("hidden");
       if (grid) {
-        grid.innerHTML = athletes.map(ath => {
+        grid.innerHTML = athletes.map((ath, idx) => {
+          const athleteId = String(ath.chat_id || ath.sheet_id || ath.rowIndex || `ath_${idx}`).trim();
+          window._activeAthletesMap[athleteId] = ath;
           const initials = (ath.name || "AT").split(" ").map(w => w[0]).join("").substring(0, 2).toUpperCase();
           const safeChatId = escapeHtml(ath.chat_id || "N/D");
           const safeName = escapeHtml(ath.name || "Atleta");
@@ -775,6 +778,9 @@
                 </div>
 
                 <div class="flex items-center gap-2 flex-wrap">
+                  <button type="button" data-athlete-id="${escapeHtml(athleteId)}" onclick="openPlanGeneratorModal(this.getAttribute('data-athlete-id'))" class="px-3 py-2 text-xs font-medium bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-lg flex items-center gap-1.5 transition" title="Genera o aggiorna il piano di allenamento per questo atleta">
+                    <i class="fa-solid fa-wand-magic-sparkles text-emerald-400" aria-hidden="true"></i> Genera Piano
+                  </button>
                   <button onclick="syncGarminAthlete('${escapeHtml(ath.garmin_email || ath.name)}', this)" class="px-3 py-2 text-xs font-medium bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 rounded-lg flex items-center gap-1.5 transition" title="Aggiorna calendario Garmin (0 token)">
                     <i class="fa-solid fa-arrows-rotate"></i> Aggiorna Garmin
                   </button>
@@ -1504,6 +1510,326 @@
       }
     }
 
+    // --- GENERATORE PIANO ATLETA (1-CLICK MODAL) ---
+    let currentPlanAthleteTarget = null;
+    let lastPlanTriggerEl = null;
+
+    function formatRaceSummaryHtml(race) {
+      if (!race || !race.name) {
+        return '<span class="text-slate-400">Prossima Gara A: nessuna gara futura impostata (macrociclo standard 12 settimane)</span>';
+      }
+      const raceName = escapeHtml(race.name);
+      const raceDate = race.date ? escapeHtml(race.date) : "";
+      const hasDist = race.distance_km !== null && race.distance_km !== undefined && String(race.distance_km).trim() !== "";
+      const raceDist = hasDist ? `${escapeHtml(String(race.distance_km))} km` : "";
+      const hasDPlus = race.elevation_gain_m !== null && race.elevation_gain_m !== undefined && Number(race.elevation_gain_m) > 0;
+      const raceDPlus = hasDPlus ? `${escapeHtml(String(race.elevation_gain_m))}m D+` : "";
+      const details = [raceDate, raceDist, raceDPlus].filter(Boolean).join(" • ");
+      return `<i class="fa-solid fa-flag-checkered text-emerald-400 mr-1.5" aria-hidden="true"></i><span class="font-semibold text-amber-200">Prossima Gara A: ${raceName}</span>${details ? ` <span class="text-amber-300/90">(${details})</span>` : ""}`;
+    }
+
+    function formatVacationSummaryHtml(vacation) {
+      if (!vacation || !vacation.start_date) {
+        return '<span class="text-slate-400">Ferie imminenti: nessuna assenza pianificata</span>';
+      }
+      const vStart = escapeHtml(vacation.start_date);
+      const vEnd = vacation.end_date ? escapeHtml(vacation.end_date) : "";
+      const vNotes = vacation.notes ? escapeHtml(vacation.notes) : "";
+      const period = vEnd ? `Dal ${vStart} al ${vEnd}` : `Dal ${vStart}`;
+      return `<i class="fa-solid fa-umbrella-beach text-sky-400 mr-1.5" aria-hidden="true"></i><span class="font-semibold text-sky-200">Ferie imminenti: ${period}</span>${vNotes ? ` <span class="text-sky-300/90">• ${vNotes}</span>` : ""}`;
+    }
+
+    function renderPlanModalSummary(ath, previewData = null) {
+      const ctx = (previewData && previewData.context) ? previewData.context : {};
+      const name = ctx.athlete_name || (previewData && previewData.athlete_name) || (ath && ath.name) || "Atleta";
+      const disciplines = (Array.isArray(ctx.disciplines) && ctx.disciplines.length > 0)
+        ? ctx.disciplines
+        : (ath && Array.isArray(ath.disciplines) ? ath.disciplines : []);
+      const goals = ctx.goals || ctx.focus || (ath && ath.goals) || "Preparazione Sportiva";
+      const race = (previewData && previewData.target_race) || ctx.target_race || (ath && ath.next_race) || null;
+      const vacation = ctx.upcoming_vacation || (ath && ath.upcoming_vacation) || null;
+
+      const nameEl = document.getElementById("plan-athlete-name");
+      if (nameEl) nameEl.innerHTML = escapeHtml(name);
+
+      const discEl = document.getElementById("plan-athlete-disciplines");
+      if (discEl) {
+        const badges = renderDisciplineBadges(disciplines);
+        discEl.innerHTML = badges || '<span class="text-xs text-slate-400">Nessuna disciplina specificata</span>';
+      }
+
+      const goalsEl = document.getElementById("plan-athlete-goals");
+      if (goalsEl) {
+        goalsEl.innerHTML = `<span class="text-slate-400 font-medium">Obiettivi:</span> ${escapeHtml(goals)}`;
+      }
+
+      const raceEl = document.getElementById("plan-athlete-race");
+      if (raceEl) {
+        raceEl.innerHTML = formatRaceSummaryHtml(race);
+      }
+
+      const vacEl = document.getElementById("plan-athlete-vacation");
+      if (vacEl) {
+        vacEl.innerHTML = formatVacationSummaryHtml(vacation);
+      }
+
+      const constraintsEl = document.getElementById("plan-athlete-constraints");
+      if (constraintsEl) {
+        const parts = [];
+        if (previewData && previewData.estimated_phase) {
+          parts.push(`Fase attuale: <strong class="text-emerald-300">${escapeHtml(previewData.estimated_phase)}</strong>`);
+        }
+        if (ctx.days_per_week) {
+          parts.push(`${escapeHtml(String(ctx.days_per_week))} gg/sett`);
+        }
+        if (ctx.equipment) {
+          parts.push(`Attrezzatura: ${escapeHtml(ctx.equipment)}`);
+        }
+        if (ctx.injuries || ctx.injury_zones) {
+          parts.push(`Note/Infortuni: ${escapeHtml(ctx.injuries || ctx.injury_zones)}`);
+        }
+        if (parts.length > 0) {
+          constraintsEl.innerHTML = parts.join(" • ");
+          constraintsEl.classList.remove("hidden");
+        } else {
+          constraintsEl.innerHTML = "";
+          constraintsEl.classList.add("hidden");
+        }
+      }
+    }
+
+    function findAthleteForPlanModal(athleteId, optionalSheetId, optionalName) {
+      const key = String(athleteId || "").trim();
+      if (key && window._activeAthletesMap && window._activeAthletesMap[key]) {
+        return window._activeAthletesMap[key];
+      }
+      if (Array.isArray(currentActiveAthletes)) {
+        const found = currentActiveAthletes.find(a =>
+          (key && String(a.chat_id || "").trim() === key) ||
+          (key && String(a.sheet_id || "").trim() === key) ||
+          (key && String(a.rowIndex || "").trim() === key) ||
+          (key && String(a.name || "").trim() === key)
+        );
+        if (found) return found;
+      }
+      return {
+        chat_id: key,
+        sheet_id: String(optionalSheetId || "").trim(),
+        name: String(optionalName || "Atleta").trim() || "Atleta"
+      };
+    }
+
+    async function fetchPlanPreviewForModal(target) {
+      if (!isAuthenticated || !CURRENT_TOKEN || !target) return;
+      if (!target.chatId && !target.sheetId) return;
+      const previewPayload = {
+        action: "get_athlete_plan_preview",
+        coach_token: CURRENT_TOKEN
+      };
+      if (target.chatId) previewPayload.chat_id = target.chatId;
+      if (target.sheetId) previewPayload.sheet_id = target.sheetId;
+
+      try {
+        const resp = await fetch(WEBHOOK_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify(previewPayload)
+        });
+        const data = await resp.json();
+        const modal = document.getElementById("plan-generator-modal");
+        if (!modal || modal.classList.contains("hidden")) return;
+        if (!currentPlanAthleteTarget || currentPlanAthleteTarget.athleteId !== target.athleteId) return;
+
+        if (data && data.status === "unauthorized") {
+          closePlanGeneratorModal();
+          lockDashboardUI();
+          return;
+        }
+        if (data && data.status === "ok" && data.context) {
+          renderPlanModalSummary(findAthleteForPlanModal(target.athleteId), data);
+        }
+      } catch (err) {
+        // Fallback silenzioso ai dati già caricati dal roster
+      }
+    }
+
+    function openPlanGeneratorModal(athleteId, optionalSheetId = "", optionalName = "") {
+      const ath = findAthleteForPlanModal(athleteId, optionalSheetId, optionalName);
+      const resolvedKey = String(athleteId || ath.chat_id || ath.sheet_id || ath.name || "").trim();
+      currentPlanAthleteTarget = {
+        athleteId: resolvedKey,
+        chatId: String(ath.chat_id || "").trim(),
+        sheetId: String(ath.sheet_id || optionalSheetId || "").trim(),
+        name: String(ath.name || optionalName || "Atleta").trim() || "Atleta"
+      };
+
+      lastPlanTriggerEl = document.activeElement || null;
+      renderPlanModalSummary(ath, null);
+
+      const currRadio = document.getElementById("plan-mode-current-week");
+      const fullRadio = document.getElementById("plan-mode-full");
+      if (currRadio) currRadio.checked = true;
+      if (fullRadio) fullRadio.checked = false;
+
+      const confirmBtn = document.getElementById("confirm-generate-plan-btn");
+      if (confirmBtn) {
+        confirmBtn.disabled = false;
+        confirmBtn.innerHTML = '<i class="fa-solid fa-bolt" aria-hidden="true"></i> Conferma & Genera';
+      }
+
+      const modal = document.getElementById("plan-generator-modal");
+      if (modal) {
+        modal.classList.remove("hidden");
+        const closeBtn = document.getElementById("close-plan-modal-btn");
+        if (closeBtn && typeof closeBtn.focus === "function") {
+          closeBtn.focus();
+        }
+      }
+
+      fetchPlanPreviewForModal(currentPlanAthleteTarget);
+    }
+
+    function closePlanGeneratorModal() {
+      const modal = document.getElementById("plan-generator-modal");
+      if (modal && !modal.classList.contains("hidden")) {
+        modal.classList.add("hidden");
+        if (lastPlanTriggerEl && typeof lastPlanTriggerEl.focus === "function") {
+          lastPlanTriggerEl.focus();
+        }
+      }
+    }
+
+    function getSelectedPlanMode() {
+      const checked = document.querySelector('input[name="plan_generation_mode"]:checked');
+      if (checked && (checked.value === "full" || checked.value === "current_week")) {
+        return checked.value;
+      }
+      const fullEl = document.getElementById("plan-mode-full");
+      if (fullEl && fullEl.checked) return "full";
+      const currEl = document.getElementById("plan-mode-current-week");
+      if (currEl && currEl.checked) return "current_week";
+      return "current_week";
+    }
+
+    async function submitGeneratePlan() {
+      if (!isAuthenticated || !CURRENT_TOKEN) {
+        closePlanGeneratorModal();
+        lockDashboardUI();
+        if (window.UIFeedback) {
+          UIFeedback.toast({
+            title: "Autenticazione richiesta",
+            message: "Inserisci un codice OTP valido per generare il piano.",
+            type: "error"
+          });
+        }
+        return;
+      }
+
+      if (!currentPlanAthleteTarget || (!currentPlanAthleteTarget.chatId && !currentPlanAthleteTarget.sheetId)) {
+        if (window.UIFeedback) {
+          UIFeedback.toast({
+            title: "Target atleta mancante",
+            message: "Impossibile identificare Chat ID o Foglio Google dell'atleta.",
+            type: "warning"
+          });
+        }
+        return;
+      }
+
+      const mode = getSelectedPlanMode();
+      const btn = document.getElementById("confirm-generate-plan-btn");
+      const originalHtml = btn ? btn.innerHTML : '<i class="fa-solid fa-bolt" aria-hidden="true"></i> Conferma & Genera';
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Generazione in corso...';
+      }
+
+      const payload = {
+        action: "generate_athlete_plan",
+        coach_token: CURRENT_TOKEN,
+        mode: mode
+      };
+      if (currentPlanAthleteTarget.chatId) payload.chat_id = currentPlanAthleteTarget.chatId;
+      if (currentPlanAthleteTarget.sheetId) payload.sheet_id = currentPlanAthleteTarget.sheetId;
+
+      try {
+        const resp = await fetch(WEBHOOK_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify(payload)
+        });
+        let data = null;
+        try {
+          data = await resp.json();
+        } catch (parseErr) {
+          data = null;
+        }
+
+        if (data && data.status === "unauthorized") {
+          closePlanGeneratorModal();
+          lockDashboardUI();
+          if (window.UIFeedback) {
+            UIFeedback.toast({
+              title: "Sessione scaduta",
+              message: escapeHtml(data.message || "Token Coach non valido o scaduto. Ripeti il login OTP."),
+              type: "error"
+            });
+          }
+          return;
+        }
+
+        if (!data || data.status !== "ok") {
+          if (window.UIFeedback) {
+            UIFeedback.toast({
+              title: "Errore generazione piano",
+              message: escapeHtml((data && data.message) || "Impossibile generare il piano di allenamento."),
+              type: "error"
+            });
+          }
+          return;
+        }
+
+        const safeName = escapeHtml(data.athlete_name || currentPlanAthleteTarget.name || "Atleta");
+        const weeksGen = data.weeks_generated != null ? Number(data.weeks_generated) : (mode === "full" ? (Number(data.total_weeks) || 12) : 1);
+        const phase = data.phase ? escapeHtml(data.phase) : "";
+        const targetRaceName = data.target_race && data.target_race.name ? escapeHtml(data.target_race.name) : "";
+        const resolvedSheetId = data.sheet_id || currentPlanAthleteTarget.sheetId;
+        const sheetUrl = data.spreadsheet_url || (resolvedSheetId ? `https://docs.google.com/spreadsheets/d/${encodeURIComponent(resolvedSheetId)}/edit` : "");
+        const safeUrl = (sheetUrl && /^https?:\/\//i.test(sheetUrl)) ? escapeHtml(sheetUrl) : "";
+
+        const details = [`<strong>${escapeHtml(String(weeksGen))}</strong> settiman${weeksGen === 1 ? "a" : "e"}`];
+        if (phase) details.push(`Fase: <strong>${phase}</strong>`);
+        if (targetRaceName) details.push(`Target: ${targetRaceName}`);
+        if (safeUrl) {
+          details.push(`<a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="underline font-semibold text-emerald-300">Apri Master Plan</a>`);
+        }
+
+        closePlanGeneratorModal();
+        if (window.UIFeedback) {
+          UIFeedback.toast({
+            title: `Piano generato per ${safeName}`,
+            message: details.join(" • "),
+            type: "success",
+            duration: 7000
+          });
+        }
+      } catch (err) {
+        console.warn("Errore generazione piano:", err);
+        if (window.UIFeedback) {
+          UIFeedback.toast({
+            title: "Errore di rete",
+            message: "Impossibile contattare il backend per generare il piano.",
+            type: "error"
+          });
+        }
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = originalHtml;
+        }
+      }
+    }
+
     function refreshData() {
       if (!isAuthenticated) {
         lockDashboardUI();
@@ -1542,6 +1868,7 @@
       }
 
       if (e.key === 'Escape') {
+        closePlanGeneratorModal();
         toggleShortcutsModal(false);
         if (isInput) document.activeElement.blur();
         return;
@@ -1601,6 +1928,67 @@
       }
     }, { passive: true });
   </script>
+  <!-- Modal Generatore Piano Atleta (1-Click) -->
+  <div id="plan-generator-modal" onclick="if (event.target === this) closePlanGeneratorModal()" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden" role="dialog" aria-modal="true" aria-labelledby="plan-modal-title">
+    <div class="bg-slate-900 border border-slate-700/80 rounded-2xl max-w-xl w-full p-6 shadow-2xl relative text-slate-200">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+            <i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i>
+          </div>
+          <h3 id="plan-modal-title" class="text-base font-semibold text-slate-100">Generatore Piano di Allenamento</h3>
+        </div>
+        <button type="button" id="close-plan-modal-btn" onclick="closePlanGeneratorModal()" class="text-slate-400 hover:text-slate-200 transition p-1" aria-label="Chiudi finestra">
+          <i class="fa-solid fa-xmark text-lg" aria-hidden="true"></i>
+        </button>
+      </div>
+
+      <div class="py-4 space-y-4 text-sm" id="plan-modal-body">
+        <div class="bg-slate-800/60 border border-slate-700/50 rounded-xl p-3.5 space-y-2">
+          <div class="flex justify-between items-center gap-2">
+            <span class="text-xs text-slate-400 uppercase tracking-wider font-semibold">Atleta</span>
+            <span id="plan-athlete-name" class="font-bold text-slate-100"></span>
+          </div>
+          <div class="flex items-start gap-2 flex-wrap">
+            <span class="text-xs text-slate-400 mt-2">Discipline:</span>
+            <div id="plan-athlete-disciplines" class="flex flex-wrap gap-1"></div>
+          </div>
+          <div class="text-xs text-slate-300" id="plan-athlete-goals"></div>
+          <div class="text-xs text-amber-300" id="plan-athlete-race"></div>
+          <div class="text-xs text-sky-300" id="plan-athlete-vacation"></div>
+          <div class="text-[11px] text-slate-400 pt-1 border-t border-slate-700/40 hidden" id="plan-athlete-constraints"></div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Modalità di Generazione</label>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <label class="flex flex-col p-3 rounded-xl border border-slate-700 bg-slate-800/40 hover:bg-slate-800 cursor-pointer transition has-[:checked]:border-emerald-500 has-[:checked]:bg-emerald-500/10">
+              <div class="flex items-center gap-2 mb-1">
+                <input id="plan-mode-current-week" type="radio" name="plan_generation_mode" value="current_week" checked class="text-emerald-500 focus:ring-emerald-500 bg-slate-900 border-slate-700">
+                <span class="font-semibold text-xs text-slate-200">Settimana Corrente</span>
+              </div>
+              <span class="text-[11px] text-slate-400">Settimana Corrente (7 giorni Lun-Dom)</span>
+            </label>
+            <label class="flex flex-col p-3 rounded-xl border border-slate-700 bg-slate-800/40 hover:bg-slate-800 cursor-pointer transition has-[:checked]:border-emerald-500 has-[:checked]:bg-emerald-500/10">
+              <div class="flex items-center gap-2 mb-1">
+                <input id="plan-mode-full" type="radio" name="plan_generation_mode" value="full" class="text-emerald-500 focus:ring-emerald-500 bg-slate-900 border-slate-700">
+                <span class="font-semibold text-xs text-slate-200">Piano Completo</span>
+              </div>
+              <span class="text-[11px] text-slate-400">Piano Completo (Macrociclo fino a Gara A o 12 settimane)</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-4 border-t border-slate-800 flex justify-end gap-2.5">
+        <button type="button" id="cancel-plan-modal-btn" onclick="closePlanGeneratorModal()" class="px-4 py-2 text-xs font-medium text-slate-300 hover:bg-slate-800 rounded-lg transition">Annulla</button>
+        <button type="button" id="confirm-generate-plan-btn" onclick="submitGeneratePlan()" class="px-4 py-2 text-xs font-semibold bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-lg flex items-center gap-2 transition disabled:opacity-50 disabled:cursor-not-allowed">
+          <i class="fa-solid fa-bolt" aria-hidden="true"></i> Conferma & Genera
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Modale Cheat Sheet Scorciatoie da Tastiera (Shift+?) -->
   <div id="shortcuts-modal" role="dialog" aria-modal="true" aria-labelledby="shortcuts-modal-title" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl text-slate-200">
