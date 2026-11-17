@@ -669,6 +669,9 @@
           const safeCity = escapeHtml(ath.city || "Italia");
           const safeGoals = escapeHtml(ath.goals || "Preparazione Sportiva");
           const sheetLink = ath.sheet_id ? `https://docs.google.com/spreadsheets/d/${escapeHtml(ath.sheet_id)}/edit` : "#";
+          const attivitaLink = ath.attivita_sheet_url
+            ? escapeHtml(ath.attivita_sheet_url)
+            : (ath.attivita_sheet_id ? `https://docs.google.com/spreadsheets/d/${escapeHtml(ath.attivita_sheet_id)}/edit` : "");
 
           return `
             <div class="glass-card rounded-2xl p-6 border-l-4 border-l-cyan-400 hover:border-slate-700 transition">
@@ -701,6 +704,10 @@
                   <a href="${sheetLink}" target="_blank" class="px-3 py-2 text-xs font-medium bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-200 flex items-center gap-1.5 transition">
                     <i class="fa-solid fa-table text-emerald-400"></i> Foglio Atleta
                   </a>
+                  ${attivitaLink ? `
+                  <a href="${attivitaLink}" target="_blank" rel="noopener noreferrer" class="btn-sm btn-outline px-3 py-2 text-xs font-medium bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 hover:text-sky-300 border border-sky-500/30 hover:border-sky-500/60 rounded-lg transition flex items-center gap-1.5" title="Archivio Attività Garmin dell'atleta">
+                    <i class="fa-solid fa-person-running"></i> File Attività
+                  </a>` : ""}
                 </div>
               </div>
             </div>

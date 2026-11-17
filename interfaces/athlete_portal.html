@@ -47,7 +47,7 @@
 
   <!-- TOP HEADER -->
   <header class="border-b border-brand-border bg-[#0D1424]/90 backdrop-blur sticky top-0 z-40 px-4 sm:px-6 py-4">
-    <div class="max-w-4xl mx-auto flex items-center justify-between">
+    <div class="max-w-4xl mx-auto flex items-center justify-between flex-wrap gap-2">
       <div class="flex items-center space-x-3">
         <div id="athlete-avatar" class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center text-white font-teko text-2xl font-bold shadow-lg shadow-cyan-500/20">
           AT
@@ -67,6 +67,9 @@
         <span class="hidden sm:inline-block px-2.5 py-1 text-xs font-semibold bg-orange-500/10 text-orange-400 border border-orange-500/20 rounded-lg">
           <i class="fa-solid fa-lock text-[10px]" aria-hidden="true"></i> Settimana 1 di 40
         </span>
+        <a id="athlete-attivita-link" href="#" target="_blank" rel="noopener noreferrer" aria-label="Apri il tuo File Attività Garmin su Google Sheets in nuova scheda" class="hidden min-h-[44px] px-3.5 py-2 text-xs font-medium bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-lg flex items-center gap-1.5 transition" title="Archivio Attività Garmin personale">
+          <i class="fa-solid fa-person-running" aria-hidden="true"></i> <span>File Attività</span>
+        </a>
         <a href="https://t.me/andrea_hyrox_coach_bot" target="_blank" rel="noopener noreferrer" aria-label="Apri Bot Telegram del Coach Andrea in nuova scheda" class="min-h-[44px] px-3.5 py-2 text-xs font-medium bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 border border-sky-500/30 rounded-lg flex items-center gap-1.5 transition">
           <i class="fa-brands fa-telegram" aria-hidden="true"></i> Bot Telegram
         </a>
@@ -482,6 +485,11 @@
       if (stepOtp) stepOtp.classList.add("hidden");
       const stepId = document.getElementById("athlete-step-identifier");
       if (stepId) stepId.classList.remove("hidden");
+      const attivitaLinkEl = document.getElementById("athlete-attivita-link");
+      if (attivitaLinkEl) {
+        attivitaLinkEl.href = "#";
+        attivitaLinkEl.classList.add("hidden");
+      }
       showAuthError("");
       lockPortalUI();
       showToast("Sessione chiusa.", "info");
@@ -547,6 +555,22 @@
         const weatherEl = document.getElementById("athlete-weather");
         if (weatherEl) {
           weatherEl.textContent = `Meteo ${city || "Locale"}: ⛅ Ottimale`;
+        }
+      }
+
+      // Link diretto File Attività Garmin personale (se presente)
+      const profile = data.profile || {};
+      const rawAttivitaUrl = profile.attivita_sheet_url || data.attivita_sheet_url || "";
+      const rawAttivitaId = profile.attivita_sheet_id || data.attivita_sheet_id || "";
+      const resolvedAttivitaUrl = rawAttivitaUrl || (rawAttivitaId ? `https://docs.google.com/spreadsheets/d/${encodeURIComponent(rawAttivitaId)}/edit` : "");
+      const attivitaLinkEl = document.getElementById("athlete-attivita-link");
+      if (attivitaLinkEl) {
+        if (resolvedAttivitaUrl && /^https:\/\//i.test(resolvedAttivitaUrl)) {
+          attivitaLinkEl.href = resolvedAttivitaUrl;
+          attivitaLinkEl.classList.remove("hidden");
+        } else {
+          attivitaLinkEl.href = "#";
+          attivitaLinkEl.classList.add("hidden");
         }
       }
 
