@@ -1514,6 +1514,9 @@
     let currentPlanAthleteTarget = null;
     let lastPlanTriggerEl = null;
 
+    /**
+     * Formatta il riepilogo HTML della prossima Gara A dell'atleta (XSS-safe).
+     */
     function formatRaceSummaryHtml(race) {
       if (!race || !race.name) {
         return '<span class="text-slate-400">Prossima Gara A: nessuna gara futura impostata (macrociclo standard 12 settimane)</span>';
@@ -1528,6 +1531,9 @@
       return `<i class="fa-solid fa-flag-checkered text-emerald-400 mr-1.5" aria-hidden="true"></i><span class="font-semibold text-amber-200">Prossima Gara A: ${raceName}</span>${details ? ` <span class="text-amber-300/90">(${details})</span>` : ""}`;
     }
 
+    /**
+     * Formatta il riepilogo HTML delle ferie imminenti dell'atleta (XSS-safe).
+     */
     function formatVacationSummaryHtml(vacation) {
       if (!vacation || !vacation.start_date) {
         return '<span class="text-slate-400">Ferie imminenti: nessuna assenza pianificata</span>';
@@ -1539,6 +1545,9 @@
       return `<i class="fa-solid fa-umbrella-beach text-sky-400 mr-1.5" aria-hidden="true"></i><span class="font-semibold text-sky-200">Ferie imminenti: ${period}</span>${vNotes ? ` <span class="text-sky-300/90">• ${vNotes}</span>` : ""}`;
     }
 
+    /**
+     * Popola il riepilogo anamnestico del modal #plan-generator-modal applicando escapeHtml.
+     */
     function renderPlanModalSummary(ath, previewData = null) {
       const ctx = (previewData && previewData.context) ? previewData.context : {};
       const name = ctx.athlete_name || (previewData && previewData.athlete_name) || (ath && ath.name) || "Atleta";
@@ -1653,6 +1662,9 @@
       }
     }
 
+    /**
+     * Apre il modal #plan-generator-modal per l'atleta selezionato e avvia l'anteprima live da GAS.
+     */
     function openPlanGeneratorModal(athleteId, optionalSheetId = "", optionalName = "") {
       const ath = findAthleteForPlanModal(athleteId, optionalSheetId, optionalName);
       const resolvedKey = String(athleteId || ath.chat_id || ath.sheet_id || ath.name || "").trim();
@@ -1689,6 +1701,9 @@
       fetchPlanPreviewForModal(currentPlanAthleteTarget);
     }
 
+    /**
+     * Chiude il modal #plan-generator-modal e ripristina il focus sul pulsante di origine.
+     */
     function closePlanGeneratorModal() {
       const modal = document.getElementById("plan-generator-modal");
       if (modal && !modal.classList.contains("hidden")) {
@@ -1711,6 +1726,9 @@
       return "current_week";
     }
 
+    /**
+     * Invia la richiesta deterministica generate_athlete_plan a GAS con token coach e gestisce UI/toast.
+     */
     async function submitGeneratePlan() {
       if (!isAuthenticated || !CURRENT_TOKEN) {
         closePlanGeneratorModal();
