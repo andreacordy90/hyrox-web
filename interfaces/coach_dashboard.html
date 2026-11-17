@@ -588,14 +588,19 @@
         cloudNetworkError = true;
       }
 
-      if (cloudNetworkError || !data || !data.status) {
+      if (cloudNetworkError || !data || data.status !== "ok") {
         try {
           const localResp = await fetch(getLocalApiUrl("/api/verify_coach_otp"), {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
           });
-          data = await localResp.json();
+          const localData = await localResp.json();
+          if (localData && localData.status === "ok") {
+            data = localData;
+          } else if (!data && localData) {
+            data = localData;
+          }
         } catch (localErr) {
           console.log("Modalità offline/local fallback:", localErr);
         }
