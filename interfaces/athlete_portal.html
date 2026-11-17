@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="it" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portale Atleta | Coaching HYROX & UTMB</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              yellow: '#FFDD00',
+              orange: '#FF5E00',
+              cyan: '#00F0FF',
+              dark: '#0B0F19',
+              card: '#161F30',
+              border: '#2A374D'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="assets/ui-feedback.css">
+  <script src="assets/ui-feedback.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Teko:wght@600;700&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+    .font-teko { font-family: 'Teko', sans-serif; }
+    .glass-card {
+      background: rgba(22, 31, 48, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    /* A11Y Focus Visible */
+    button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible {
+      outline: 2px solid #FFDD00 !important;
+      outline-offset: 2px !important;
+    }
+  </style>
+</head>
+<body class="bg-brand-dark text-slate-100 min-h-screen flex flex-col antialiased">
+
+  <!-- TOP HEADER -->
+  <header class="border-b border-brand-border bg-[#0D1424]/90 backdrop-blur sticky top-0 z-50 px-4 sm:px-6 py-4">
+    <div class="max-w-4xl mx-auto flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center text-white font-teko text-2xl font-bold shadow-lg shadow-cyan-500/20">
+          MR
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <h1 class="text-base font-bold text-white">Marco Rossi</h1>
+            <span class="px-2 py-0.5 text-[10px] font-semibold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 rounded-full">
+              ATLETA
+            </span>
+          </div>
+          <p class="text-xs text-slate-400">Head Coach: <strong class="text-brand-yellow">Andrea Cordera</strong> • Milano</p>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-2">
+        <span class="hidden sm:inline-block px-2.5 py-1 text-xs font-semibold bg-orange-500/10 text-orange-400 border border-orange-500/20 rounded-lg">
+          <i class="fa-solid fa-lock text-[10px]" aria-hidden="true"></i> Settimana 1 di 40
+        </span>
+        <a href="https://t.me/andrea_hyrox_coach_bot" target="_blank" rel="noopener noreferrer" aria-label="Apri Bot Telegram del Coach Andrea in nuova scheda" class="min-h-[44px] px-3.5 py-2 text-xs font-medium bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 border border-sky-500/30 rounded-lg flex items-center gap-1.5 transition">
+          <i class="fa-brands fa-telegram" aria-hidden="true"></i> Bot Telegram
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-4xl mx-auto px-4 sm:px-6 py-6 flex-1 w-full space-y-6">
+
+    <!-- TODAY GLANCE CARD -->
+    <div class="glass-card rounded-2xl p-6 border-l-4 border-l-brand-yellow shadow-xl relative overflow-hidden">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+        <div>
+          <span class="text-xs text-slate-400 uppercase tracking-wider font-semibold">Oggi • Giovedì 12 Novembre</span>
+          <h2 class="text-2xl font-bold text-white mt-0.5">☀️ Buongiorno Marco!</h2>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="px-3 py-1 text-xs font-bold rounded-lg bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-400"></span> SEMAFORO: VERDE
+          </span>
+          <span class="px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-800 text-slate-300">
+            <i class="fa-regular fa-clock text-cyan-400"></i> Ore 18:30
+          </span>
+        </div>
+      </div>
+
+      <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800/80 mb-4">
+        <div class="flex items-center justify-between text-xs text-slate-400 mb-1">
+          <span class="font-semibold text-brand-yellow uppercase flex items-center gap-1.5">
+            <i class="fa-solid fa-person-running"></i> Sessione in Programma
+          </span>
+          <span>Garmin ID: Sincronizzato</span>
+        </div>
+        <div class="text-lg font-bold text-white tracking-wide">
+          50m Corsa Z2 + 4x100m Allunghi Tecnici
+        </div>
+        <div class="mt-2 flex flex-wrap gap-2 text-xs text-slate-300">
+          <span class="px-2 py-0.5 bg-slate-800 rounded">Cardio: &lt; 142 bpm (Zona 2 pura)</span>
+          <span class="px-2 py-0.5 bg-slate-800 rounded">Recupero: 60s tra gli allunghi</span>
+          <span class="px-2 py-0.5 bg-slate-800 rounded text-cyan-300">Meteo Milano: ⛅ 16°C</span>
+        </div>
+      </div>
+
+      <!-- PRE-WORKOUT BANNER (55 MIN PRIMA) -->
+      <div class="bg-orange-500/10 border border-orange-500/20 p-3.5 rounded-xl flex items-start gap-3">
+        <div class="p-2 rounded-lg bg-orange-500/20 text-orange-400 text-base">
+          <i class="fa-solid fa-bolt"></i>
+        </div>
+        <div class="text-xs">
+          <div class="font-bold text-orange-300">Promemoria Pre-Workout (Ore 17:35 - 55 min prima)</div>
+          <div class="text-slate-300 mt-0.5">• Spuntino rapido: Gallette di Riso + Miele + 1 Banana</div>
+          <div class="text-slate-300">• 3-5g di Creatina con 400 ml d'acqua per garantire idratazione e forza esplosiva.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HYDRATION & RECOVERY WIDGET -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      
+      <!-- HYDRATION PROGRESS -->
+      <div class="glass-card rounded-2xl p-5 space-y-4">
+        <div class="flex items-center justify-between">
+          <h3 class="text-sm font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-droplet text-cyan-400"></i> Idratazione Giornaliera
+          </h3>
+          <span class="text-xs font-mono font-bold text-cyan-300" id="water-display">1.40 L / 2.5 L</span>
+        </div>
+
+        <div>
+          <div class="flex justify-between text-xs text-slate-400 mb-1.5">
+            <span>Avanzamento Target</span>
+            <span id="water-pct" class="font-bold text-slate-200">56%</span>
+          </div>
+          <div class="w-full bg-slate-800 h-3 rounded-full overflow-hidden p-0.5 border border-slate-700/50" role="progressbar" id="water-progress" aria-valuenow="56" aria-valuemin="0" aria-valuemax="100" aria-label="Progresso idratazione giornaliera: 56%">
+            <div id="water-bar" class="bg-gradient-to-r from-cyan-500 to-blue-500 h-full rounded-full transition-all duration-500" style="width: 56%"></div>
+          </div>
+        </div>
+
+        <!-- 1-TAP BUTTONS -->
+        <div>
+          <span class="text-[11px] font-semibold text-slate-400 block mb-2 uppercase">Registra Acqua con 1 Tap:</span>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <button onclick="addWater(200)" aria-label="Registra 200 millilitri d'acqua" class="min-h-[44px] py-2.5 px-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs rounded-xl font-medium transition active:scale-95 flex items-center justify-center gap-1">
+              <span>🥛</span> <span>+200ml</span>
+            </button>
+            <button onclick="addWater(350)" aria-label="Registra 350 millilitri d'acqua" class="min-h-[44px] py-2.5 px-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs rounded-xl font-medium transition active:scale-95 flex items-center justify-center gap-1">
+              <span>🥤</span> <span>+350ml</span>
+            </button>
+            <button onclick="addWater(500)" aria-label="Registra 500 millilitri d'acqua" class="min-h-[44px] py-2.5 px-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs rounded-xl font-medium transition active:scale-95 flex items-center justify-center gap-1">
+              <span>🍼</span> <span>+500ml</span>
+            </button>
+            <button onclick="addCoffee()" aria-label="Registra una tazzina di caffè" class="min-h-[44px] py-2.5 px-2 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/20 text-xs rounded-xl font-medium transition active:scale-95 flex items-center justify-center gap-1">
+              <span>☕</span> <span>+1 Caffè</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- DIRECT NOTE TO COACH ANDREA -->
+      <div class="glass-card rounded-2xl p-5 flex flex-col justify-between">
+        <div>
+          <h3 class="text-sm font-bold text-white flex items-center gap-2 mb-1">
+            <i class="fa-solid fa-message text-brand-yellow" aria-hidden="true"></i> Nota Diretta al Coach Andrea
+          </h3>
+          <p class="text-xs text-slate-400">Hai un fastidio muscolare, una domanda o un imprevisto? Scrivi qui sotto: la nota arriverà istantaneamente nella Coach Inbox privata di Andrea.</p>
+        </div>
+
+        <div class="mt-3 space-y-2">
+          <label for="athlete-note" class="sr-only">Scrivi un messaggio o segnala un fastidio al Coach Andrea</label>
+          <textarea id="athlete-note" rows="2" placeholder="es. Oggi sento tirare il polpaccio destro al 4° lap..." aria-label="Scrivi un messaggio o segnala un fastidio al Coach Andrea" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-yellow resize-none"></textarea>
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] text-slate-500">Notifica istantanea via Telegram</span>
+            <button onclick="sendNoteToCoach()" aria-label="Invia nota istantanea al Coach Andrea" class="min-h-[44px] px-4 py-2 bg-brand-yellow text-slate-950 font-bold text-xs rounded-lg hover:bg-yellow-400 transition flex items-center gap-1.5 active:scale-95">
+              <i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Invia al Coach
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ROLLING 7-DAY CALENDAR VIEW (ANTI-LEAK) -->
+    <div class="glass-card rounded-2xl p-6 space-y-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h3 class="text-base font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-calendar-days text-cyan-400"></i> Piano Settimanale Corrente (Rolling Window)
+          </h3>
+          <p class="text-xs text-slate-400">Settimana attiva: <strong>09 Nov - 15 Nov 2026</strong> (Sbloccata)</p>
+        </div>
+        <span class="px-2.5 py-1 text-[11px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-lg">
+          Settimana 1 / 40
+        </span>
+      </div>
+
+      <!-- DAYS LIST -->
+      <div class="space-y-2 text-xs">
+        
+        <!-- LUNEDI -->
+        <div class="p-3 bg-slate-900/50 rounded-xl border border-slate-800 flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <span class="w-16 font-bold text-slate-400">Lunedì 09</span>
+            <div>
+              <span class="font-semibold text-white">45m Corsa Facile Z2 + Core Stability</span>
+              <span class="block text-[10px] text-slate-400">Completato • Voto 9.0</span>
+            </div>
+          </div>
+          <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold text-[10px]">COMPLETATO</span>
+        </div>
+
+        <!-- MARTEDI -->
+        <div class="p-3 bg-slate-900/50 rounded-xl border border-slate-800 flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <span class="w-16 font-bold text-slate-400">Martedì 10</span>
+            <div>
+              <span class="font-semibold text-white">HYROX Sled Push & Burpee Broad Jumps</span>
+              <span class="block text-[10px] text-slate-400">Completato • Voto 8.5</span>
+            </div>
+          </div>
+          <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold text-[10px]">COMPLETATO</span>
+        </div>
+
+        <!-- MERCOLEDI -->
+        <div class="p-3 bg-slate-900/50 rounded-xl border border-slate-800 flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <span class="w-16 font-bold text-slate-400">Mercoledì 11</span>
+            <div>
+              <span class="font-semibold text-white">Riposo Attivo • Mobilità & Stretching Anca</span>
+              <span class="block text-[10px] text-slate-400">Recupero Fisiologico</span>
+            </div>
+          </div>
+          <span class="px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 font-bold text-[10px]">RIPOSO</span>
+        </div>
+
+        <!-- GIOVEDI (OGGI) -->
+        <div class="p-3 bg-brand-yellow/10 rounded-xl border border-brand-yellow/30 flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <span class="w-16 font-bold text-brand-yellow">Oggi (12)</span>
+            <div>
+              <span class="font-semibold text-white">50m Corsa Z2 + 4x100m Allunghi Tecnici</span>
+              <span class="block text-[10px] text-brand-yellow">Pianificato per le ore 18:30 (Sera)</span>
+            </div>
+          </div>
+          <span class="px-2 py-0.5 rounded bg-brand-yellow text-slate-950 font-bold text-[10px]">OGGI</span>
+        </div>
+
+        <!-- VENERDI -->
+        <div class="p-3 bg-slate-900/50 rounded-xl border border-slate-800 flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <span class="w-16 font-bold text-slate-400">Venerdì 13</span>
+            <div>
+              <span class="font-semibold text-white">HYROX Strength: Sandbag Lunges & SkiErg Intervals</span>
+              <span class="block text-[10px] text-slate-400">Target ore 12:10 o 18:30</span>
+            </div>
+          </div>
+          <span class="px-2 py-0.5 rounded bg-slate-800 text-slate-400 font-bold text-[10px]">PROGRAMMATO</span>
+        </div>
+
+        <!-- SABATO -->
+        <div class="p-3 bg-slate-900/50 rounded-xl border border-slate-800 flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <span class="w-16 font-bold text-slate-400">Sabato 14</span>
+            <div>
+              <span class="font-semibold text-white">Lungo Collinare Z2 (75 min)</span>
+              <span class="block text-[10px] text-slate-400">Costruzione aerobica</span>
+            </div>
+          </div>
+          <span class="px-2 py-0.5 rounded bg-slate-800 text-slate-400 font-bold text-[10px]">PROGRAMMATO</span>
+        </div>
+
+        <!-- DOMENICA -->
+        <div class="p-3 bg-slate-900/50 rounded-xl border border-slate-800 flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <span class="w-16 font-bold text-slate-400">Domenica 15</span>
+            <div>
+              <span class="font-semibold text-white">Riposo Totale & Ricarica Idrica</span>
+              <span class="block text-[10px] text-slate-400">Weekly Review serale col Coach</span>
+            </div>
+          </div>
+          <span class="px-2 py-0.5 rounded bg-slate-800 text-slate-400 font-bold text-[10px]">RIPOSO</span>
+        </div>
+
+      </div>
+
+      <!-- LOCKED FUTURE WEEKS (ANTI-LEAK BANNER) -->
+      <div class="mt-4 p-4 rounded-xl bg-slate-900/80 border border-dashed border-slate-700 text-center space-y-2">
+        <div class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-slate-800 text-orange-400">
+          <i class="fa-solid fa-lock text-sm"></i>
+        </div>
+        <div class="text-xs font-bold text-slate-200">
+          Settimane 2 – 40 Riservate
+        </div>
+        <p class="text-[11px] text-slate-400 max-w-md mx-auto">
+          La <strong>Settimana 2</strong> verrà sbloccata dal Coach Andrea lunedì 16 novembre dopo aver analizzato i carichi e le tue sensazioni di questa settimana.
+        </p>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="border-t border-brand-border py-4 text-center text-xs text-slate-500 bg-brand-dark">
+    <p>Portale Personale Atleta • Coaching HYROX & UTMB con Andrea Cordera • 100% 0-Token Policy</p>
+  </footer>
+
+  <!-- TOAST CONTAINER (A11Y ARIA-LIVE) -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none px-4 sm:px-0" aria-live="polite" role="status" aria-atomic="true"></div>
+
+  <script>
+    let currentMl = 1400;
+    const targetMl = 2500;
+
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      
+      const colors = {
+        success: 'bg-emerald-950/90 border-emerald-500/40 text-emerald-200',
+        warning: 'bg-amber-950/90 border-amber-500/40 text-amber-200',
+        error: 'bg-red-950/90 border-red-500/40 text-red-200',
+        info: 'bg-slate-900/95 border-brand-border text-slate-200'
+      };
+      const icons = {
+        success: '<i class="fa-solid fa-circle-check text-emerald-400"></i>',
+        warning: '<i class="fa-solid fa-triangle-exclamation text-amber-400"></i>',
+        error: '<i class="fa-solid fa-circle-xmark text-red-400"></i>',
+        info: '<i class="fa-solid fa-circle-info text-cyan-400"></i>'
+      };
+
+      toast.className = `pointer-events-auto p-4 rounded-xl border shadow-xl backdrop-blur-md text-xs flex items-start gap-3 transition-all duration-300 transform translate-y-2 opacity-0 ${colors[type] || colors.info}`;
+      toast.innerHTML = `
+        <span class="text-base mt-0.5" aria-hidden="true">${icons[type] || icons.info}</span>
+        <div class="flex-1 leading-relaxed">${message.replace(/\\n/g, '<br>')}</div>
+        <button type="button" onclick="this.parentElement.remove()" aria-label="Chiudi notifica" class="text-slate-400 hover:text-white p-1 -mr-1 -mt-1 transition focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-yellow rounded">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      `;
+
+      container.appendChild(toast);
+      
+      // Animate in
+      requestAnimationFrame(() => {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+        toast.classList.add('translate-y-0', 'opacity-100');
+      });
+
+      // Auto dismiss after 4.5s
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => toast.remove(), 300);
+      }, 4500);
+    }
+
+    function addWater(ml) {
+      currentMl += ml;
+      updateWaterUI();
+      showToast(`💧 <strong>+${ml} ml registrati!</strong><br>Nuovo totale: ${(currentMl/1000).toFixed(2)} L su ${(targetMl/1000).toFixed(1)} L`, 'success');
+    }
+
+    function addCoffee() {
+      showToast("☕ <strong>Caffè registrato!</strong><br>Ricordati di bere un bicchiere d'acqua per reintegrare i liquidi.", 'info');
+    }
+
+    function updateWaterUI() {
+      const pct = Math.min(100, Math.round((currentMl / targetMl) * 100));
+      document.getElementById('water-display').innerText = `${(currentMl/1000).toFixed(2)} L / ${(targetMl/1000).toFixed(1)} L`;
+      document.getElementById('water-pct').innerText = `${pct}%`;
+      document.getElementById('water-bar').style.width = `${pct}%`;
+      const progressBar = document.getElementById('water-progress');
+      if (progressBar) {
+        progressBar.setAttribute('aria-valuenow', pct);
+        progressBar.setAttribute('aria-label', `Progresso idratazione: ${pct}%`);
+      }
+    }
+
+    function sendNoteToCoach() {
+      const noteInput = document.getElementById('athlete-note');
+      const note = noteInput.value.trim();
+      if (!note) {
+        showToast("⚠️ Inserisci una nota o un messaggio prima di inviare.", 'warning');
+        noteInput.focus();
+        return;
+      }
+      showToast(`✅ <strong>Nota inviata al Coach Andrea!</strong><br>"${note}"<br><span class="text-[11px] text-slate-400">Notifica recapitata nella Coach Inbox.</span>`, 'success');
+      noteInput.value = "";
+    }
+  </script>
+</body>
+</html>

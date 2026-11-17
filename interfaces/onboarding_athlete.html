@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="it" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registrazione Atleta | Coaching HYROX & UTMB</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              yellow: '#FFDD00',
+              orange: '#FF5E00',
+              cyan: '#00F0FF',
+              dark: '#0B0F19',
+              card: '#161F30',
+              border: '#2A374D'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="assets/ui-feedback.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Teko:wght@600;700&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+    .font-teko { font-family: 'Teko', sans-serif; }
+    .glass-card {
+      background: rgba(22, 31, 48, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    :focus-visible {
+      outline: 2px solid #FFDD00 !important;
+      outline-offset: 2px !important;
+    }
+  </style>
+</head>
+<body class="bg-brand-dark text-slate-100 min-h-screen flex flex-col justify-between antialiased">
+
+  <!-- HEADER -->
+  <header class="border-b border-brand-border bg-[#0D1424]/90 backdrop-blur px-6 py-4">
+    <div class="max-w-2xl mx-auto flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-brand-yellow flex items-center justify-center text-slate-950 font-teko text-2xl font-bold shadow-lg">
+          AC
+        </div>
+        <div>
+          <h1 class="text-base font-bold text-white tracking-wide">PROGRAMMA COACHING HYROX & UTMB</h1>
+          <p class="text-xs text-slate-400">Head Coach: <strong class="text-brand-yellow">Andrea Cordera</strong></p>
+        </div>
+      </div>
+      <span class="text-xs px-2.5 py-1 bg-brand-yellow/10 text-brand-yellow border border-brand-yellow/30 rounded-lg font-semibold">
+        Self-Onboarding Atleta
+      </span>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-2xl mx-auto px-4 py-8 flex-1 w-full">
+    
+    <div class="glass-card rounded-2xl p-6 sm:p-8 shadow-2xl space-y-6">
+      
+      <!-- HERO TITLE -->
+      <div class="border-b border-slate-800 pb-4">
+        <h2 class="text-2xl font-bold text-white">Iscrizione & Configurazione Profilo</h2>
+        <p class="text-xs text-slate-400 mt-1 leading-relaxed">
+          Compila i tuoi dati e le tue abitudini sportive. Una volta inviato, il **Coach Andrea validerà la tua scheda**, attiverà il tuo bot Telegram e clonerà il tuo foglio di allenamento personale.
+        </p>
+      </div>
+
+      <form id="athlete-onboard-form" onsubmit="submitAthleteForm(event)" novalidate class="space-y-5 text-xs">
+        
+        <!-- SEZIONE 1: ANAGRAFICA -->
+        <fieldset class="space-y-3">
+          <legend class="text-sm font-bold text-brand-yellow uppercase tracking-wider flex items-center gap-2">
+            <i class="fa-solid fa-user" aria-hidden="true"></i> 1. Dati Personali
+          </legend>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label for="at-name" class="block text-slate-200 font-semibold mb-1">Nome e Cognome *</label>
+              <input type="text" id="at-name" required placeholder="es. Marco Rossi" aria-required="true" aria-describedby="err-at-name" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-brand-yellow text-xs">
+              <span id="err-at-name" class="text-red-400 text-[11px] hidden mt-1 block" role="alert">Inserisci il tuo nome e cognome</span>
+            </div>
+            <div>
+              <label for="at-city" class="block text-slate-200 font-semibold mb-1">Città di Residenza (per Meteo ore 12:00) *</label>
+              <input type="text" id="at-city" required placeholder="es. Milano, Torino, Biella" aria-required="true" aria-describedby="err-at-city" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-brand-yellow text-xs">
+              <span id="err-at-city" class="text-red-400 text-[11px] hidden mt-1 block" role="alert">Inserisci la tua città di residenza</span>
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- SEZIONE 2: TELEGRAM -->
+        <fieldset class="space-y-3 pt-3 border-t border-slate-800">
+          <legend class="text-sm font-bold text-cyan-400 uppercase tracking-wider flex items-center gap-2">
+            <i class="fa-brands fa-telegram" aria-hidden="true"></i> 2. Connessione Bot Telegram
+          </legend>
+          <div>
+            <label for="at-chat" class="block text-slate-200 font-semibold mb-1">Il tuo Telegram ID Numerico *</label>
+            <input type="number" id="at-chat" required placeholder="es. 987654321" aria-required="true" aria-describedby="err-at-chat hint-at-chat" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-cyan-400 text-xs">
+            <span id="err-at-chat" class="text-red-400 text-[11px] hidden mt-1 block" role="alert">Inserisci il tuo ID numerico di Telegram</span>
+            <p id="hint-at-chat" class="text-[11px] text-slate-300 mt-1.5 bg-slate-900/60 p-2.5 rounded-lg border border-slate-800">
+              💡 <strong>Come trovarlo in 5 secondi:</strong> Cerca su Telegram il bot gratuito <a href="https://t.me/userinfobot" target="_blank" rel="noopener noreferrer" class="text-cyan-400 underline font-bold">@userinfobot</a>, premi <em>Avvia</em> e copia il numero che ti risponde (campo <code>Id:</code>).
+            </p>
+          </div>
+        </fieldset>
+
+        <!-- SEZIONE 3: DISPOSITIVI & ABITUDINI -->
+        <fieldset class="space-y-3 pt-3 border-t border-slate-800">
+          <legend class="text-sm font-bold text-orange-400 uppercase tracking-wider flex items-center gap-2">
+            <i class="fa-solid fa-sliders" aria-hidden="true"></i> 3. Dispositivi & Abitudini Fisiologiche
+          </legend>
+
+          <div class="space-y-2.5">
+            <label for="at-sleep" class="flex items-start space-x-3 p-3 bg-slate-900/60 rounded-xl border border-slate-800 cursor-pointer hover:border-slate-700">
+              <input type="checkbox" id="at-sleep" class="mt-0.5 w-4 h-4 text-brand-yellow rounded focus:ring-0">
+              <div>
+                <span class="font-bold text-white block">Tengo l'orologio al polso di notte (Sonno & HRV)</span>
+                <span class="text-[11px] text-slate-300">Se NON lo tieni, lascia deselezionato: il bot adatterà il check-in mattutino senza dare falsi allarmi sul recupero.</span>
+              </div>
+            </label>
+
+            <label for="at-scale" class="flex items-start space-x-3 p-3 bg-slate-900/60 rounded-xl border border-slate-800 cursor-pointer hover:border-slate-700">
+              <input type="checkbox" id="at-scale" class="mt-0.5 w-4 h-4 text-brand-yellow rounded focus:ring-0">
+              <div>
+                <span class="font-bold text-white block">Possiedo una Bilancia Smart compatibile (Renpho)</span>
+                <span class="text-[11px] text-slate-300">Se usi una bilancia normale, potrai inserire il peso manualmente scrivendo direttamente al bot.</span>
+              </div>
+            </label>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+            <div>
+              <label for="at-water" class="block text-slate-200 font-semibold mb-1">Target Acqua Giornaliero (Litri)</label>
+              <select id="at-water" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-brand-yellow text-xs">
+                <option value="2.0">2.0 Litri / giorno</option>
+                <option value="2.5" selected>2.5 Litri / giorno (Consigliato)</option>
+                <option value="3.0">3.0 Litri / giorno</option>
+                <option value="3.5">3.5 Litri / giorno (Atleta pesante/caldo)</option>
+              </select>
+            </div>
+            <div>
+              <label for="at-time" class="block text-slate-200 font-semibold mb-1">Orario Abituale di Allenamento</label>
+              <select id="at-time" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-brand-yellow text-xs">
+                <option value="12:10" selected>Pausa Pranzo (ore 12:10)</option>
+                <option value="18:30">Dopo Lavoro / Sera (ore 18:30)</option>
+                <option value="07:00">Mattina presto (ore 07:00)</option>
+                <option value="custom">Variabile di giorno in giorno</option>
+              </select>
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- SEZIONE 4: COLLEGAMENTO DISPOSITIVI GARMIN (PRIVACY & SICUREZZA) -->
+        <fieldset class="space-y-3 pt-3 border-t border-slate-800">
+          <legend class="text-sm font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-2">
+            <i class="fa-solid fa-shield-halved" aria-hidden="true"></i> 4. Dispositivo Garmin Connect
+          </legend>
+          <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-2">
+            <div class="flex items-center gap-2 text-white font-semibold text-xs">
+              <i class="fa-solid fa-lock text-emerald-400" aria-hidden="true"></i> Massima Privacy: Nessuna Password sul Web
+            </div>
+            <p class="text-[11px] text-slate-300 leading-relaxed">
+              Per proteggere al 100% la tua sicurezza informatica, <strong>non ti chiederemo mai la password Garmin su questa pagina web</strong>.
+              Il collegamento del tuo orologio avverrà in totale riservatezza in chat privata Telegram con il bot una volta approvata la tua candidatura.
+            </p>
+            <div class="pt-1">
+              <label for="at-garmin-email" class="block text-slate-200 font-semibold mb-1">Email del tuo Account Garmin (Opzionale)</label>
+              <input type="email" id="at-garmin-email" placeholder="tua.email@garmin.com" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-white focus:outline-none focus:border-emerald-400 text-xs">
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- SEZIONE 5: NOTE & OBIETTIVI -->
+        <fieldset class="space-y-3 pt-3 border-t border-slate-800">
+          <legend class="text-sm font-bold text-slate-200 uppercase tracking-wider flex items-center gap-2">
+            <i class="fa-solid fa-bullseye" aria-hidden="true"></i> 5. Obiettivi & Note per Coach Andrea
+          </legend>
+          <div>
+            <label for="at-goals" class="block text-slate-200 font-semibold mb-1">Qual è la tua gara obiettivo principale?</label>
+            <textarea id="at-goals" rows="2" placeholder="es. HYROX Milano Open Men ad Aprile 2026, oppure UTMB 50K..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-white focus:outline-none focus:border-brand-yellow text-xs resize-none"></textarea>
+          </div>
+        </fieldset>
+
+        <!-- SUBMIT BUTTON -->
+        <div class="pt-4 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <span class="text-[11px] text-slate-500">
+            <i class="fa-solid fa-lock text-emerald-400"></i> Dati cifrati e protetti secondo policy 0-Token
+          </span>
+          <button type="submit" aria-label="Invia candidatura atleta al Coach Andrea" class="w-full sm:w-auto px-6 py-3 bg-brand-yellow hover:bg-yellow-400 text-slate-950 font-extrabold rounded-xl text-sm transition shadow-lg shadow-brand-yellow/20 flex items-center justify-center gap-2">
+            <i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Invia Candidatura al Coach Andrea
+          </button>
+        </div>
+
+      </form>
+
+      <!-- SUCCESS MESSAGE (HIDDEN INITIALLY) -->
+      <div id="success-box" aria-live="polite" role="status" class="hidden text-center py-8 space-y-4">
+        <div class="w-16 h-16 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-full flex items-center justify-center mx-auto text-2xl">
+          <i class="fa-solid fa-check"></i>
+        </div>
+        <h3 class="text-xl font-bold text-white">Candidatura Inviata con Successo!</h3>
+        <p class="text-xs text-slate-300 max-w-md mx-auto leading-relaxed">
+          I tuoi dati sono arrivati nella **Coach Inbox di Andrea Cordera**.<br>
+          Non appena Andrea validerà il tuo profilo, riceverai un messaggio di benvenuto su Telegram con il link al tuo Foglio Google Master Plan personalizzato.
+        </p>
+        <div class="pt-2">
+          <a href="https://t.me/andrea_hyrox_coach_bot" target="_blank" class="inline-flex items-center gap-2 px-5 py-2.5 bg-sky-500 hover:bg-sky-400 text-white font-bold text-xs rounded-xl transition">
+            <i class="fa-brands fa-telegram"></i> Apri il Bot Telegram (@andrea_hyrox_coach_bot)
+          </a>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="border-t border-brand-border py-4 text-center text-xs text-slate-500 bg-brand-dark">
+    <p>Piattaforma di Coaching HYROX & UTMB • Head Coach Andrea Cordera • 100% 0-Token Guardrail</p>
+  </footer>
+
+  <script src="assets/ui-feedback.js"></script>
+  <script>
+    const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbz9vEbMetZJPNZvSiagQAi9cJcXKQ6kVzmoBRhLLbCIOcF7y3s5whsd3YTCVQTRy8aM9Q/exec";
+
+    async function submitAthleteForm(e) {
+      e.preventDefault();
+
+      // Reset errori
+      const errName = document.getElementById('err-at-name');
+      const errCity = document.getElementById('err-at-city');
+      const errChat = document.getElementById('err-at-chat');
+      const inputName = document.getElementById('at-name');
+      const inputCity = document.getElementById('at-city');
+      const inputChat = document.getElementById('at-chat');
+
+      errName.classList.add('hidden');
+      errCity.classList.add('hidden');
+      errChat.classList.add('hidden');
+      inputName.removeAttribute('aria-invalid');
+      inputCity.removeAttribute('aria-invalid');
+      inputChat.removeAttribute('aria-invalid');
+
+      let firstInvalid = null;
+
+      if (!inputName.value.trim()) {
+        errName.classList.remove('hidden');
+        inputName.setAttribute('aria-invalid', 'true');
+        if (!firstInvalid) firstInvalid = inputName;
+      }
+
+      if (!inputCity.value.trim()) {
+        errCity.classList.remove('hidden');
+        inputCity.setAttribute('aria-invalid', 'true');
+        if (!firstInvalid) firstInvalid = inputCity;
+      }
+
+      if (!inputChat.value.trim()) {
+        errChat.classList.remove('hidden');
+        inputChat.setAttribute('aria-invalid', 'true');
+        if (!firstInvalid) firstInvalid = inputChat;
+      }
+
+      if (firstInvalid) {
+        firstInvalid.focus();
+        UIFeedback.toast({
+          title: "Campi obbligatori mancanti",
+          message: "Compila tutti i campi contrassegnati con asterisco per procedere.",
+          type: 'warning'
+        });
+        return;
+      }
+
+      const btn = e.target.querySelector('button[type="submit"]');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin" aria-hidden="true"></i> Invio in corso al Coach...';
+      btn.disabled = true;
+
+      const name = inputName.value.trim();
+      const city = inputCity.value.trim();
+      const chat = inputChat.value.trim();
+      const sleep = document.getElementById('at-sleep').checked;
+      const scale = document.getElementById('at-scale').checked;
+      const water = document.getElementById('at-water').value;
+      const time = document.getElementById('at-time').value;
+      const email = document.getElementById('at-garmin-email').value.trim();
+      const goals = document.getElementById('at-goals').value.trim();
+
+      const payload = {
+        action: "submit_onboarding",
+        name: name,
+        city: city,
+        telegram_chat_id: chat,
+        sleep_tracking: sleep,
+        smart_scale: scale,
+        water_liters: parseFloat(water) || 2.5,
+        habitual_time: time,
+        garmin_email: email,
+        goals: goals,
+        submitted_at: new Date().toISOString()
+      };
+
+      try {
+        await fetch(WEBHOOK_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify(payload)
+        });
+      } catch (err) {
+        console.warn("Chiamata inviata in background:", err);
+      }
+
+      UIFeedback.toast({
+        title: "Candidatura Inviata!",
+        message: `Benvenuto ${name}! La tua scheda è stata recapitata al Coach Andrea.`,
+        type: 'success',
+        duration: 5000
+      });
+
+      // Mostra messaggio di successo
+      document.getElementById('athlete-onboard-form').classList.add('hidden');
+      const successBox = document.getElementById('success-box');
+      successBox.classList.remove('hidden');
+      successBox.setAttribute('tabindex', '-1');
+      successBox.focus();
+    }
+  </script>
+</body>
+</html>

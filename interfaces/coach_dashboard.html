@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="it" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HYROX & UTMB Coach HQ | Andrea Cordera</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              yellow: '#FFDD00', // Hyrox Yellow
+              orange: '#FF5E00',
+              cyan: '#00F0FF',
+              dark: '#0F172A',
+              card: '#1E293B',
+              border: '#334155'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="assets/ui-feedback.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#FFDD00">
+  <script src="assets/ui-feedback.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('service_worker.js')
+          .then(reg => console.log('PWA Service Worker registrato con scope:', reg.scope))
+          .catch(err => console.warn('Registrazione Service Worker fallita:', err));
+      });
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Teko:wght@600;700&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+    .font-teko { font-family: 'Teko', sans-serif; }
+    .glass-card {
+      background: rgba(30, 41, 59, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    :focus-visible {
+      outline: 2px solid #FFDD00 !important;
+      outline-offset: 2px !important;
+    }
+  </style>
+</head>
+<body class="bg-[#0B0F19] text-slate-100 min-h-screen flex flex-col antialiased">
+
+  <!-- TOP NAVBAR -->
+  <header class="border-b border-slate-800 bg-[#0F172A]/90 backdrop-blur sticky top-0 z-50 px-6 py-4">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center space-x-4">
+        <div class="w-10 h-10 rounded-xl bg-brand-yellow flex items-center justify-center text-slate-950 font-teko text-2xl font-bold shadow-lg shadow-brand-yellow/20">
+          AC
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <h1 class="text-lg font-bold tracking-tight text-white">COACH HQ <span class="text-brand-yellow font-normal">| HYROX & UTMB</span></h1>
+            <span class="px-2 py-0.5 text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> SYSTEM HEALTHY
+            </span>
+          </div>
+          <p class="text-xs text-slate-400">Head Coach: <strong class="text-slate-200">Andrea Cordera</strong> • Biella (IT)</p>
+        </div>
+      </div>
+
+      <!-- GLOBAL SEARCH BAR & STATUS PILLS -->
+      <div class="flex items-center space-x-4">
+        <div class="relative w-48 sm:w-64 md:w-80">
+          <input type="text" id="global-search-input" placeholder="Cerca atleta o sessione..." 
+                 class="w-full bg-slate-900/90 border border-slate-700 rounded-lg pl-9 pr-12 py-1.5 text-xs text-slate-100 placeholder-slate-400 focus:outline-none focus:border-brand-yellow">
+          <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-500 text-xs"></i>
+          <span class="absolute right-2 top-2 px-1.5 py-0.5 text-[10px] bg-slate-800 text-slate-400 border border-slate-700 rounded font-mono">⌘K</span>
+        </div>
+      <!-- STATUS PILLS -->
+      <div class="hidden md:flex items-center space-x-6 text-xs text-slate-400">
+        <div class="flex items-center space-x-2">
+          <i class="fa-solid fa-server text-cyan-400"></i>
+          <span>Demone: <strong class="text-slate-200 font-mono">PID 58623</strong></span>
+        </div>
+        <div class="flex items-center space-x-2">
+          <i class="fa-solid fa-shield-halved text-brand-yellow"></i>
+          <span>FinOps: <strong class="text-emerald-400 font-mono">0-TOKEN Client</strong></span>
+        </div>
+        <div class="flex items-center space-x-2">
+          <i class="fa-solid fa-bolt text-orange-400"></i>
+          <span>Garmin Poll: <strong class="text-slate-200 font-mono">~95/die (-65%)</strong></span>
+        </div>
+        <a href="http://localhost:5050" target="_blank" class="px-2.5 py-1 rounded-lg bg-brand-yellow/10 hover:bg-brand-yellow/20 text-brand-yellow border border-brand-yellow/30 font-bold transition flex items-center gap-1.5">
+          <i class="fa-solid fa-rocket"></i> Release Console
+        </a>
+        <button onclick="refreshData()" aria-label="Aggiorna stato sistema" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition">
+          <i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i>
+        </button>
+      </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main id="coach-main-content" class="max-w-7xl mx-auto px-4 sm:px-6 py-8 flex-1 w-full space-y-8 hidden" inert>
+
+    <!-- HERO METRICS -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="glass-card p-5 rounded-2xl relative overflow-hidden group hover:border-brand-yellow/30 transition">
+        <div class="flex items-center justify-between text-slate-400 text-xs mb-2">
+          <span>ATLETI ATTIVI</span>
+          <i class="fa-solid fa-users text-brand-yellow"></i>
+        </div>
+        <div class="text-3xl font-extrabold text-white font-teko tracking-wider">1 <span class="text-sm font-normal text-slate-400 font-sans">(1 Coach)</span></div>
+        <div class="mt-2 text-[11px] text-emerald-400 flex items-center gap-1">
+          <i class="fa-solid fa-check"></i> Architettura Multi-Tenant Attiva
+        </div>
+      </div>
+
+      <div onclick="switchTab('inbox')" class="glass-card p-5 rounded-2xl relative overflow-hidden group hover:border-cyan-400/30 transition cursor-pointer">
+        <div class="flex items-center justify-between text-slate-400 text-xs mb-2">
+          <span>COACH INBOX</span>
+          <i class="fa-solid fa-inbox text-cyan-400"></i>
+        </div>
+        <div id="hero-inbox-count" class="text-3xl font-extrabold text-white font-teko tracking-wider">0 <span class="text-sm font-normal text-slate-400 font-sans">Nuove Note</span></div>
+        <div id="hero-inbox-sub" class="mt-2 text-[11px] text-slate-400 flex items-center gap-1">
+          <i class="fa-solid fa-check text-emerald-400"></i> Nessun allarme pendente
+        </div>
+      </div>
+
+      <div class="glass-card p-5 rounded-2xl relative overflow-hidden group hover:border-emerald-400/30 transition">
+        <div class="flex items-center justify-between text-slate-400 text-xs mb-2">
+          <span>POLICY TOKEN ATLETI</span>
+          <i class="fa-solid fa-coins text-emerald-400"></i>
+        </div>
+        <div class="text-3xl font-extrabold text-emerald-400 font-teko tracking-wider">0,00 € <span class="text-sm font-normal text-slate-400 font-sans">/ Mese</span></div>
+        <div class="mt-2 text-[11px] text-emerald-400 flex items-center gap-1">
+          <i class="fa-solid fa-lock"></i> 100% Determinista (0-Token)
+        </div>
+      </div>
+
+      <div class="glass-card p-5 rounded-2xl relative overflow-hidden group hover:border-orange-400/30 transition">
+        <div class="flex items-center justify-between text-slate-400 text-xs mb-2">
+          <span>ROLLING WINDOW</span>
+          <i class="fa-solid fa-calendar-week text-orange-400"></i>
+        </div>
+        <div class="text-3xl font-extrabold text-white font-teko tracking-wider">7 GIORNI <span class="text-sm font-normal text-slate-400 font-sans">Anti-Leak</span></div>
+        <div class="mt-2 text-[11px] text-slate-400 flex items-center gap-1">
+          <i class="fa-solid fa-user-shield text-orange-400"></i> Settimane future protette
+        </div>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="flex space-x-2 border-b border-slate-800 pb-2" role="tablist" aria-label="Sezioni Coach Dashboard">
+      <button onclick="switchTab('roster')" id="tab-roster" role="tab" aria-selected="true" aria-controls="content-roster" class="px-4 py-2 text-sm font-semibold rounded-lg bg-brand-yellow text-slate-950 flex items-center gap-2 transition">
+        <i class="fa-solid fa-address-book" aria-hidden="true"></i> Roster Atleti
+      </button>
+      <button onclick="switchTab('inbox')" id="tab-inbox" role="tab" aria-selected="false" aria-controls="content-inbox" class="px-4 py-2 text-sm font-medium rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 flex items-center gap-2 transition">
+        <i class="fa-solid fa-envelope-open-text" aria-hidden="true"></i> Coach Inbox Note <span id="inbox-tab-badge" class="px-1.5 py-0.5 text-[10px] bg-slate-800 text-slate-400 rounded-full font-bold">0</span>
+      </button>
+      <button onclick="switchTab('onboarding')" id="tab-onboarding" role="tab" aria-selected="false" aria-controls="content-onboarding" class="px-4 py-2 text-sm font-medium rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 flex items-center gap-2 transition">
+        <i class="fa-solid fa-user-check" aria-hidden="true"></i> Coda Iscrizioni & Validazione <span id="pending-badge" onclick="switchTab('onboarding'); event.stopPropagation();" class="px-1.5 py-0.5 text-[10px] bg-slate-800 text-slate-400 rounded-full font-bold cursor-pointer">0</span>
+      </button>
+    </div>
+
+    <!-- TAB 1: ROSTER ATLETI -->
+    <div id="content-roster" role="tabpanel" aria-labelledby="tab-roster" class="space-y-6">
+
+      <!-- BANNER ALERT RAPIDO CANDIDATURE PENDENTI -->
+      <div id="pending-alert-banner" role="status" aria-live="polite" class="hidden mb-6 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between gap-4 flex-wrap">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-300 flex items-center justify-center shrink-0">
+            <i class="fa-solid fa-user-clock text-lg" aria-hidden="true"></i>
+          </div>
+          <div>
+            <p id="pending-alert-banner-text" class="text-sm font-bold text-amber-200">Hai 0 candidature in attesa di approvazione!</p>
+            <p class="text-xs text-amber-300/80">Apri la coda iscrizioni per verificare i dati dell'atleta e attivare il suo profilo.</p>
+          </div>
+        </div>
+        <button type="button" onclick="switchTab('onboarding')" class="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-xl transition flex items-center gap-2 shrink-0 shadow-lg shadow-amber-500/20">
+          Visualizza e Approva Candidature <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+        </button>
+      </div>
+      
+      <!-- ATLETA 1: ANDREA CORDERA (OWNER) -->
+      <div class="glass-card rounded-2xl p-6 border-l-4 border-l-brand-yellow hover:border-slate-700 transition">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div class="flex items-start space-x-4">
+            <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-brand-yellow to-orange-500 flex items-center justify-center text-slate-950 font-teko text-3xl font-bold shadow-lg">
+              AC
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h3 class="text-xl font-bold text-white">Andrea Cordera</h3>
+                <span class="px-2 py-0.5 text-xs font-semibold bg-brand-yellow/10 text-brand-yellow border border-brand-yellow/20 rounded-md">OWNER / COACH</span>
+                <span class="px-2 py-0.5 text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-md">40 SETTIMANE INTEGRALI</span>
+              </div>
+              <p class="text-xs text-slate-400 mt-1 flex items-center gap-3">
+                <span><i class="fa-solid fa-location-dot text-slate-500"></i> Biella (IT)</span>
+                <span><i class="fa-brands fa-telegram text-sky-400"></i> Chat ID: <code>7002465723</code></span>
+                <span><i class="fa-solid fa-medal text-brand-yellow"></i> HYROX Pro & UTMB Tenerife 82K</span>
+              </p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <button onclick="syncGarminAthlete('andrea', this)" class="px-3 py-2 text-xs font-medium bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 rounded-lg flex items-center gap-1.5 transition" title="Aggiorna calendario Garmin (0 token)">
+              <i class="fa-solid fa-arrows-rotate"></i> Aggiorna Garmin
+            </button>
+            <a href="https://docs.google.com/spreadsheets/d/1V9eRkNZDeU6UzEtsrUcXmN1MVDKC_NBYyQ-oRGfPLLg/edit" target="_blank" class="px-3 py-2 text-xs font-medium bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-200 flex items-center gap-1.5 transition">
+              <i class="fa-solid fa-table text-emerald-400"></i> Foglio Master
+            </a>
+            <button onclick="alert('Stato Andrea: Check-in OK, Idratazione 1.8L/2.8L, Semaforo VERDE')" class="px-3 py-2 text-xs font-medium bg-brand-yellow text-slate-950 font-semibold rounded-lg hover:bg-yellow-400 flex items-center gap-1.5 transition">
+              <i class="fa-solid fa-gauge-high"></i> Cruscotto Completo
+            </button>
+          </div>
+        </div>
+
+        <!-- DETAILS ROW -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6 pt-5 border-t border-slate-800/80 text-xs">
+          <div class="bg-slate-800/40 p-3 rounded-xl">
+            <span class="text-slate-400 block mb-1">OGGI: ALLENAMENTO</span>
+            <strong class="text-white">HYROX Strength & Sled</strong>
+            <span class="text-[10px] text-emerald-400 block mt-0.5">Ore 12:10 (Confermato)</span>
+          </div>
+          <div class="bg-slate-800/40 p-3 rounded-xl">
+            <span class="text-slate-400 block mb-1">SEMAFORO READINESS</span>
+            <span class="inline-flex items-center gap-1.5 font-bold text-emerald-400">
+              <span class="w-2 h-2 rounded-full bg-emerald-400"></span> VERDE (Sonno 85/100, HRV 42)
+            </span>
+          </div>
+          <div class="bg-slate-800/40 p-3 rounded-xl">
+            <span class="text-slate-400 block mb-1">IDRATAZIONE GIORNALIERA</span>
+            <strong class="text-white">1.80 L / 2.8 L (64%)</strong>
+            <div class="w-full bg-slate-700 h-1.5 rounded-full mt-1.5 overflow-hidden">
+              <div class="bg-cyan-400 h-full rounded-full" style="width: 64%"></div>
+            </div>
+          </div>
+          <div class="bg-slate-800/40 p-3 rounded-xl">
+            <span class="text-slate-400 block mb-1">HARDWARE & SENSORI</span>
+            <div class="flex items-center gap-2 mt-1">
+              <span class="px-1.5 py-0.5 bg-slate-700 rounded text-[10px] text-slate-200">Garmin Connect</span>
+              <span class="px-1.5 py-0.5 bg-slate-700 rounded text-[10px] text-slate-200">Bilancia Renpho</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ROSTER ATLETI DINAMICO -->
+      <div id="athletes-grid" class="space-y-6" aria-live="polite">
+        <!-- Popolato dinamicamente se presenti atleti addizionali -->
+      </div>
+      <div id="athletes-empty-state" class="text-center py-6 glass-card rounded-2xl border border-slate-800 text-slate-400 text-xs">
+        <i class="fa-solid fa-users text-slate-500 text-lg mb-2 block" aria-hidden="true"></i>
+        Nessun atleta registrato al momento oltre al coach.
+      </div>
+
+    </div>
+
+    <!-- TAB 2: COACH INBOX NOTE -->
+    <div id="content-inbox" role="tabpanel" aria-labelledby="tab-inbox" class="hidden space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h2 class="text-lg font-bold text-white">Coach Inbox Dedicata</h2>
+          <p class="text-xs text-slate-400">Riceve esclusivamente note scritte a mano, allarmi fisici e notifiche di completamento setup calendario (Zero Spam di routine).</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="flex rounded-xl bg-slate-900/80 p-1 border border-slate-800 text-xs font-medium">
+            <button id="inbox-filter-active" onclick="setInboxFilter(false)" class="px-3 py-1 rounded-lg bg-brand-yellow text-slate-950 font-semibold transition">
+              Attive
+            </button>
+            <button id="inbox-filter-archived" onclick="setInboxFilter(true)" class="px-3 py-1 rounded-lg text-slate-400 hover:text-white transition">
+              Archiviate
+            </button>
+          </div>
+          <span id="inbox-count" class="px-3 py-1 bg-amber-500/10 border border-amber-500/20 text-amber-300 rounded-lg text-xs font-semibold">
+            0 Messaggi da Evadere
+          </span>
+        </div>
+      </div>
+
+      <!-- LISTA NOTE DINAMICA -->
+      <div id="inbox-notes-list" class="space-y-4" aria-live="polite">
+        <!-- Popolato dinamicamente da renderInboxNotes() -->
+      </div>
+
+      <!-- EMPTY STATE -->
+      <div id="inbox-empty-state" class="hidden text-center py-12 glass-card rounded-2xl border border-slate-800">
+        <div class="w-12 h-12 rounded-full bg-slate-800 text-slate-500 flex items-center justify-center mx-auto mb-3 text-lg">
+          <i class="fa-solid fa-inbox" aria-hidden="true"></i>
+        </div>
+        <h4 class="text-sm font-bold text-white">Nessuna nota o allarme da evadere.</h4>
+        <p class="text-xs text-slate-400 mt-1">Tutte le note e i feedback degli atleti sono stati gestiti.</p>
+      </div>
+    </div>
+
+    <!-- TAB 3: CODA VALIDAZIONE ISCRIZIONI -->
+    <div id="content-onboarding" role="tabpanel" aria-labelledby="tab-onboarding" class="hidden space-y-6">
+      
+      <!-- LINK SHARE BANNER -->
+      <div class="glass-card p-6 rounded-2xl border border-brand-yellow/20 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="w-8 h-8 rounded-lg bg-brand-yellow/20 text-brand-yellow flex items-center justify-center font-bold">
+              <i class="fa-solid fa-link"></i>
+            </span>
+            <h3 class="text-base font-bold text-white">Link di Autoregistrazione per l'Atleta</h3>
+          </div>
+          <p class="text-xs text-slate-400 mt-1">Invia questo link al nuovo atleta: compilerà lui stesso anagrafica, abitudini di sonno, orari e credenziali Garmin. Tu dovrai solo convalidare la sua scheda!</p>
+        </div>
+        <div class="flex items-center gap-2 w-full md:w-auto">
+          <input type="text" readonly value="file:///Users/cordy/Desktop/Allenamenti/interfaces/onboarding_athlete.html" class="bg-slate-900 border border-slate-700 text-xs text-slate-300 px-3 py-2 rounded-lg font-mono w-full md:w-80">
+          <button onclick="copyOnboardLink()" class="px-3.5 py-2 bg-brand-yellow text-slate-950 font-bold rounded-lg text-xs hover:bg-yellow-400 transition whitespace-nowrap flex items-center gap-1.5">
+            <i class="fa-regular fa-copy"></i> Copia Link
+          </button>
+          <a href="onboarding_athlete.html" target="_blank" aria-label="Apri pagina onboarding atleta" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs transition">
+            <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- PENDING APPROVALS QUEUE -->
+      <div class="space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-lg font-bold text-white flex items-center gap-2">
+              <i class="fa-solid fa-user-clock text-amber-400" aria-hidden="true"></i> Richieste di Iscrizione in Attesa di Tua Validazione
+            </h3>
+            <p class="text-xs text-slate-400">Verifica i dati inseriti dall'atleta prima di attivarlo nel sistema e clonare il suo foglio Google Drive.</p>
+          </div>
+          <span id="queue-count" class="px-3 py-1 bg-amber-500/10 border border-amber-500/20 text-amber-300 rounded-lg text-xs font-semibold">
+            0 Richieste Pendenti
+          </span>
+        </div>
+
+        <!-- LISTA CANDIDATURE PENDENTI (DINAMICA) -->
+        <div id="pending-applicants-list" class="hidden space-y-4" aria-live="polite">
+          <!-- Popolato dinamicamente da renderPendingRequests -->
+        </div>
+
+        <!-- EMPTY STATE (MOSTRATO SE ZERO CANDIDATURE) -->
+        <div id="no-applicants" class="text-center py-12 glass-card rounded-2xl border border-slate-800">
+          <div class="w-12 h-12 rounded-full bg-slate-800 text-slate-500 flex items-center justify-center mx-auto mb-3 text-lg">
+            <i class="fa-solid fa-check-double" aria-hidden="true"></i>
+          </div>
+          <h4 class="text-sm font-bold text-white">Nessuna richiesta di iscrizione in sospeso</h4>
+          <p class="text-xs text-slate-400 mt-1">Tutte le schede atleti inviate sono state convalidate.</p>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="border-t border-slate-800 py-6 text-center text-xs text-slate-500 bg-[#0B0F19]">
+    <p>Piattaforma di Coaching HYROX & UTMB • Head Coach Andrea Cordera • macOS LaunchAgent <code>com.cordy.hyroxbot</code></p>
+  </footer>
+
+  <!-- 2FA OTP MODAL OVERLAY -->
+  <div id="pin-modal" role="dialog" aria-modal="true" aria-labelledby="pin-modal-title" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-[100] flex items-center justify-center p-4">
+    <div class="glass-card max-w-sm w-full p-6 rounded-2xl border border-brand-yellow/30 shadow-2xl text-center space-y-4">
+      <div class="w-14 h-14 bg-brand-yellow/10 text-brand-yellow rounded-2xl flex items-center justify-center text-2xl mx-auto border border-brand-yellow/20">
+        <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
+      </div>
+      <div>
+        <h3 id="pin-modal-title" class="text-lg font-bold text-white">Accesso Riservato Coach (2FA)</h3>
+        <p class="text-xs text-slate-400 mt-1">Area protetta con verifica in 2 passaggi. Richiedi un codice temporaneo OTP su Telegram oppure apri il link generato con <b>/dashboard</b>.</p>
+      </div>
+      <button type="button" id="request-otp-btn" onclick="requestCoachOtp()" class="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-brand-yellow border border-brand-yellow/30 font-semibold rounded-xl text-xs transition flex items-center justify-center gap-2">
+        <i class="fa-solid fa-paper-plane" aria-hidden="true"></i> 📩 Invia Codice su Telegram
+      </button>
+      <form onsubmit="handlePinSubmit(event)" class="space-y-3">
+        <input type="text" id="coach-pin-input" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" aria-label="Inserisci Codice OTP a 6 cifre" placeholder="Codice a 6 cifre..." required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-center text-white text-lg tracking-widest focus:outline-none focus:border-brand-yellow font-mono">
+        <button type="submit" id="verify-otp-btn" class="w-full py-2.5 bg-brand-yellow text-slate-950 font-bold rounded-xl text-xs hover:bg-yellow-400 transition shadow-lg shadow-brand-yellow/20">
+          Verifica & Sblocca Dashboard
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbz9vEbMetZJPNZvSiagQAi9cJcXKQ6kVzmoBRhLLbCIOcF7y3s5whsd3YTCVQTRy8aM9Q/exec";
+    let CURRENT_TOKEN = sessionStorage.getItem("coach_token") || "";
+    let isAuthenticated = false;
+    let otpCooldownTimer = null;
+
+    // Stato locale in-memory
+    let currentApplicants = [];
+    let currentActiveAthletes = [];
+    let currentNotes = [];
+    let showArchivedNotes = false;
+
+    window.addEventListener("DOMContentLoaded", () => {
+      // Estrai eventuale token sicuro da Telegram (parametro ?auth=...)
+      const urlParams = new URLSearchParams(window.location.search);
+      const authQuery = urlParams.get("auth");
+      if (authQuery) {
+        CURRENT_TOKEN = authQuery.trim();
+        sessionStorage.setItem("coach_token", CURRENT_TOKEN);
+      } else {
+        CURRENT_TOKEN = sessionStorage.getItem("coach_token") || "";
+      }
+
+      // Inizializza UI note e richieste (mantenendo <main> protetto fino a conferma server)
+      initInboxNotesUI();
+      renderPendingRequests([]);
+      renderAthletes([]);
+
+      if (CURRENT_TOKEN) {
+        loadCoachCloudData();
+      } else {
+        lockDashboardUI();
+      }
+    });
+
+    function escapeHtml(text) {
+      if (text === null || text === undefined || text === "") return "";
+      return String(text)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function getLocalApiUrl(path) {
+      if (window.location.protocol.startsWith("http") && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")) {
+        return path;
+      }
+      return `http://localhost:5050${path}`;
+    }
+
+    function unlockDashboardUI() {
+      isAuthenticated = true;
+      const modal = document.getElementById("pin-modal");
+      if (modal) modal.classList.add("hidden");
+      const mainEl = document.getElementById("coach-main-content");
+      if (mainEl) {
+        mainEl.classList.remove("hidden");
+        mainEl.removeAttribute("inert");
+      }
+    }
+
+    function lockDashboardUI() {
+      isAuthenticated = false;
+      const modal = document.getElementById("pin-modal");
+      if (modal) modal.classList.remove("hidden");
+      const mainEl = document.getElementById("coach-main-content");
+      if (mainEl) {
+        mainEl.classList.add("hidden");
+        mainEl.setAttribute("inert", "");
+      }
+    }
+
+    function startOtpResendCountdown(seconds = 60) {
+      const btn = document.getElementById("request-otp-btn");
+      if (!btn) return;
+      if (otpCooldownTimer) {
+        clearInterval(otpCooldownTimer);
+        otpCooldownTimer = null;
+      }
+      let remaining = seconds;
+      btn.disabled = true;
+      btn.innerHTML = `<i class="fa-solid fa-clock" aria-hidden="true"></i> Re-invia tra ${remaining}s`;
+      otpCooldownTimer = setInterval(() => {
+        remaining -= 1;
+        if (remaining <= 0) {
+          clearInterval(otpCooldownTimer);
+          otpCooldownTimer = null;
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fa-solid fa-paper-plane" aria-hidden="true"></i> 📩 Invia Codice su Telegram';
+        } else {
+          btn.innerHTML = `<i class="fa-solid fa-clock" aria-hidden="true"></i> Re-invia tra ${remaining}s`;
+        }
+      }, 1000);
+    }
+
+    async function requestCoachOtp() {
+      const btn = document.getElementById("request-otp-btn");
+      const defaultLabel = '<i class="fa-solid fa-paper-plane" aria-hidden="true"></i> 📩 Invia Codice su Telegram';
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Invio codice OTP...';
+      }
+
+      let data = null;
+      try {
+        const resp = await fetch(WEBHOOK_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({ action: "request_coach_otp" })
+        });
+        data = await resp.json();
+      } catch (cloudErr) {
+        data = null;
+      }
+
+      if (!data || data.status !== "ok") {
+        try {
+          const localResp = await fetch(getLocalApiUrl("/api/request_coach_otp"), {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ action: "request_coach_otp" })
+          });
+          data = await localResp.json();
+        } catch (localErr) {
+          data = null;
+        }
+      }
+
+      if (data && data.status === "ok") {
+        if (window.UIFeedback) {
+          UIFeedback.toast({
+            title: "Codice Inviato",
+            message: "Controlla la chat Telegram del Coach...",
+            type: "success"
+          });
+        }
+        startOtpResendCountdown(60);
+      } else {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = defaultLabel;
+        }
+        if (window.UIFeedback) {
+          UIFeedback.toast({
+            title: "Invio OTP non riuscito",
+            message: "Impossibile contattare il backend cloud o locale.",
+            type: "error"
+          });
+        }
+      }
+    }
+
+    function handlePinSubmit(e) {
+      e.preventDefault();
+      const inputEl = document.getElementById("coach-pin-input");
+      const enteredOtp = inputEl ? inputEl.value.trim() : "";
+      if (!/^[0-9]{6}$/.test(enteredOtp)) {
+        if (inputEl) inputEl.value = "";
+        lockDashboardUI();
+        if (window.UIFeedback) {
+          UIFeedback.toast({
+            title: "Codice OTP non valido",
+            message: "Inserisci un codice numerico valido a 6 cifre ricevuto su Telegram.",
+            type: "error"
+          });
+        }
+        return;
+      }
+      loadCoachCloudData(enteredOtp);
+    }
+
+    async function loadCoachCloudData(enteredOtp = "") {
+      const verifyBtn = document.getElementById("verify-otp-btn");
+      const inputEl = document.getElementById("coach-pin-input");
+      const originalVerifyLabel = verifyBtn ? verifyBtn.innerHTML : "";
+      if (enteredOtp && verifyBtn) {
+        verifyBtn.disabled = true;
+        verifyBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Verifica in corso...';
+      }
+      if (window.UIFeedback && isAuthenticated) {
+        UIFeedback.setSkeleton("#athletes-grid", true);
+      }
+
+      const payload = enteredOtp
+        ? { action: "get_coach_data", coach_otp: enteredOtp }
+        : { action: "get_coach_data", coach_token: CURRENT_TOKEN };
+
+      let data = null;
+      let cloudNetworkError = false;
+      try {
+        const resp = await fetch(WEBHOOK_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify(payload)
+        });
+        data = await resp.json();
+      } catch (err) {
+        cloudNetworkError = true;
+      }
+
+      if (cloudNetworkError || !data || !data.status) {
+        try {
+          const localResp = await fetch(getLocalApiUrl("/api/verify_coach_otp"), {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          });
+          data = await localResp.json();
+        } catch (localErr) {
+          console.log("Modalità offline/local fallback:", localErr);
+        }
+      }
+
+      if (verifyBtn && originalVerifyLabel) {
+        verifyBtn.disabled = false;
+        verifyBtn.innerHTML = originalVerifyLabel;
+      }
+      if (window.UIFeedback) {
+        UIFeedback.setSkeleton("#athletes-grid", false);
+      }
+
+      if (data && data.status === "ok") {
+        if (data.coach_token) {
+          CURRENT_TOKEN = data.coach_token;
+          sessionStorage.setItem("coach_token", CURRENT_TOKEN);
+        }
+        if (inputEl) inputEl.value = "";
+        unlockDashboardUI();
+        currentApplicants = data.pending_applicants || [];
+        currentActiveAthletes = data.active_athletes || [];
+        renderPendingRequests(currentApplicants);
+        renderAthletes(currentActiveAthletes);
+        if (data.notes) {
+          currentNotes = data.notes;
+          renderInboxNotes();
+        }
+      } else {
+        CURRENT_TOKEN = "";
+        sessionStorage.removeItem("coach_token");
+        if (inputEl) inputEl.value = "";
+        lockDashboardUI();
+        if (enteredOtp || (data && data.status === "unauthorized")) {
+          if (window.UIFeedback) {
+            UIFeedback.toast({
+              title: "Accesso non autorizzato",
+              message: (data && data.message) || "Codice OTP errato o sessione scaduta. Richiedi un nuovo codice su Telegram.",
+              type: "error"
+            });
+          }
+        }
+      }
+    }
+
+    // --- SEZIONE 1: ROSTER ATLETI REALI ---
+    function renderAthletes(athletes) {
+      const grid = document.getElementById("athletes-grid");
+      const emptyState = document.getElementById("athletes-empty-state");
+
+      if (!athletes || athletes.length === 0) {
+        if (grid) grid.innerHTML = "";
+        if (emptyState) emptyState.classList.remove("hidden");
+        return;
+      }
+
+      if (emptyState) emptyState.classList.add("hidden");
+      if (grid) {
+        grid.innerHTML = athletes.map(ath => {
+          const initials = (ath.name || "AT").split(" ").map(w => w[0]).join("").substring(0, 2).toUpperCase();
+          const safeChatId = escapeHtml(ath.chat_id || "N/D");
+          const safeName = escapeHtml(ath.name || "Atleta");
+          const safeCity = escapeHtml(ath.city || "Italia");
+          const safeGoals = escapeHtml(ath.goals || "Preparazione Sportiva");
+          const sheetLink = ath.sheet_id ? `https://docs.google.com/spreadsheets/d/${escapeHtml(ath.sheet_id)}/edit` : "#";
+
+          return `
+            <div class="glass-card rounded-2xl p-6 border-l-4 border-l-cyan-400 hover:border-slate-700 transition">
+              <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                <div class="flex items-start space-x-4">
+                  <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center text-white font-teko text-3xl font-bold shadow-lg">
+                    ${initials}
+                  </div>
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <h3 class="text-xl font-bold text-white">${safeName}</h3>
+                      <span class="px-2 py-0.5 text-xs font-semibold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 rounded-md">CLIENTE</span>
+                      <span class="px-2 py-0.5 text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-md">ATTIVO</span>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-1 flex items-center gap-3">
+                      <span><i class="fa-solid fa-location-dot text-slate-500"></i> ${safeCity}</span>
+                      <span><i class="fa-brands fa-telegram text-sky-400"></i> Chat ID: <code>${safeChatId}</code></span>
+                      <span><i class="fa-solid fa-bullseye text-orange-400"></i> ${safeGoals}</span>
+                    </p>
+                  </div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                  <button onclick="syncGarminAthlete('${escapeHtml(ath.garmin_email || ath.name)}', this)" class="px-3 py-2 text-xs font-medium bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 rounded-lg flex items-center gap-1.5 transition" title="Aggiorna calendario Garmin (0 token)">
+                    <i class="fa-solid fa-arrows-rotate"></i> Aggiorna Garmin
+                  </button>
+                  <a href="${sheetLink}" target="_blank" class="px-3 py-2 text-xs font-medium bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-200 flex items-center gap-1.5 transition">
+                    <i class="fa-solid fa-table text-emerald-400"></i> Foglio Atleta
+                  </a>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join("");
+      }
+    }
+
+    // --- SEZIONE 2: RICHIESTE PENDENTI INTERATTIVE ---
+    let normalizedApplicantsById = {};
+
+    function renderPendingRequests(requests) {
+      const queueBadge = document.getElementById("queue-count");
+      const pendingBadge = document.getElementById("pending-badge");
+      const listContainer = document.getElementById("pending-applicants-list");
+      const emptyState = document.getElementById("no-applicants");
+      const alertBanner = document.getElementById("pending-alert-banner");
+      const alertBannerText = document.getElementById("pending-alert-banner-text");
+
+      const safeRequests = Array.isArray(requests) ? requests : [];
+      const count = safeRequests.length;
+      normalizedApplicantsById = {};
+
+      if (queueBadge) {
+        queueBadge.innerText = `${count} Richiesta${count === 1 ? "" : "/e"} Pendente${count === 1 ? "" : "/i"}`;
+        queueBadge.className = count > 0
+          ? "px-3 py-1 bg-amber-500/10 border border-amber-500/20 text-amber-300 rounded-lg text-xs font-semibold animate-pulse"
+          : "px-3 py-1 bg-slate-800 border border-slate-700 text-slate-400 rounded-lg text-xs font-semibold";
+      }
+
+      if (pendingBadge) {
+        pendingBadge.innerText = `${count}`;
+        pendingBadge.className = count > 0
+          ? "px-1.5 py-0.5 text-[10px] bg-brand-yellow text-slate-950 rounded-full font-bold animate-pulse cursor-pointer"
+          : "px-1.5 py-0.5 text-[10px] bg-slate-800 text-slate-400 rounded-full font-bold cursor-pointer";
+      }
+
+      if (alertBanner) {
+        if (count > 0) {
+          if (alertBannerText) {
+            alertBannerText.textContent = `Hai ${count} candidatur${count === 1 ? "a" : "e"} in attesa di approvazione!`;
+          }
+          alertBanner.classList.remove("hidden");
+        } else {
+          alertBanner.classList.add("hidden");
+        }
+      }
+
+      if (count === 0) {
+        if (listContainer) {
+          listContainer.innerHTML = "";
+          listContainer.classList.add("hidden");
+        }
+        if (emptyState) emptyState.classList.remove("hidden");
+        return;
+      }
+
+      if (emptyState) emptyState.classList.add("hidden");
+      if (listContainer) {
+        listContainer.classList.remove("hidden");
+        listContainer.innerHTML = safeRequests.map((req, idx) => {
+          const item = req && typeof req === "object" ? req : {};
+          const reqId = item.rowIndex != null && item.rowIndex !== "" ? item.rowIndex : idx + 1;
+          const reqIdStr = String(reqId);
+          const name = String(item.name || "Candidato").trim() || "Candidato";
+          const city = String(item.city || "Italia").trim() || "Italia";
+          const rawChatId = item.chat_id != null ? String(item.chat_id).trim() : "";
+          const rawDate = item.date != null ? String(item.date).trim() : "";
+          let formattedDate = "Oggi";
+          if (rawDate) {
+            const parsedDate = new Date(item.date);
+            formattedDate = !isNaN(parsedDate.getTime()) ? parsedDate.toLocaleDateString("it-IT") : rawDate;
+          }
+          const goals = String(item.goals || "Obiettivo sportivo non specificato").trim() || "Obiettivo sportivo non specificato";
+          const garminEmail = String(item.garmin_email || "Non indicata").trim() || "Non indicata";
+          const sleep = String(item.sleep || "N/D");
+          const scale = String(item.scale || "N/D");
+          const water = String(item.water || "2.5 L");
+
+          const initials = name.split(" ").filter(Boolean).map(p => p[0]).slice(0, 2).join("").toUpperCase() || "AT";
+          const slug = name.toLowerCase().replace(/\s+/g, "_");
+          normalizedApplicantsById[reqIdStr] = { reqId: reqIdStr, name, slug, chatId: rawChatId };
+
+          const safeReqId = escapeHtml(reqIdStr);
+          const safeInitials = escapeHtml(initials);
+          const safeName = escapeHtml(name);
+          const safeCity = escapeHtml(city);
+          const safeChatId = escapeHtml(rawChatId || "N/D");
+          const safeDate = escapeHtml(formattedDate);
+          const safeGoals = escapeHtml(goals);
+          const safeGarminEmail = escapeHtml(garminEmail);
+          const safeSleep = escapeHtml(sleep);
+          const safeScale = escapeHtml(scale);
+          const safeWater = escapeHtml(water);
+
+          return `
+            <div id="applicant-card-${safeReqId}" class="glass-card p-6 rounded-2xl border-l-4 border-l-brand-yellow space-y-5">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800/80 pb-4">
+                <div class="flex items-center space-x-3.5">
+                  <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center text-white font-teko text-2xl font-bold shrink-0">
+                    ${safeInitials}
+                  </div>
+                  <div>
+                    <div class="flex items-center gap-2 flex-wrap">
+                      <h4 class="text-base font-bold text-white">${safeName}</h4>
+                      <span class="px-2 py-0.5 text-[10px] font-semibold bg-amber-500/20 text-amber-300 rounded">DA VALIDARE</span>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1">
+                      <span>Inviata: <strong class="text-slate-200">${safeDate}</strong></span>
+                      <span>• Città: <strong class="text-slate-200">${safeCity}</strong></span>
+                      <span>• Email Garmin: <code class="text-cyan-300">${safeGarminEmail}</code></span>
+                      <span>• Telegram Chat ID: <code class="text-sky-300">${safeChatId}</code></span>
+                    </p>
+                  </div>
+                </div>
+
+                <div class="flex items-center gap-2 shrink-0">
+                  <button type="button" data-action="approve" data-req-id="${safeReqId}" onclick="handleApproveApplicantClick(this)" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs rounded-xl transition flex items-center gap-1.5 shadow-lg shadow-emerald-500/20">
+                    <i class="fa-solid fa-check" aria-hidden="true"></i> Approva Atleta
+                  </button>
+                  <button type="button" data-action="reject" data-req-id="${safeReqId}" onclick="handleRejectApplicantClick(this)" class="px-3 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 font-semibold text-xs rounded-xl border border-red-500/20 transition flex items-center gap-1.5" aria-label="Rifiuta candidatura">
+                    <i class="fa-solid fa-xmark" aria-hidden="true"></i> Rifiuta
+                  </button>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800">
+                  <span class="text-slate-400 block mb-1">OROLOGIO LA NOTTE</span>
+                  <strong class="text-slate-200">${safeSleep}</strong>
+                </div>
+                <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800">
+                  <span class="text-slate-400 block mb-1">BILANCIA SMART</span>
+                  <strong class="text-slate-200">${safeScale}</strong>
+                </div>
+                <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800">
+                  <span class="text-slate-400 block mb-1">TARGET ACQUA</span>
+                  <strong class="text-cyan-400">${safeWater}</strong>
+                </div>
+                <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800">
+                  <span class="text-slate-400 block mb-1">STATUS</span>
+                  <strong class="text-amber-400">In Attesa di Approvazione</strong>
+                </div>
+              </div>
+
+              <div class="bg-slate-900/40 p-3.5 rounded-xl border border-slate-800/80 text-xs space-y-1">
+                <span class="text-slate-400 font-semibold uppercase text-[10px]">Obiettivo Sportivo Inserito:</span>
+                <p class="text-slate-200 italic font-serif">"${safeGoals}"</p>
+              </div>
+            </div>
+          `;
+        }).join("");
+      }
+    }
+
+    // --- SEZIONE 3: COACH INBOX NOTE E PERSISTENZA EVASIONE ---
+    function initInboxNotesUI() {
+      const saved = localStorage.getItem("coach_inbox_notes");
+      if (saved) {
+        try {
+          currentNotes = JSON.parse(saved);
+        } catch (e) {
+          currentNotes = [];
+        }
+      } else {
+        currentNotes = [];
+      }
+      renderInboxNotes();
+    }
+
+    function setInboxFilter(archived) {
+      showArchivedNotes = !!archived;
+      const btnActive = document.getElementById("inbox-filter-active");
+      const btnArchived = document.getElementById("inbox-filter-archived");
+      if (btnActive && btnArchived) {
+        if (showArchivedNotes) {
+          btnArchived.className = "px-3 py-1 rounded-lg bg-brand-yellow text-slate-950 font-semibold transition";
+          btnActive.className = "px-3 py-1 rounded-lg text-slate-400 hover:text-white transition";
+        } else {
+          btnActive.className = "px-3 py-1 rounded-lg bg-brand-yellow text-slate-950 font-semibold transition";
+          btnArchived.className = "px-3 py-1 rounded-lg text-slate-400 hover:text-white transition";
+        }
+      }
+      renderInboxNotes();
+    }
+
+    function renderInboxNotes() {
+      const container = document.getElementById("inbox-notes-list");
+      const emptyState = document.getElementById("inbox-empty-state");
+      const tabBadge = document.getElementById("inbox-tab-badge");
+      const inboxCountBadge = document.getElementById("inbox-count");
+      const heroInboxCount = document.getElementById("hero-inbox-count");
+      const heroInboxSub = document.getElementById("hero-inbox-sub");
+
+      const resolvedNotes = JSON.parse(localStorage.getItem("coach_resolved_notes") || "[]");
+
+      const activeNotes = currentNotes.filter(n => !n.resolved && !resolvedNotes.includes(String(n.id)));
+      const archivedNotes = currentNotes.filter(n => n.resolved || resolvedNotes.includes(String(n.id)));
+      const displayedNotes = showArchivedNotes ? archivedNotes : activeNotes;
+      const activeCount = activeNotes.length;
+
+      if (tabBadge) {
+        tabBadge.innerText = activeCount;
+        tabBadge.className = activeCount > 0
+          ? "px-1.5 py-0.5 text-[10px] bg-amber-500/20 text-amber-300 rounded-full font-bold animate-pulse"
+          : "px-1.5 py-0.5 text-[10px] bg-slate-800 text-slate-400 rounded-full font-bold";
+      }
+
+      if (inboxCountBadge) {
+        inboxCountBadge.innerText = `${activeCount} Messaggi${activeCount === 1 ? "" : "/o"} da Evadere`;
+      }
+
+      if (heroInboxCount) {
+        heroInboxCount.innerHTML = `${activeCount} <span class="text-sm font-normal text-slate-400 font-sans">Nuove Note</span>`;
+      }
+
+      if (heroInboxSub) {
+        heroInboxSub.innerHTML = activeCount > 0
+          ? `<i class="fa-solid fa-bell text-amber-400"></i> ${activeCount} allarmi da evadere`
+          : `<i class="fa-solid fa-check text-emerald-400"></i> Nessun allarme pendente`;
+      }
+
+      if (!displayedNotes || displayedNotes.length === 0) {
+        if (container) container.innerHTML = "";
+        if (emptyState) {
+          emptyState.classList.remove("hidden");
+          const title = emptyState.querySelector("h4");
+          const desc = emptyState.querySelector("p");
+          if (title) title.textContent = showArchivedNotes ? "Nessuna nota archiviata." : "Nessuna nota o allarme da evadere.";
+          if (desc) desc.textContent = showArchivedNotes ? "Le note contrassegnate come evase compariranno qui." : "Tutte le note e i feedback degli atleti sono stati gestiti.";
+        }
+        return;
+      }
+
+      if (emptyState) emptyState.classList.add("hidden");
+      if (container) {
+        container.innerHTML = displayedNotes.map(n => {
+          const safeName = escapeHtml(n.athlete_name || "Atleta");
+          const safeType = escapeHtml(n.type || "ALLERTA");
+          const safeDate = escapeHtml(n.date || "Oggi");
+          const safeText = escapeHtml(n.message || "");
+          const safeChat = escapeHtml(n.chat_id || "");
+          const isResolved = n.resolved || resolvedNotes.includes(String(n.id));
+
+          return `
+            <div id="inbox-note-${n.id}" class="glass-card p-5 rounded-2xl border-l-4 ${isResolved ? "border-l-emerald-500 opacity-80" : "border-l-amber-400"} space-y-3 transition duration-300">
+              <div class="flex items-center justify-between text-xs">
+                <div class="flex items-center gap-2">
+                  <span class="font-bold text-white text-sm">${safeName}</span>
+                  <span class="px-2 py-0.5 rounded ${isResolved ? "bg-emerald-500/20 text-emerald-300" : "bg-amber-500/20 text-amber-300"} font-semibold text-[10px]">${safeType}</span>
+                  <span class="text-slate-400">${safeDate}</span>
+                </div>
+                ${safeChat ? `<span class="text-slate-500 font-mono text-[11px]">Chat ID: ${safeChat}</span>` : ""}
+              </div>
+              <p class="text-sm text-slate-200 bg-slate-900/60 p-3.5 rounded-xl border border-slate-800 font-serif italic">
+                "${safeText}"
+              </p>
+              <div class="flex items-center justify-between pt-2">
+                <span class="text-xs text-slate-400">
+                  ${isResolved ? '<i class="fa-solid fa-check text-emerald-400"></i> Nota archiviata ed evasa' : '<i class="fa-solid fa-clock text-amber-400"></i> In attesa di riscontro coach'}
+                </span>
+                <div class="flex gap-2">
+                  ${isResolved ? `
+                    <button onclick="restoreInboxNote('${n.id}')" class="px-3 py-1.5 text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 rounded-lg transition flex items-center gap-1.5">
+                      <i class="fa-solid fa-rotate-left"></i> Ripristina in Inbox
+                    </button>
+                  ` : `
+                    <button onclick="resolveInboxNote('${n.id}')" class="px-3 py-1.5 text-xs font-medium bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/30 rounded-lg transition flex items-center gap-1.5">
+                      <i class="fa-solid fa-check"></i> Segna come Evaso
+                    </button>
+                  `}
+                </div>
+              </div>
+            </div>
+          `;
+        }).join("");
+      }
+    }
+
+    function resolveInboxNote(noteId) {
+      const resolvedNotes = JSON.parse(localStorage.getItem("coach_resolved_notes") || "[]");
+      const idStr = String(noteId);
+      if (!resolvedNotes.includes(idStr)) {
+        resolvedNotes.push(idStr);
+        localStorage.setItem("coach_resolved_notes", JSON.stringify(resolvedNotes));
+      }
+
+      const noteObj = currentNotes.find(n => String(n.id) === idStr);
+      if (noteObj) {
+        noteObj.resolved = true;
+      }
+
+      const noteEl = document.getElementById(`inbox-note-${noteId}`);
+      if (noteEl) {
+        noteEl.classList.add("opacity-0", "-translate-y-2");
+        setTimeout(() => {
+          renderInboxNotes();
+        }, 300);
+      } else {
+        renderInboxNotes();
+      }
+    }
+
+    function restoreInboxNote(noteId) {
+      let resolvedNotes = JSON.parse(localStorage.getItem("coach_resolved_notes") || "[]");
+      const idStr = String(noteId);
+      resolvedNotes = resolvedNotes.filter(id => id !== idStr);
+      localStorage.setItem("coach_resolved_notes", JSON.stringify(resolvedNotes));
+
+      const noteObj = currentNotes.find(n => String(n.id) === idStr);
+      if (noteObj) {
+        noteObj.resolved = false;
+      }
+
+      renderInboxNotes();
+    }
+
+    // --- NAVIGAZIONE TABS & UTILITA ---
+    let currentTab = 'roster';
+    const tabOrder = ['roster', 'inbox', 'onboarding'];
+
+    function toggleShortcutsModal(show) {
+      const modal = document.getElementById('shortcuts-modal');
+      if (modal) modal.classList.toggle('hidden', !show);
+    }
+
+    function switchTab(tab) {
+      currentTab = tab;
+      const cRoster = document.getElementById("content-roster");
+      const cInbox = document.getElementById("content-inbox");
+      const cOnboarding = document.getElementById("content-onboarding");
+      if (cRoster) cRoster.classList.add("hidden");
+      if (cInbox) cInbox.classList.add("hidden");
+      if (cOnboarding) cOnboarding.classList.add("hidden");
+
+      const tRoster = document.getElementById("tab-roster");
+      const tInbox = document.getElementById("tab-inbox");
+      const tOnboarding = document.getElementById("tab-onboarding");
+
+      const inactiveClass = "px-4 py-2 text-sm font-medium rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 flex items-center gap-2 transition";
+      const activeClass = "px-4 py-2 text-sm font-semibold rounded-lg bg-brand-yellow text-slate-950 flex items-center gap-2 transition";
+
+      if (tRoster) {
+        tRoster.className = inactiveClass;
+        tRoster.setAttribute("aria-selected", "false");
+      }
+      if (tInbox) {
+        tInbox.className = inactiveClass;
+        tInbox.setAttribute("aria-selected", "false");
+      }
+      if (tOnboarding) {
+        tOnboarding.className = inactiveClass;
+        tOnboarding.setAttribute("aria-selected", "false");
+      }
+
+      if (tab === "roster") {
+        if (cRoster) cRoster.classList.remove("hidden");
+        if (tRoster) {
+          tRoster.className = activeClass;
+          tRoster.setAttribute("aria-selected", "true");
+        }
+      } else if (tab === "inbox") {
+        if (cInbox) cInbox.classList.remove("hidden");
+        if (tInbox) {
+          tInbox.className = activeClass;
+          tInbox.setAttribute("aria-selected", "true");
+        }
+      } else if (tab === "onboarding") {
+        if (cOnboarding) cOnboarding.classList.remove("hidden");
+        if (tOnboarding) {
+          tOnboarding.className = activeClass;
+          tOnboarding.setAttribute("aria-selected", "true");
+        }
+        const pendingList = document.getElementById("pending-applicants-list");
+        if (pendingList && !pendingList.classList.contains("hidden") && typeof pendingList.scrollIntoView === "function") {
+          pendingList.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }
+    }
+
+    function copyOnboardLink() {
+      const url = window.location.protocol.startsWith("http")
+        ? new URL("onboarding_athlete.html", window.location.href).href
+        : "file:///Users/cordy/Desktop/Allenamenti/interfaces/onboarding_athlete.html";
+      navigator.clipboard.writeText(url).then(() => {
+        UIFeedback.toast({
+          title: "Link copiato negli appunti!",
+          message: `Puoi incollarlo su WhatsApp o Telegram:<br><code class="text-[10px]">${escapeHtml(url)}</code>`,
+          type: "success"
+        });
+      }).catch(() => {
+        UIFeedback.toast({
+          title: "Link di registrazione",
+          message: escapeHtml(url),
+          type: "info"
+        });
+      });
+    }
+
+    function handleApproveApplicantClick(btn) {
+      const reqId = btn ? btn.getAttribute("data-req-id") : "";
+      const entry = normalizedApplicantsById[String(reqId)];
+      if (!entry) return;
+      approveApplicant(entry.name, entry.slug, entry.chatId, entry.reqId, btn);
+    }
+
+    function handleRejectApplicantClick(btn) {
+      const reqId = btn ? btn.getAttribute("data-req-id") : "";
+      if (!reqId) return;
+      rejectApplicant(reqId);
+    }
+
+    async function approveApplicant(name, slug, chatId, reqId, btnEl) {
+      if (!isAuthenticated || !CURRENT_TOKEN) {
+        lockDashboardUI();
+        UIFeedback.toast({
+          title: "Autenticazione richiesta",
+          message: "Inserisci un codice OTP valido per approvare gli atleti.",
+          type: "error"
+        });
+        return;
+      }
+      const confirmApproval = confirm(`Vuoi convalidare l'atleta ${name}?\n\n• Verrà clonato il Master Plan in Google Drive\n• Verrà attivato il bot Telegram per l'atleta\n• Riceverà il link di benvenuto`);
+      if (!confirmApproval) return;
+
+      const btn = btnEl || document.querySelector(`#applicant-card-${reqId} button[data-action="approve"]`);
+      const originalHtml = btn ? btn.innerHTML : "";
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Approvazione...';
+      }
+
+      try {
+        await fetch(WEBHOOK_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({
+            action: "approve_athlete",
+            coach_token: CURRENT_TOKEN,
+            name: name,
+            chat_id: chatId
+          })
+        });
+      } catch (e) {
+        console.warn("Chiamata approvazione inviata:", e);
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = originalHtml;
+        }
+      }
+
+      UIFeedback.toast({
+        title: `Atleta ${escapeHtml(name)} convalidato!`,
+        message: `Foglio Google Drive clonato in 'Coaching Atleti / ${escapeHtml(name)}' e messaggio inviato su Telegram (Chat ID: ${escapeHtml(chatId)}).`,
+        type: "success",
+        duration: 6000
+      });
+
+      if (reqId) {
+        currentApplicants = currentApplicants.filter((a, idx) => {
+          const id = (a && a.rowIndex != null && a.rowIndex !== "") ? a.rowIndex : idx + 1;
+          return String(id) !== String(reqId);
+        });
+      } else {
+        currentApplicants = [];
+      }
+      renderPendingRequests(currentApplicants);
+      switchTab("roster");
+    }
+
+    function rejectApplicant(reqId) {
+      if (confirm("Vuoi davvero rifiutare questa richiesta di iscrizione?")) {
+        if (reqId) {
+          currentApplicants = currentApplicants.filter((a, idx) => {
+            const id = (a && a.rowIndex != null && a.rowIndex !== "") ? a.rowIndex : idx + 1;
+            return String(id) !== String(reqId);
+          });
+        } else {
+          currentApplicants = [];
+        }
+        renderPendingRequests(currentApplicants);
+        UIFeedback.toast({
+          title: "Richiesta rifiutata",
+          message: "La candidatura è stata rimossa dalla coda di validazione.",
+          type: "info"
+        });
+      }
+    }
+
+    async function syncGarminAthlete(userId, btn) {
+      const original = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Sincronizzazione...';
+      try {
+        const resp = await fetch('http://localhost:5050/api/athlete/sync-garmin', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_id: userId })
+        });
+        const r = await resp.json();
+        if (r.status === 'ok') {
+          UIFeedback.toast({
+            title: `Garmin di ${r.display_name} aggiornato!`,
+            message: `• ${r.scheduled_count} allenamenti caricati (${r.window_days} giorni)<br>• ${r.cleaned_count} allenamenti passati rimossi<br>• Token AI consumati: 0`,
+            type: 'success',
+            duration: 5000
+          });
+        } else {
+          UIFeedback.toast({
+            title: "Attenzione sincronizzazione Garmin",
+            message: r.message || "Errore durante l'aggiornamento.",
+            type: 'warning'
+          });
+        }
+      } catch (e) {
+        UIFeedback.toast({
+          title: "Backend locale non raggiungibile",
+          message: `Avvialo con: <code>python scripts/ops_cli.py release-ui</code> oppure usa su Telegram: <code>/syncgarmin ${escapeHtml(userId)}</code>`,
+          type: 'error',
+          duration: 6000
+        });
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = original;
+      }
+    }
+
+    function refreshData() {
+      if (!isAuthenticated) {
+        lockDashboardUI();
+        return;
+      }
+      UIFeedback.toast({
+        title: "Stato Sistema Coaching",
+        message: "Demone com.cordy.hyroxbot: Attivo.<br>Webhook Telegram: Attivo.<br>Garmin Connect Session: Valida.<br>Persistenza stato: OK.",
+        type: "info"
+      });
+    }
+
+    // --- Gestione Scorciatoie da Tastiera ---
+    window.addEventListener('keydown', (e) => {
+      const pinModal = document.getElementById('pin-modal');
+      const authGateOpen = !isAuthenticated || (pinModal && !pinModal.classList.contains('hidden'));
+      if (authGateOpen) {
+        // Blocco bypass: Escape e scorciatoie non possono chiudere o aggirare #pin-modal
+        if (e.key === 'Escape') {
+          e.preventDefault();
+        }
+        return;
+      }
+
+      // Ignora tasti se l'utente sta digitando in un input/textarea (eccetto Escape)
+      const isInput = ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName);
+
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        const searchInput = document.getElementById('global-search-input');
+        if (searchInput) {
+          searchInput.focus();
+          searchInput.select();
+        }
+        return;
+      }
+
+      if (e.key === 'Escape') {
+        toggleShortcutsModal(false);
+        if (isInput) document.activeElement.blur();
+        return;
+      }
+
+      if (!isInput) {
+        if (e.key === '?' || (e.shiftKey && e.key === '/')) {
+          e.preventDefault();
+          toggleShortcutsModal(true);
+          return;
+        }
+        if (['1', '2', '3'].includes(e.key)) {
+          e.preventDefault();
+          const idx = parseInt(e.key, 10) - 1;
+          if (tabOrder[idx]) switchTab(tabOrder[idx]);
+          return;
+        }
+        if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+          const currentIdx = tabOrder.indexOf(currentTab || 'roster');
+          if (currentIdx !== -1) {
+            let nextIdx = e.key === 'ArrowRight' ? currentIdx + 1 : currentIdx - 1;
+            if (nextIdx >= 0 && nextIdx < tabOrder.length) {
+              switchTab(tabOrder[nextIdx]);
+            }
+          }
+        }
+      }
+    });
+
+    // --- Gestione Touch Swipe Gestures ---
+    let touchStartX = 0;
+    let touchStartY = 0;
+    const SWIPE_THRESHOLD = 50;
+
+    window.addEventListener('touchstart', (e) => {
+      touchStartX = e.changedTouches[0].screenX;
+      touchStartY = e.changedTouches[0].screenY;
+    }, { passive: true });
+
+    window.addEventListener('touchend', (e) => {
+      if (!isAuthenticated) return;
+      const touchEndX = e.changedTouches[0].screenX;
+      const touchEndY = e.changedTouches[0].screenY;
+      const deltaX = touchEndX - touchStartX;
+      const deltaY = touchEndY - touchStartY;
+
+      // Assicura che sia uno swipe prevalentemente orizzontale
+      if (Math.abs(deltaX) > SWIPE_THRESHOLD && Math.abs(deltaX) > Math.abs(deltaY) * 1.5) {
+        const currentIdx = tabOrder.indexOf(currentTab || 'roster');
+        if (deltaX < 0 && currentIdx < tabOrder.length - 1) {
+          // Swipe Left -> Tab Successivo
+          switchTab(tabOrder[currentIdx + 1]);
+        } else if (deltaX > 0 && currentIdx > 0) {
+          // Swipe Right -> Tab Precedente
+          switchTab(tabOrder[currentIdx - 1]);
+        }
+      }
+    }, { passive: true });
+  </script>
+  <!-- Modale Cheat Sheet Scorciatoie da Tastiera (Shift+?) -->
+  <div id="shortcuts-modal" role="dialog" aria-modal="true" aria-labelledby="shortcuts-modal-title" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl text-slate-200">
+      <div class="flex justify-between items-center pb-4 border-b border-slate-800">
+        <h3 id="shortcuts-modal-title" class="text-base font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-keyboard text-brand-yellow" aria-hidden="true"></i> Scorciatoie da Tastiera
+        </h3>
+        <button onclick="toggleShortcutsModal(false)" aria-label="Chiudi finestra scorciatoie" class="text-slate-400 hover:text-white text-lg">&times;</button>
+      </div>
+      <div class="py-4 space-y-3 text-xs">
+        <div class="flex justify-between items-center"><span class="text-slate-300">Cerca Atleta / Sessione</span><kbd class="px-2 py-1 bg-slate-800 border border-slate-700 rounded font-mono text-brand-yellow">Cmd / Ctrl + K</kbd></div>
+        <div class="flex justify-between items-center"><span class="text-slate-300">Naviga Roster / Inbox / Onboarding</span><kbd class="px-2 py-1 bg-slate-800 border border-slate-700 rounded font-mono text-cyan-300">1 / 2 / 3 o ← / →</kbd></div>
+        <div class="flex justify-between items-center"><span class="text-slate-300">Chiudi Modali / Reset</span><kbd class="px-2 py-1 bg-slate-800 border border-slate-700 rounded font-mono text-slate-400">Esc</kbd></div>
+        <div class="flex justify-between items-center"><span class="text-slate-300">Questo Aiuto</span><kbd class="px-2 py-1 bg-slate-800 border border-slate-700 rounded font-mono text-orange-400">?</kbd></div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
