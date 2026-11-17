@@ -46,7 +46,7 @@
 <body class="bg-brand-dark text-slate-100 min-h-screen flex flex-col antialiased">
 
   <!-- TOP HEADER -->
-  <header class="border-b border-brand-border bg-[#0D1424]/90 backdrop-blur sticky top-0 z-50 px-4 sm:px-6 py-4">
+  <header class="border-b border-brand-border bg-[#0D1424]/90 backdrop-blur sticky top-0 z-40 px-4 sm:px-6 py-4">
     <div class="max-w-4xl mx-auto flex items-center justify-between">
       <div class="flex items-center space-x-3">
         <div id="athlete-avatar" class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center text-white font-teko text-2xl font-bold shadow-lg shadow-cyan-500/20">
@@ -70,12 +70,54 @@
         <a href="https://t.me/andrea_hyrox_coach_bot" target="_blank" rel="noopener noreferrer" aria-label="Apri Bot Telegram del Coach Andrea in nuova scheda" class="min-h-[44px] px-3.5 py-2 text-xs font-medium bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 border border-sky-500/30 rounded-lg flex items-center gap-1.5 transition">
           <i class="fa-brands fa-telegram" aria-hidden="true"></i> Bot Telegram
         </a>
+        <button id="athlete-logout-btn" onclick="logoutAthlete()" aria-label="Disconnetti sessione atleta" class="min-h-[44px] px-3 py-2 text-xs font-medium bg-slate-800 hover:bg-red-500/20 hover:text-red-300 text-slate-300 border border-slate-700 rounded-lg flex items-center gap-1.5 transition">
+          <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i> <span class="hidden sm:inline">Esci</span>
+        </button>
       </div>
     </div>
   </header>
 
-  <!-- MAIN CONTAINER -->
-  <main class="max-w-4xl mx-auto px-4 sm:px-6 py-6 flex-1 w-full space-y-6">
+  <!-- MODAL GATE 2FA (ANTI-BYPASS) -->
+  <div id="athlete-auth-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md px-4" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
+    <div class="bg-[#161F30] w-full max-w-md rounded-2xl border border-slate-700/80 p-6 shadow-2xl space-y-6">
+      <div class="text-center space-y-2">
+        <div class="w-12 h-12 rounded-full bg-cyan-500/10 text-cyan-400 flex items-center justify-center mx-auto text-xl font-bold border border-cyan-500/20">⚡</div>
+        <h2 id="auth-modal-title" class="text-xl font-bold tracking-tight text-white">Accesso Portale Atleta</h2>
+        <p class="text-xs text-slate-400">Autenticazione sicura a due fattori tramite bot Telegram ufficiale.</p>
+      </div>
+
+      <!-- Step 1: Inserimento Identificativo -->
+      <div id="athlete-step-identifier" class="space-y-4">
+        <div>
+          <label for="athlete-identifier-input" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Identificativo Atleta</label>
+          <input type="text" id="athlete-identifier-input" placeholder="Email Garmin o Nome Registrato" class="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-900 text-white placeholder-slate-500 text-sm focus:ring-2 focus:ring-brand-yellow focus:outline-none transition-all" autocomplete="username" required>
+        </div>
+        <button id="athlete-btn-send-otp" onclick="requestAthleteOtp()" class="w-full py-3 px-4 bg-brand-yellow text-slate-950 font-bold rounded-xl text-sm shadow-lg shadow-brand-yellow/20 hover:bg-yellow-400 transition-all flex items-center justify-center gap-2">
+          <span>Invia Codice OTP su Telegram</span>
+        </button>
+      </div>
+
+      <!-- Step 2: Inserimento OTP (inizialmente nascosto) -->
+      <div id="athlete-step-otp" class="space-y-4 hidden">
+        <div>
+          <label for="athlete-otp-input" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Codice OTP (6 Cifre)</label>
+          <input type="text" id="athlete-otp-input" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" placeholder="123456" class="w-full px-4 py-3 text-center tracking-[0.5em] font-mono text-lg rounded-xl border border-slate-700 bg-slate-900 text-white focus:ring-2 focus:ring-brand-yellow focus:outline-none transition-all" autocomplete="one-time-code" required>
+        </div>
+        <button id="athlete-btn-verify-otp" onclick="verifyAthleteOtp()" class="w-full py-3 px-4 bg-brand-yellow text-slate-950 font-bold rounded-xl text-sm shadow-lg shadow-brand-yellow/20 hover:bg-yellow-400 transition-all flex items-center justify-center gap-2">
+          <span>Accedi al Portale</span>
+        </button>
+        <div class="flex items-center justify-between text-xs text-slate-400 pt-2">
+          <button id="athlete-resend-otp-btn" onclick="requestAthleteOtp(true)" class="hover:text-cyan-400 transition-colors disabled:opacity-50" disabled>Reinvia codice</button>
+          <span id="athlete-countdown-timer" class="font-mono"></span>
+        </div>
+      </div>
+
+      <div id="athlete-auth-error" class="hidden text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg p-3 text-center" role="alert"></div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTAINER (PROTETTO DA GATE 2FA) -->
+  <main id="athlete-main-content" class="max-w-4xl mx-auto px-4 sm:px-6 py-6 flex-1 w-full space-y-6 hidden" inert>
 
     <!-- TODAY GLANCE CARD -->
     <div class="glass-card rounded-2xl p-6 border-l-4 border-l-brand-yellow shadow-xl relative overflow-hidden">
@@ -85,10 +127,10 @@
           <h2 id="athlete-greeting" class="text-2xl font-bold text-white mt-0.5">☀️ Buongiorno Atleta!</h2>
         </div>
         <div class="flex items-center gap-2">
-          <span class="px-3 py-1 text-xs font-bold rounded-lg bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5">
-            <span class="w-2 h-2 rounded-full bg-emerald-400"></span> SEMAFORO: VERDE
+          <span id="athlete-readiness-badge" class="px-3 py-1 text-xs font-bold rounded-lg bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5">
+            <span id="athlete-readiness-dot" class="w-2 h-2 rounded-full bg-emerald-400"></span> <span id="athlete-readiness-text">SEMAFORO: VERDE</span>
           </span>
-          <span class="px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-800 text-slate-300">
+          <span id="athlete-workout-time" class="px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-800 text-slate-300">
             <i class="fa-regular fa-clock text-cyan-400"></i> Ore 18:30
           </span>
         </div>
@@ -99,26 +141,25 @@
           <span class="font-semibold text-brand-yellow uppercase flex items-center gap-1.5">
             <i class="fa-solid fa-person-running"></i> Sessione in Programma
           </span>
-          <span>Garmin ID: Sincronizzato</span>
+          <span id="athlete-garmin-status">Garmin ID: Sincronizzato</span>
         </div>
-        <div class="text-lg font-bold text-white tracking-wide">
+        <div id="athlete-today-workout" class="text-lg font-bold text-white tracking-wide">
           50m Corsa Z2 + 4x100m Allunghi Tecnici
         </div>
-        <div class="mt-2 flex flex-wrap gap-2 text-xs text-slate-300">
-          <span class="px-2 py-0.5 bg-slate-800 rounded">Cardio: &lt; 142 bpm (Zona 2 pura)</span>
-          <span class="px-2 py-0.5 bg-slate-800 rounded">Recupero: 60s tra gli allunghi</span>
+        <div id="athlete-workout-tags" class="mt-2 flex flex-wrap gap-2 text-xs text-slate-300">
+          <span id="athlete-workout-subdetail" class="px-2 py-0.5 bg-slate-800 rounded">Cardio: &lt; 142 bpm (Zona 2 pura)</span>
           <span id="athlete-weather" class="px-2 py-0.5 bg-slate-800 rounded text-cyan-300">Meteo: ⛅ In aggiornamento</span>
         </div>
       </div>
 
       <!-- PRE-WORKOUT BANNER (55 MIN PRIMA) -->
-      <div class="bg-orange-500/10 border border-orange-500/20 p-3.5 rounded-xl flex items-start gap-3">
+      <div id="athlete-preworkout-banner" class="bg-orange-500/10 border border-orange-500/20 p-3.5 rounded-xl flex items-start gap-3">
         <div class="p-2 rounded-lg bg-orange-500/20 text-orange-400 text-base">
           <i class="fa-solid fa-bolt"></i>
         </div>
         <div class="text-xs">
-          <div class="font-bold text-orange-300">Promemoria Pre-Workout (Ore 17:35 - 55 min prima)</div>
-          <div class="text-slate-300 mt-0.5">• Spuntino rapido: Gallette di Riso + Miele + 1 Banana</div>
+          <div class="font-bold text-orange-300">Promemoria Pre-Workout</div>
+          <div id="athlete-preworkout-tip" class="text-slate-300 mt-0.5">• Spuntino rapido: Gallette di Riso + Miele + 1 Banana</div>
           <div class="text-slate-300">• 3-5g di Creatina con 400 ml d'acqua per garantire idratazione e forza esplosiva.</div>
         </div>
       </div>
@@ -150,16 +191,16 @@
         <div>
           <span class="text-[11px] font-semibold text-slate-400 block mb-2 uppercase">Registra Acqua con 1 Tap:</span>
           <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-            <button onclick="addWater(200)" aria-label="Registra 200 millilitri d'acqua" class="min-h-[44px] py-2.5 px-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs rounded-xl font-medium transition active:scale-95 flex items-center justify-center gap-1">
-              <span>🥛</span> <span>+200ml</span>
+            <button onclick="logAthleteWater(250)" aria-label="Registra 250 millilitri d'acqua" class="min-h-[44px] py-2.5 px-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs rounded-xl font-medium transition active:scale-95 flex items-center justify-center gap-1">
+              <span>🥛</span> <span>+250ml</span>
             </button>
-            <button onclick="addWater(350)" aria-label="Registra 350 millilitri d'acqua" class="min-h-[44px] py-2.5 px-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs rounded-xl font-medium transition active:scale-95 flex items-center justify-center gap-1">
+            <button onclick="logAthleteWater(350)" aria-label="Registra 350 millilitri d'acqua" class="min-h-[44px] py-2.5 px-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs rounded-xl font-medium transition active:scale-95 flex items-center justify-center gap-1">
               <span>🥤</span> <span>+350ml</span>
             </button>
-            <button onclick="addWater(500)" aria-label="Registra 500 millilitri d'acqua" class="min-h-[44px] py-2.5 px-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs rounded-xl font-medium transition active:scale-95 flex items-center justify-center gap-1">
+            <button onclick="logAthleteWater(500)" aria-label="Registra 500 millilitri d'acqua" class="min-h-[44px] py-2.5 px-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs rounded-xl font-medium transition active:scale-95 flex items-center justify-center gap-1">
               <span>🍼</span> <span>+500ml</span>
             </button>
-            <button onclick="addCoffee()" aria-label="Registra una tazzina di caffè" class="min-h-[44px] py-2.5 px-2 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/20 text-xs rounded-xl font-medium transition active:scale-95 flex items-center justify-center gap-1">
+            <button onclick="logAthleteWater(0, true)" aria-label="Registra una tazzina di caffè" class="min-h-[44px] py-2.5 px-2 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/20 text-xs rounded-xl font-medium transition active:scale-95 flex items-center justify-center gap-1">
               <span>☕</span> <span>+1 Caffè</span>
             </button>
           </div>
@@ -180,8 +221,8 @@
           <textarea id="athlete-note" rows="2" placeholder="es. Oggi sento tirare il polpaccio destro al 4° lap..." aria-label="Scrivi un messaggio o segnala un fastidio al Coach Andrea" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-yellow resize-none"></textarea>
           <div class="flex items-center justify-between">
             <span class="text-[10px] text-slate-500">Notifica istantanea via Telegram</span>
-            <button onclick="sendNoteToCoach()" aria-label="Invia nota istantanea al Coach Andrea" class="min-h-[44px] px-4 py-2 bg-brand-yellow text-slate-950 font-bold text-xs rounded-lg hover:bg-yellow-400 transition flex items-center gap-1.5 active:scale-95">
-              <i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Invia al Coach
+            <button id="athlete-send-note-btn" onclick="sendAthleteNote()" aria-label="Invia nota istantanea al Coach Andrea" class="min-h-[44px] px-4 py-2 bg-brand-yellow text-slate-950 font-bold text-xs rounded-lg hover:bg-yellow-400 transition flex items-center gap-1.5 active:scale-95">
+              <i class="fa-solid fa-paper-plane" aria-hidden="true"></i> <span>Invia al Coach</span>
             </button>
           </div>
         </div>
@@ -196,7 +237,7 @@
           <h3 class="text-base font-bold text-white flex items-center gap-2">
             <i class="fa-solid fa-calendar-days text-cyan-400"></i> Piano Settimanale Corrente (Rolling Window)
           </h3>
-          <p class="text-xs text-slate-400">Settimana attiva: <strong>09 Nov - 15 Nov 2026</strong> (Sbloccata)</p>
+          <p id="athlete-weekly-range" class="text-xs text-slate-400">Settimana attiva: (Sbloccata)</p>
         </div>
         <span class="px-2.5 py-1 text-[11px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-lg">
           Settimana 1 / 40
@@ -204,92 +245,8 @@
       </div>
 
       <!-- DAYS LIST -->
-      <div class="space-y-2 text-xs">
-        
-        <!-- LUNEDI -->
-        <div class="p-3 bg-slate-900/50 rounded-xl border border-slate-800 flex items-center justify-between">
-          <div class="flex items-center space-x-3">
-            <span class="w-16 font-bold text-slate-400">Lunedì 09</span>
-            <div>
-              <span class="font-semibold text-white">45m Corsa Facile Z2 + Core Stability</span>
-              <span class="block text-[10px] text-slate-400">Completato • Voto 9.0</span>
-            </div>
-          </div>
-          <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold text-[10px]">COMPLETATO</span>
-        </div>
-
-        <!-- MARTEDI -->
-        <div class="p-3 bg-slate-900/50 rounded-xl border border-slate-800 flex items-center justify-between">
-          <div class="flex items-center space-x-3">
-            <span class="w-16 font-bold text-slate-400">Martedì 10</span>
-            <div>
-              <span class="font-semibold text-white">HYROX Sled Push & Burpee Broad Jumps</span>
-              <span class="block text-[10px] text-slate-400">Completato • Voto 8.5</span>
-            </div>
-          </div>
-          <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold text-[10px]">COMPLETATO</span>
-        </div>
-
-        <!-- MERCOLEDI -->
-        <div class="p-3 bg-slate-900/50 rounded-xl border border-slate-800 flex items-center justify-between">
-          <div class="flex items-center space-x-3">
-            <span class="w-16 font-bold text-slate-400">Mercoledì 11</span>
-            <div>
-              <span class="font-semibold text-white">Riposo Attivo • Mobilità & Stretching Anca</span>
-              <span class="block text-[10px] text-slate-400">Recupero Fisiologico</span>
-            </div>
-          </div>
-          <span class="px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 font-bold text-[10px]">RIPOSO</span>
-        </div>
-
-        <!-- GIOVEDI (OGGI) -->
-        <div class="p-3 bg-brand-yellow/10 rounded-xl border border-brand-yellow/30 flex items-center justify-between">
-          <div class="flex items-center space-x-3">
-            <span class="w-16 font-bold text-brand-yellow">Oggi (12)</span>
-            <div>
-              <span class="font-semibold text-white">50m Corsa Z2 + 4x100m Allunghi Tecnici</span>
-              <span class="block text-[10px] text-brand-yellow">Pianificato per le ore 18:30 (Sera)</span>
-            </div>
-          </div>
-          <span class="px-2 py-0.5 rounded bg-brand-yellow text-slate-950 font-bold text-[10px]">OGGI</span>
-        </div>
-
-        <!-- VENERDI -->
-        <div class="p-3 bg-slate-900/50 rounded-xl border border-slate-800 flex items-center justify-between">
-          <div class="flex items-center space-x-3">
-            <span class="w-16 font-bold text-slate-400">Venerdì 13</span>
-            <div>
-              <span class="font-semibold text-white">HYROX Strength: Sandbag Lunges & SkiErg Intervals</span>
-              <span class="block text-[10px] text-slate-400">Target ore 12:10 o 18:30</span>
-            </div>
-          </div>
-          <span class="px-2 py-0.5 rounded bg-slate-800 text-slate-400 font-bold text-[10px]">PROGRAMMATO</span>
-        </div>
-
-        <!-- SABATO -->
-        <div class="p-3 bg-slate-900/50 rounded-xl border border-slate-800 flex items-center justify-between">
-          <div class="flex items-center space-x-3">
-            <span class="w-16 font-bold text-slate-400">Sabato 14</span>
-            <div>
-              <span class="font-semibold text-white">Lungo Collinare Z2 (75 min)</span>
-              <span class="block text-[10px] text-slate-400">Costruzione aerobica</span>
-            </div>
-          </div>
-          <span class="px-2 py-0.5 rounded bg-slate-800 text-slate-400 font-bold text-[10px]">PROGRAMMATO</span>
-        </div>
-
-        <!-- DOMENICA -->
-        <div class="p-3 bg-slate-900/50 rounded-xl border border-slate-800 flex items-center justify-between">
-          <div class="flex items-center space-x-3">
-            <span class="w-16 font-bold text-slate-400">Domenica 15</span>
-            <div>
-              <span class="font-semibold text-white">Riposo Totale & Ricarica Idrica</span>
-              <span class="block text-[10px] text-slate-400">Weekly Review serale col Coach</span>
-            </div>
-          </div>
-          <span class="px-2 py-0.5 rounded bg-slate-800 text-slate-400 font-bold text-[10px]">RIPOSO</span>
-        </div>
-
+      <div id="athlete-weekly-program-container" class="space-y-2 text-xs">
+        <!-- Generato dinamicamente da renderAthleteDashboard -->
       </div>
 
       <!-- LOCKED FUTURE WEEKS (ANTI-LEAK BANNER) -->
@@ -298,10 +255,10 @@
           <i class="fa-solid fa-lock text-sm"></i>
         </div>
         <div class="text-xs font-bold text-slate-200">
-          Settimane 2 – 40 Riservate
+          Settimane Future Riservate
         </div>
         <p class="text-[11px] text-slate-400 max-w-md mx-auto">
-          La <strong>Settimana 2</strong> verrà sbloccata dal Coach Andrea lunedì 16 novembre dopo aver analizzato i carichi e le tue sensazioni di questa settimana.
+          I carichi successivi vengono sbloccati dal Coach Andrea solo dopo aver analizzato le risposte fisiologiche e i tuoi feedback della settimana in corso.
         </p>
       </div>
 
@@ -318,11 +275,17 @@
   <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none px-4 sm:px-0" aria-live="polite" role="status" aria-atomic="true"></div>
 
   <script>
+    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxPti1imOEgoYrJimCthCMkCyqwmTFwbIMOZoclu9ayNaC5WdkVjMfUlU3naunw_vJNuw/exec";
+    const ATHLETE_STORAGE_KEY = "athlete_token";
+    const ATHLETE_ID_KEY = "athlete_identifier";
+
     let currentMl = 1400;
-    const targetMl = 2500;
+    let targetMl = 2500;
+    let athleteCooldownTimer = null;
 
     function showToast(message, type = 'info') {
       const container = document.getElementById('toast-container');
+      if (!container) return;
       const toast = document.createElement('div');
       
       const colors = {
@@ -349,107 +312,433 @@
 
       container.appendChild(toast);
       
-      // Animate in
       requestAnimationFrame(() => {
         toast.classList.remove('translate-y-2', 'opacity-0');
         toast.classList.add('translate-y-0', 'opacity-100');
       });
 
-      // Auto dismiss after 4.5s
       setTimeout(() => {
         toast.classList.add('opacity-0', 'translate-y-2');
         setTimeout(() => toast.remove(), 300);
       }, 4500);
     }
 
-    function addWater(ml) {
-      currentMl += ml;
-      updateWaterUI();
-      showToast(`💧 <strong>+${ml} ml registrati!</strong><br>Nuovo totale: ${(currentMl/1000).toFixed(2)} L su ${(targetMl/1000).toFixed(1)} L`, 'success');
-    }
-
-    function addCoffee() {
-      showToast("☕ <strong>Caffè registrato!</strong><br>Ricordati di bere un bicchiere d'acqua per reintegrare i liquidi.", 'info');
-    }
-
-    function updateWaterUI() {
-      const pct = Math.min(100, Math.round((currentMl / targetMl) * 100));
-      document.getElementById('water-display').innerText = `${(currentMl/1000).toFixed(2)} L / ${(targetMl/1000).toFixed(1)} L`;
-      document.getElementById('water-pct').innerText = `${pct}%`;
-      document.getElementById('water-bar').style.width = `${pct}%`;
-      const progressBar = document.getElementById('water-progress');
-      if (progressBar) {
-        progressBar.setAttribute('aria-valuenow', pct);
-        progressBar.setAttribute('aria-label', `Progresso idratazione: ${pct}%`);
+    function showAuthError(msg) {
+      const errBox = document.getElementById("athlete-auth-error");
+      if (!errBox) return;
+      if (msg) {
+        errBox.textContent = msg;
+        errBox.classList.remove("hidden");
+      } else {
+        errBox.textContent = "";
+        errBox.classList.add("hidden");
       }
     }
 
-    function sendNoteToCoach() {
-      const noteInput = document.getElementById('athlete-note');
-      const note = noteInput.value.trim();
-      if (!note) {
-        showToast("⚠️ Inserisci una nota o un messaggio prima di inviare.", 'warning');
-        noteInput.focus();
+    function setButtonLoading(btn, isLoading, text) {
+      if (!btn) return;
+      btn.disabled = isLoading;
+      if (isLoading) {
+        btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> <span>${text}</span>`;
+      } else {
+        btn.innerHTML = `<span>${text}</span>`;
+      }
+    }
+
+    function trapEscapeAuth(e) {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    }
+
+    function lockPortalUI() {
+      const main = document.getElementById("athlete-main-content");
+      const modal = document.getElementById("athlete-auth-modal");
+      if (main) {
+        main.classList.add("hidden");
+        main.setAttribute("inert", "");
+      }
+      if (modal) {
+        modal.classList.remove("hidden");
+      }
+      window.addEventListener("keydown", trapEscapeAuth);
+    }
+
+    function unlockPortalUI() {
+      const main = document.getElementById("athlete-main-content");
+      const modal = document.getElementById("athlete-auth-modal");
+      if (main) {
+        main.classList.remove("hidden");
+        main.removeAttribute("inert");
+      }
+      if (modal) {
+        modal.classList.add("hidden");
+      }
+      window.removeEventListener("keydown", trapEscapeAuth);
+    }
+
+    function startAthleteOtpResendCountdown(seconds = 60) {
+      const btn = document.getElementById("athlete-resend-otp-btn");
+      const timerSpan = document.getElementById("athlete-countdown-timer");
+      if (athleteCooldownTimer) {
+        clearInterval(athleteCooldownTimer);
+        athleteCooldownTimer = null;
+      }
+      let remaining = seconds;
+      if (btn) btn.disabled = true;
+      if (timerSpan) timerSpan.textContent = `(${remaining}s)`;
+
+      athleteCooldownTimer = setInterval(() => {
+        remaining -= 1;
+        if (remaining <= 0) {
+          clearInterval(athleteCooldownTimer);
+          athleteCooldownTimer = null;
+          if (btn) btn.disabled = false;
+          if (timerSpan) timerSpan.textContent = "";
+        } else {
+          if (timerSpan) timerSpan.textContent = `(${remaining}s)`;
+        }
+      }, 1000);
+    }
+
+    async function requestAthleteOtp(isResend = false) {
+      const inputEl = document.getElementById("athlete-identifier-input");
+      const identifier = (inputEl ? inputEl.value : "").trim() || (isResend ? sessionStorage.getItem(ATHLETE_ID_KEY) || "" : "");
+      if (!identifier) {
+        showAuthError("Inserisci il tuo identificativo atleta.");
         return;
       }
-      showToast(`✅ <strong>Nota inviata al Coach Andrea!</strong><br>"${note}"<br><span class="text-[11px] text-slate-400">Notifica recapitata nella Coach Inbox.</span>`, 'success');
-      noteInput.value = "";
+      const btn = isResend ? document.getElementById("athlete-resend-otp-btn") : document.getElementById("athlete-btn-send-otp");
+      const originalText = isResend ? "Reinvia codice" : "Invia Codice OTP su Telegram";
+      setButtonLoading(btn, true, isResend ? "Invio..." : "Invio in corso...");
+      showAuthError("");
+
+      try {
+        const response = await fetch(GAS_API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain" },
+          body: JSON.stringify({ action: "request_athlete_otp", identifier: identifier })
+        });
+        const data = await response.json();
+        if (data.status === "ok") {
+          sessionStorage.setItem(ATHLETE_ID_KEY, identifier);
+          document.getElementById("athlete-step-identifier").classList.add("hidden");
+          document.getElementById("athlete-step-otp").classList.remove("hidden");
+          startAthleteOtpResendCountdown(60);
+          showToast("📩 Codice OTP inviato sul tuo Telegram!", "success");
+        } else {
+          showAuthError(data.message || "Identificativo non trovato o atleta non attivo.");
+        }
+      } catch (err) {
+        showAuthError("Errore di connessione. Riprova tra poco.");
+      } finally {
+        setButtonLoading(btn, false, originalText);
+      }
     }
 
-    function initAthleteProfile() {
+    async function verifyAthleteOtp() {
+      const otpInput = document.getElementById("athlete-otp-input");
+      const otp = (otpInput ? otpInput.value : "").trim();
+      const identifier = sessionStorage.getItem(ATHLETE_ID_KEY) || (document.getElementById("athlete-identifier-input")?.value || "").trim();
+
+      if (!/^[0-9]{6}$/.test(otp)) {
+        showAuthError("Il codice OTP deve essere di 6 cifre numeriche.");
+        return;
+      }
+      const btn = document.getElementById("athlete-btn-verify-otp");
+      setButtonLoading(btn, true, "Verifica in corso...");
+      showAuthError("");
+
       try {
-        const urlParams = new URLSearchParams(window.location.search);
-        const rawName = urlParams.get('name') || urlParams.get('athlete') || '';
-        const rawCity = urlParams.get('city') || '';
+        const response = await fetch(GAS_API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain" },
+          body: JSON.stringify({ action: "verify_athlete_otp", identifier: identifier, otp: otp })
+        });
+        const data = await response.json();
+        if (data.status === "ok" && data.athlete_token) {
+          sessionStorage.setItem(ATHLETE_STORAGE_KEY, data.athlete_token);
+          unlockPortalUI();
+          showToast("🎉 Autenticazione completata!", "success");
+          await fetchAthleteData();
+        } else {
+          showAuthError(data.message || "Codice OTP non valido o scaduto.");
+        }
+      } catch (err) {
+        showAuthError("Errore di connessione durante la verifica.");
+      } finally {
+        setButtonLoading(btn, false, "Accedi al Portale");
+      }
+    }
 
-        const displayName = rawName ? decodeURIComponent(rawName).trim() : 'Il Tuo Profilo';
-        const firstName = rawName ? displayName.split(/\s+/)[0] : 'Atleta';
+    function logoutAthlete() {
+      sessionStorage.removeItem(ATHLETE_STORAGE_KEY);
+      sessionStorage.removeItem(ATHLETE_ID_KEY);
+      const otpInput = document.getElementById("athlete-otp-input");
+      if (otpInput) otpInput.value = "";
+      const stepOtp = document.getElementById("athlete-step-otp");
+      if (stepOtp) stepOtp.classList.add("hidden");
+      const stepId = document.getElementById("athlete-step-identifier");
+      if (stepId) stepId.classList.remove("hidden");
+      showAuthError("");
+      lockPortalUI();
+      showToast("Sessione chiusa.", "info");
+    }
 
-        let initials = 'AT';
-        if (rawName) {
-          const parts = displayName.split(/\s+/);
+    async function fetchAthleteData() {
+      const token = sessionStorage.getItem(ATHLETE_STORAGE_KEY);
+      if (!token) {
+        lockPortalUI();
+        return;
+      }
+
+      try {
+        const response = await fetch(GAS_API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain" },
+          body: JSON.stringify({ action: "get_athlete_data", athlete_token: token })
+        });
+        const res = await response.json();
+        if (res.status === "ok" && res.data) {
+          renderAthleteDashboard(res.data);
+        } else if (res.status === "unauthorized") {
+          logoutAthlete();
+          showAuthError("Sessione scaduta. Richiedi un nuovo codice.");
+        } else {
+          showToast("Impossibile caricare i dati atleta aggiornati.", "warning");
+        }
+      } catch (e) {
+        console.warn("Errore fetch dati atleta:", e);
+        showToast("Errore di rete nel recupero dati.", "error");
+      }
+    }
+
+    function renderAthleteDashboard(data) {
+      if (!data) return;
+
+      // 1. Profilo Atleta
+      if (data.profile) {
+        const displayName = data.profile.name || "Atleta";
+        const city = data.profile.city || "";
+        const nameEl = document.getElementById("athlete-name");
+        if (nameEl) nameEl.textContent = displayName;
+
+        const cityEl = document.getElementById("athlete-city");
+        if (cityEl && city) cityEl.textContent = ` • ${city}`;
+
+        const greetingEl = document.getElementById("athlete-greeting");
+        const firstName = displayName.split(/\s+/)[0];
+        if (greetingEl) greetingEl.textContent = `☀️ Buongiorno ${firstName}!`;
+
+        const avatarEl = document.getElementById("athlete-avatar");
+        if (avatarEl) {
+          const parts = displayName.trim().split(/\s+/);
+          let initials = "AT";
           if (parts.length >= 2) {
             initials = (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
           } else if (parts.length === 1 && parts[0].length >= 1) {
             initials = parts[0].substring(0, 2).toUpperCase();
           }
+          avatarEl.textContent = initials;
         }
 
-        const nameEl = document.getElementById('athlete-name');
-        if (nameEl) nameEl.textContent = displayName;
-
-        const avatarEl = document.getElementById('athlete-avatar');
-        if (avatarEl) avatarEl.textContent = initials;
-
-        const greetingEl = document.getElementById('athlete-greeting');
-        if (greetingEl) {
-          greetingEl.textContent = `☀️ Buongiorno ${firstName}!`;
-        }
-
-        const cityEl = document.getElementById('athlete-city');
-        if (cityEl && rawCity) {
-          cityEl.textContent = ` • ${decodeURIComponent(rawCity).trim()}`;
-        }
-
-        const todayEl = document.getElementById('today-date');
-        if (todayEl) {
-          const now = new Date();
-          const formatted = now.toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' });
-          const capitalized = formatted.charAt(0).toUpperCase() + formatted.slice(1);
-          todayEl.textContent = `Oggi • ${capitalized}`;
-        }
-
-        const weatherEl = document.getElementById('athlete-weather');
+        const weatherEl = document.getElementById("athlete-weather");
         if (weatherEl) {
-          const cityLabel = rawCity ? decodeURIComponent(rawCity).trim() : 'Locale';
-          weatherEl.textContent = `Meteo ${cityLabel}: ⛅ 16°C`;
+          weatherEl.textContent = `Meteo ${city || "Locale"}: ⛅ Ottimale`;
         }
-      } catch (e) {
-        console.warn('Errore inizializzazione profilo atleta:', e);
+      }
+
+      // 2. Data odierna
+      const todayEl = document.getElementById("today-date");
+      if (todayEl) {
+        const now = new Date();
+        const formatted = now.toLocaleDateString("it-IT", { weekday: "long", day: "numeric", month: "long" });
+        todayEl.textContent = `Oggi • ${formatted.charAt(0).toUpperCase() + formatted.slice(1)}`;
+      }
+
+      // 3. Allenamento Odierno
+      const workoutEl = document.getElementById("athlete-today-workout");
+      if (workoutEl) {
+        workoutEl.textContent = data.today_workout || "Riposo o sessione libera";
+      }
+
+      // 4. Readiness
+      if (data.readiness) {
+        const rStatus = String(data.readiness.status || "").toUpperCase();
+        const badge = document.getElementById("athlete-readiness-badge");
+        const dot = document.getElementById("athlete-readiness-dot");
+        const text = document.getElementById("athlete-readiness-text");
+
+        if (text) text.textContent = `SEMAFORO: ${rStatus || "VERDE"}`;
+        if (badge && dot) {
+          if (rStatus.includes("ROSSO")) {
+            badge.className = "px-3 py-1 text-xs font-bold rounded-lg bg-red-500/15 text-red-400 border border-red-500/30 flex items-center gap-1.5";
+            dot.className = "w-2 h-2 rounded-full bg-red-400";
+          } else if (rStatus.includes("GIALLO")) {
+            badge.className = "px-3 py-1 text-xs font-bold rounded-lg bg-amber-500/15 text-amber-400 border border-amber-500/30 flex items-center gap-1.5";
+            dot.className = "w-2 h-2 rounded-full bg-amber-400";
+          } else {
+            badge.className = "px-3 py-1 text-xs font-bold rounded-lg bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5";
+            dot.className = "w-2 h-2 rounded-full bg-emerald-400";
+          }
+        }
+      }
+
+      // 5. Idratazione
+      if (data.hydration) {
+        const wMl = data.hydration.water_ml ?? data.hydration.current_ml ?? currentMl;
+        const tL = data.hydration.target_l ?? (targetMl / 1000.0);
+        currentMl = Math.round(wMl);
+        targetMl = Math.round(tL * 1000);
+        updateHydrationUI(currentMl, targetMl);
+      }
+
+      // 6. Programma Settimanale Ciclico
+      const progContainer = document.getElementById("athlete-weekly-program-container");
+      if (progContainer && Array.isArray(data.weekly_program) && data.weekly_program.length > 0) {
+        progContainer.innerHTML = "";
+        data.weekly_program.forEach((item) => {
+          const div = document.createElement("div");
+          const isToday = item.workout && item.workout.includes(data.today_workout);
+          div.className = isToday
+            ? "p-3 bg-brand-yellow/10 rounded-xl border border-brand-yellow/30 flex items-center justify-between"
+            : "p-3 bg-slate-900/50 rounded-xl border border-slate-800 flex items-center justify-between";
+
+          div.innerHTML = `
+            <div class="flex items-center space-x-3">
+              <span class="w-20 font-bold ${isToday ? 'text-brand-yellow' : 'text-slate-400'}">${escapeHtml(item.workout.split(' - ')[0] || 'Sessione')}</span>
+              <div>
+                <span class="font-semibold text-white">${escapeHtml(item.workout.split(' - ').slice(1).join(' - ') || item.workout)}</span>
+                <span class="block text-[10px] text-slate-400">${escapeHtml(item.feedback || item.score ? `Voto: ${item.score || '--'}` : 'In programma')}</span>
+              </div>
+            </div>
+            <span class="px-2 py-0.5 rounded ${isToday ? 'bg-brand-yellow text-slate-950' : 'bg-slate-800 text-slate-400'} font-bold text-[10px]">
+              ${isToday ? 'OGGI' : (item.readiness || 'PIANO')}
+            </span>
+          `;
+          progContainer.appendChild(div);
+        });
       }
     }
 
-    window.addEventListener('DOMContentLoaded', initAthleteProfile);
+    function escapeHtml(str) {
+      if (!str) return "";
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function updateHydrationUI(curMl, tgtMl) {
+      currentMl = curMl;
+      targetMl = tgtMl || targetMl;
+      const pct = Math.min(100, Math.round((currentMl / targetMl) * 100));
+      const displayEl = document.getElementById('water-display');
+      const pctEl = document.getElementById('water-pct');
+      const barEl = document.getElementById('water-bar');
+      const progressEl = document.getElementById('water-progress');
+
+      if (displayEl) displayEl.innerText = `${(currentMl/1000).toFixed(2)} L / ${(targetMl/1000).toFixed(1)} L`;
+      if (pctEl) pctEl.innerText = `${pct}%`;
+      if (barEl) barEl.style.width = `${pct}%`;
+      if (progressEl) {
+        progressEl.setAttribute('aria-valuenow', pct);
+        progressEl.setAttribute('aria-label', `Progresso idratazione giornaliera: ${pct}%`);
+      }
+    }
+
+    async function logAthleteWater(amountMl, isCoffee = false) {
+      const token = sessionStorage.getItem(ATHLETE_STORAGE_KEY);
+      if (!token) {
+        lockPortalUI();
+        return;
+      }
+      try {
+        const payload = {
+          action: "log_athlete_water",
+          athlete_token: token,
+          ml: amountMl,
+          is_coffee: isCoffee
+        };
+        const response = await fetch(GAS_API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain" },
+          body: JSON.stringify(payload)
+        });
+        const res = await response.json();
+        if (res.status === "ok") {
+          if (res.current_ml !== undefined) {
+            updateHydrationUI(res.current_ml, targetMl);
+          } else {
+            currentMl += (isCoffee ? 0 : amountMl);
+            updateHydrationUI(currentMl, targetMl);
+          }
+          if (isCoffee) {
+            showToast("☕ Caffè registrato! Ricorda di bere acqua per reintegrare i liquidi.", "info");
+          } else {
+            showToast(`💧 <strong>+${amountMl} ml registrati con successo!</strong>`, "success");
+          }
+        } else if (res.status === "unauthorized") {
+          logoutAthlete();
+        } else {
+          showToast(res.message || "Impossibile registrare l'idratazione. Riprova.", "error");
+        }
+      } catch (e) {
+        showToast("Errore di rete durante il log idratazione.", "error");
+      }
+    }
+
+    async function sendAthleteNote() {
+      const token = sessionStorage.getItem(ATHLETE_STORAGE_KEY);
+      if (!token) {
+        lockPortalUI();
+        return;
+      }
+      const noteInput = document.getElementById('athlete-note');
+      const note = (noteInput ? noteInput.value : "").trim();
+      if (!note) {
+        showToast("⚠️ Inserisci una nota o un messaggio prima di inviare.", 'warning');
+        if (noteInput) noteInput.focus();
+        return;
+      }
+
+      const btn = document.getElementById("athlete-send-note-btn");
+      setButtonLoading(btn, true, "Invio...");
+
+      try {
+        const response = await fetch(GAS_API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain" },
+          body: JSON.stringify({ action: "send_athlete_note", athlete_token: token, note: note })
+        });
+        const res = await response.json();
+        if (res.status === "ok") {
+          showToast(`✅ <strong>Nota inviata al Coach Andrea!</strong><br><span class="text-[11px] text-slate-400">Recapitata istantaneamente nella Coach Inbox privata.</span>`, 'success');
+          if (noteInput) noteInput.value = "";
+        } else if (res.status === "unauthorized") {
+          logoutAthlete();
+        } else {
+          showToast(res.message || "Errore durante l'invio della nota.", "error");
+        }
+      } catch (e) {
+        showToast("Errore di rete durante l'invio della nota.", "error");
+      } finally {
+        setButtonLoading(btn, false, "Invia al Coach");
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const token = sessionStorage.getItem(ATHLETE_STORAGE_KEY);
+      if (token) {
+        unlockPortalUI();
+        fetchAthleteData();
+      } else {
+        lockPortalUI();
+      }
+    });
   </script>
 </body>
 </html>
