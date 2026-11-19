@@ -26,6 +26,7 @@
   </script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="assets/ui-feedback.css">
+  <link rel="stylesheet" href="assets/theme.css">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#FFDD00">
   <script src="assets/ui-feedback.js"></script>
@@ -39,69 +40,74 @@
     }
   </script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Teko:wght@600;700&display=swap');
-    body { font-family: 'Inter', sans-serif; }
-    .font-teko { font-family: 'Teko', sans-serif; }
-    .glass-card {
-      background: rgba(30, 41, 59, 0.7);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-    }
-    :focus-visible {
-      outline: 2px solid #FFDD00 !important;
-      outline-offset: 2px !important;
-    }
+    body { font-family: var(--ds-font-sans); background-color: var(--ds-bg); color: var(--ds-text); }
+    .font-teko { font-family: var(--ds-font-display); }
   </style>
 </head>
 <body class="bg-[#0B0F19] text-slate-100 min-h-screen flex flex-col antialiased">
 
   <!-- TOP NAVBAR -->
-  <header class="border-b border-slate-800 bg-[#0F172A]/90 backdrop-blur sticky top-0 z-50 px-6 py-4">
-    <div class="max-w-7xl mx-auto flex items-center justify-between">
-      <div class="flex items-center space-x-4">
-        <div class="w-10 h-10 rounded-xl bg-brand-yellow flex items-center justify-center text-slate-950 font-teko text-2xl font-bold shadow-lg shadow-brand-yellow/20">
-          AC
-        </div>
-        <div>
-          <div class="flex items-center space-x-2">
-            <h1 class="text-lg font-bold tracking-tight text-white">COACH HQ <span class="text-brand-yellow font-normal">| HYROX & UTMB</span></h1>
-            <span class="px-2 py-0.5 text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full flex items-center gap-1">
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> SYSTEM HEALTHY
-            </span>
+  <header class="border-b border-slate-800 bg-[#0F172A]/90 backdrop-blur sticky top-0 z-50 px-4 sm:px-6 py-4">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+      <div class="flex items-center justify-between gap-3 w-full md:w-auto">
+        <div class="flex items-center space-x-3 sm:space-x-4">
+          <div class="w-10 h-10 rounded-xl bg-brand-yellow flex items-center justify-center text-slate-950 font-teko text-2xl font-bold shadow-lg shadow-brand-yellow/20 shrink-0">
+            AC
           </div>
-          <p class="text-xs text-slate-400">Head Coach: <strong class="text-slate-200">Andrea Cordera</strong> • Biella (IT)</p>
+          <div>
+            <div class="flex items-center space-x-2 flex-wrap gap-1">
+              <h1 class="text-base sm:text-lg font-bold tracking-tight text-white">COACH HQ <span class="text-brand-yellow font-normal">| HYROX & UTMB</span></h1>
+              <span class="px-2 py-0.5 text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true"></span> SYSTEM HEALTHY
+              </span>
+            </div>
+            <p class="text-xs text-slate-300">Head Coach: <strong class="text-slate-100">Andrea Cordera</strong></p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2 md:hidden">
+          <button type="button" data-theme-toggle onclick="toggleAppTheme()" aria-label="Cambia tema chiaro o scuro" aria-pressed="false" class="theme-toggle-btn">
+            <i class="fa-solid fa-circle-half-stroke" aria-hidden="true"></i>
+            <span data-theme-label>Chiaro</span>
+          </button>
+          <button type="button" id="mobile-status-toggle" onclick="toggleMobileStatusMenu()" aria-expanded="false" aria-controls="navbar-status-pills" aria-label="Mostra stato sistema e scorciatoie" class="px-2.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold flex items-center gap-1.5 transition">
+            <i class="fa-solid fa-sliders" aria-hidden="true"></i>
+            <span>Stato</span>
+          </button>
         </div>
       </div>
 
       <!-- GLOBAL SEARCH BAR & STATUS PILLS -->
-      <div class="flex items-center space-x-4">
-        <div class="relative w-48 sm:w-64 md:w-80">
-          <input type="text" id="global-search-input" placeholder="Cerca atleta o sessione..." 
-                 class="w-full bg-slate-900/90 border border-slate-700 rounded-lg pl-9 pr-12 py-1.5 text-xs text-slate-100 placeholder-slate-400 focus:outline-none focus:border-brand-yellow">
-          <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-500 text-xs"></i>
-          <span class="absolute right-2 top-2 px-1.5 py-0.5 text-[10px] bg-slate-800 text-slate-400 border border-slate-700 rounded font-mono">⌘K</span>
+      <div class="flex flex-col md:flex-row md:items-center gap-3 w-full md:w-auto">
+        <div class="relative w-full md:w-72 lg:w-80">
+          <label for="global-search-input" class="sr-only">Cerca atleta o sessione</label>
+          <input type="text" id="global-search-input" aria-label="Cerca atleta o sessione" placeholder="Cerca atleta o sessione..." 
+                 class="w-full bg-slate-900/90 border border-slate-700 rounded-lg pl-9 pr-14 py-2 text-xs text-slate-100 placeholder-slate-400 focus:outline-none focus:border-brand-yellow">
+          <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-300 text-xs" aria-hidden="true"></i>
+          <span class="absolute right-2 top-1.5 px-1.5 py-0.5 text-xs bg-slate-800 text-slate-300 border border-slate-700 rounded font-mono">⌘K</span>
         </div>
-      <!-- STATUS PILLS -->
-      <div class="hidden md:flex items-center space-x-6 text-xs text-slate-400">
-        <div class="flex items-center space-x-2">
-          <i class="fa-solid fa-server text-cyan-400"></i>
-          <span>Demone: <strong class="text-slate-200 font-mono">PID 58623</strong></span>
+        <!-- STATUS PILLS (Collassabile su mobile) -->
+        <div id="navbar-status-pills" class="hidden md:flex flex-wrap items-center gap-3 md:gap-4 text-xs text-slate-300 w-full md:w-auto pt-2 md:pt-0 border-t md:border-t-0 border-slate-800">
+          <div class="flex items-center space-x-1.5">
+            <i class="fa-solid fa-cloud-arrow-up text-cyan-400" aria-hidden="true"></i>
+            <span>Sync Cloud: <strong id="nav-sync-status" class="text-emerald-400 font-mono">Attivo</strong></span>
+          </div>
+          <div class="flex items-center space-x-1.5">
+            <i class="fa-solid fa-shield-halved text-brand-yellow" aria-hidden="true"></i>
+            <span>FinOps: <strong class="text-emerald-400 font-mono">0-TOKEN Client</strong></span>
+          </div>
+          <div class="flex items-center space-x-1.5">
+            <i class="fa-solid fa-calendar-week text-orange-400" aria-hidden="true"></i>
+            <span>Rolling Window: <strong class="text-slate-100 font-mono">7 Giorni</strong></span>
+          </div>
+          <button type="button" data-theme-toggle onclick="toggleAppTheme()" aria-label="Cambia tema chiaro o scuro" aria-pressed="false" class="theme-toggle-btn hidden md:inline-flex">
+            <i class="fa-solid fa-circle-half-stroke" aria-hidden="true"></i>
+            <span data-theme-label>Chiaro</span>
+          </button>
+          <button type="button" onclick="refreshData()" aria-label="Aggiorna stato sistema" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 transition">
+            <i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i>
+          </button>
         </div>
-        <div class="flex items-center space-x-2">
-          <i class="fa-solid fa-shield-halved text-brand-yellow"></i>
-          <span>FinOps: <strong class="text-emerald-400 font-mono">0-TOKEN Client</strong></span>
-        </div>
-        <div class="flex items-center space-x-2">
-          <i class="fa-solid fa-bolt text-orange-400"></i>
-          <span>Garmin Poll: <strong class="text-slate-200 font-mono">~95/die (-65%)</strong></span>
-        </div>
-        <a href="http://localhost:5050" target="_blank" class="px-2.5 py-1 rounded-lg bg-brand-yellow/10 hover:bg-brand-yellow/20 text-brand-yellow border border-brand-yellow/30 font-bold transition flex items-center gap-1.5">
-          <i class="fa-solid fa-rocket"></i> Release Console
-        </a>
-        <button onclick="refreshData()" aria-label="Aggiorna stato sistema" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition">
-          <i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i>
-        </button>
-      </div>
       </div>
     </div>
   </header>
@@ -109,72 +115,80 @@
   <!-- MAIN CONTAINER -->
   <main id="coach-main-content" class="max-w-7xl mx-auto px-4 sm:px-6 py-8 flex-1 w-full space-y-8 hidden" inert>
 
-    <!-- HERO METRICS -->
+    <!-- =======================================================================
+         HERO METRICS — CONTATORI KPI REALI DA COACH_OVERVIEW (ISSUE #88)
+         =======================================================================
+         1. `#kpi-active-athletes`: totale atleti attivi sincronizzati da Anagrafica_Atleti
+         2. `#kpi-checkins-today`: atleti che hanno completato il check-in mattutino oggi
+         3. `#kpi-alerts-count`: atleti con semaforo rosso, dolore segnalato o assenza check-in > 48h
+         4. `#hero-inbox-count`: messaggi/note/supporto pendenti nella Coach Inbox dedicata
+         Tutti i contatori vengono aggiornati dinamicamente da `loadCoachOverview()` e `updateOverviewKpis()`.
+         ======================================================================= -->
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
       <div class="glass-card p-5 rounded-2xl relative overflow-hidden group hover:border-brand-yellow/30 transition">
         <div class="flex items-center justify-between text-slate-400 text-xs mb-2">
           <span>ATLETI ATTIVI</span>
-          <i class="fa-solid fa-users text-brand-yellow"></i>
+          <i class="fa-solid fa-users text-brand-yellow" aria-hidden="true"></i>
         </div>
-        <div class="text-3xl font-extrabold text-white font-teko tracking-wider">1 <span class="text-sm font-normal text-slate-400 font-sans">(1 Coach)</span></div>
-        <div class="mt-2 text-[11px] text-emerald-400 flex items-center gap-1">
-          <i class="fa-solid fa-check"></i> Architettura Multi-Tenant Attiva
-        </div>
-      </div>
-
-      <div onclick="switchTab('inbox')" class="glass-card p-5 rounded-2xl relative overflow-hidden group hover:border-cyan-400/30 transition cursor-pointer">
-        <div class="flex items-center justify-between text-slate-400 text-xs mb-2">
-          <span>COACH INBOX</span>
-          <i class="fa-solid fa-inbox text-cyan-400"></i>
-        </div>
-        <div id="hero-inbox-count" class="text-3xl font-extrabold text-white font-teko tracking-wider">0 <span class="text-sm font-normal text-slate-400 font-sans">Nuove Note</span></div>
-        <div id="hero-inbox-sub" class="mt-2 text-[11px] text-slate-400 flex items-center gap-1">
-          <i class="fa-solid fa-check text-emerald-400"></i> Nessun allarme pendente
+        <div id="kpi-active-athletes" class="text-3xl font-extrabold text-white font-teko tracking-wider">0 <span class="text-sm font-normal text-slate-400 font-sans">Atleti Attivi</span></div>
+        <div id="kpi-active-athletes-sub" class="mt-2 text-xs text-emerald-400 flex items-center gap-1">
+          <i class="fa-solid fa-check" aria-hidden="true"></i> Roster sincronizzato con Cloud
         </div>
       </div>
 
       <div class="glass-card p-5 rounded-2xl relative overflow-hidden group hover:border-emerald-400/30 transition">
-        <div class="flex items-center justify-between text-slate-400 text-xs mb-2">
-          <span>POLICY TOKEN ATLETI</span>
-          <i class="fa-solid fa-coins text-emerald-400"></i>
+        <div class="flex items-center justify-between text-slate-300 text-xs mb-2">
+          <span>CHECK-IN DI OGGI</span>
+          <i class="fa-solid fa-traffic-light text-emerald-400" aria-hidden="true"></i>
         </div>
-        <div class="text-3xl font-extrabold text-emerald-400 font-teko tracking-wider">0,00 € <span class="text-sm font-normal text-slate-400 font-sans">/ Mese</span></div>
-        <div class="mt-2 text-[11px] text-emerald-400 flex items-center gap-1">
-          <i class="fa-solid fa-lock"></i> 100% Determinista (0-Token)
+        <div id="kpi-checkins-today" class="text-3xl font-extrabold text-emerald-400 font-teko tracking-wider">0 <span class="text-sm font-normal text-slate-300 font-sans">Completati</span></div>
+        <div id="kpi-checkins-today-sub" class="mt-2 text-xs text-slate-300 flex items-center gap-1">
+          <i class="fa-solid fa-sun text-emerald-400" aria-hidden="true"></i> Semaforo mattutino registrato
         </div>
       </div>
 
-      <div class="glass-card p-5 rounded-2xl relative overflow-hidden group hover:border-orange-400/30 transition">
-        <div class="flex items-center justify-between text-slate-400 text-xs mb-2">
-          <span>ROLLING WINDOW</span>
-          <i class="fa-solid fa-calendar-week text-orange-400"></i>
+      <div onclick="setRiskFilter('alert'); switchTab('roster');" class="glass-card p-5 rounded-2xl relative overflow-hidden group hover:border-amber-400/30 transition cursor-pointer">
+        <div class="flex items-center justify-between text-slate-300 text-xs mb-2">
+          <span>ALERT &amp; RISCHIO</span>
+          <i class="fa-solid fa-triangle-exclamation text-amber-400" aria-hidden="true"></i>
         </div>
-        <div class="text-3xl font-extrabold text-white font-teko tracking-wider">7 GIORNI <span class="text-sm font-normal text-slate-400 font-sans">Anti-Leak</span></div>
-        <div class="mt-2 text-[11px] text-slate-400 flex items-center gap-1">
-          <i class="fa-solid fa-user-shield text-orange-400"></i> Settimane future protette
+        <div id="kpi-alerts-count" class="text-3xl font-extrabold text-amber-400 font-teko tracking-wider">0 <span class="text-sm font-normal text-slate-300 font-sans">Da Verificare</span></div>
+        <div id="kpi-alerts-count-sub" class="mt-2 text-xs text-slate-300 flex items-center gap-1">
+          <i class="fa-solid fa-shield-heart text-amber-400" aria-hidden="true"></i> Rosso / Dolore / Check-in &gt; 48h
+        </div>
+      </div>
+
+      <div onclick="switchTab('inbox')" class="glass-card p-5 rounded-2xl relative overflow-hidden group hover:border-cyan-400/30 transition cursor-pointer">
+        <div class="flex items-center justify-between text-slate-300 text-xs mb-2">
+          <span>COACH INBOX</span>
+          <i class="fa-solid fa-inbox text-cyan-400" aria-hidden="true"></i>
+        </div>
+        <div id="hero-inbox-count" class="text-3xl font-extrabold text-white font-teko tracking-wider">0 <span class="text-sm font-normal text-slate-300 font-sans">Nuove Note</span></div>
+        <div id="hero-inbox-sub" class="mt-2 text-xs text-slate-300 flex items-center gap-1">
+          <i class="fa-solid fa-check text-emerald-400" aria-hidden="true"></i> Nessun allarme pendente
         </div>
       </div>
     </div>
 
     <!-- TABS & QUICK TOOLS -->
     <div class="flex flex-wrap items-center justify-between border-b border-slate-800 pb-2 gap-2" role="toolbar" aria-label="Navigazione e Strumenti Coach">
-      <div class="flex space-x-2" role="tablist" aria-label="Sezioni Coach Dashboard">
+      <div class="flex flex-wrap gap-2" role="tablist" aria-label="Sezioni Coach Dashboard">
         <button onclick="switchTab('roster')" id="tab-roster" role="tab" aria-selected="true" aria-controls="content-roster" class="px-4 py-2 text-sm font-semibold rounded-lg bg-brand-yellow text-slate-950 flex items-center gap-2 transition">
-          <i class="fa-solid fa-address-book" aria-hidden="true"></i> Roster Atleti
+          <i class="fa-solid fa-address-book" aria-hidden="true"></i> Roster
         </button>
-        <button onclick="switchTab('inbox')" id="tab-inbox" role="tab" aria-selected="false" aria-controls="content-inbox" class="px-4 py-2 text-sm font-medium rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 flex items-center gap-2 transition">
-          <i class="fa-solid fa-envelope-open-text" aria-hidden="true"></i> Coach Inbox Note <span id="inbox-tab-badge" class="px-1.5 py-0.5 text-[10px] bg-slate-800 text-slate-400 rounded-full font-bold">0</span>
+        <button onclick="switchTab('inbox')" id="tab-inbox" role="tab" aria-selected="false" aria-controls="content-inbox" class="px-4 py-2 text-sm font-medium rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 flex items-center gap-2 transition">
+          <i class="fa-solid fa-envelope-open-text" aria-hidden="true"></i> Inbox <span id="inbox-tab-badge" class="px-1.5 py-0.5 text-xs bg-slate-800 text-slate-300 rounded-full font-bold">0</span>
         </button>
-        <button onclick="switchTab('onboarding')" id="tab-onboarding" role="tab" aria-selected="false" aria-controls="content-onboarding" class="px-4 py-2 text-sm font-medium rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 flex items-center gap-2 transition">
-          <i class="fa-solid fa-user-check" aria-hidden="true"></i> Coda Iscrizioni & Validazione <span id="pending-badge" onclick="switchTab('onboarding'); event.stopPropagation();" class="px-1.5 py-0.5 text-[10px] bg-slate-800 text-slate-400 rounded-full font-bold cursor-pointer">0</span>
+        <button onclick="switchTab('onboarding')" id="tab-onboarding" role="tab" aria-selected="false" aria-controls="content-onboarding" class="px-4 py-2 text-sm font-medium rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 flex items-center gap-2 transition">
+          <i class="fa-solid fa-user-check" aria-hidden="true"></i> Iscrizioni <span id="pending-badge" onclick="switchTab('onboarding'); event.stopPropagation();" class="px-1.5 py-0.5 text-xs bg-slate-800 text-slate-300 rounded-full font-bold cursor-pointer">0</span>
         </button>
       </div>
 
       <!-- QUICK LINK HUB ANAGRAFICA -->
       <div class="flex items-center gap-2">
-        <a id="btn-anagrafica-hub" href="https://docs.google.com/spreadsheets/d/1yG5GAx8fg4zPkXwJvzJGXkWYnI2OoBzN_g-sczs6Mss/edit" target="_blank" rel="noopener noreferrer" class="px-3 py-2 text-xs font-semibold bg-slate-800/90 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-lg flex items-center gap-1.5 transition shadow-sm" title="Registro Atleti e Hub Anagrafica Generale">
+        <a id="btn-anagrafica-hub" href="https://docs.google.com/spreadsheets/d/1yG5GAx8fg4zPkXwJvzJGXkWYnI2OoBzN_g-sczs6Mss/edit" target="_blank" rel="noopener noreferrer" aria-label="Apri Anagrafica Hub su Google Sheets in nuova scheda" class="px-3 py-2 text-xs font-semibold bg-slate-800/90 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-lg flex items-center gap-1.5 transition shadow-sm" title="Registro Atleti e Hub Anagrafica Generale">
           <i class="fa-solid fa-table-list text-amber-400" aria-hidden="true"></i> Anagrafica Hub
-          <i class="fa-solid fa-arrow-up-right-from-square text-[10px] opacity-70" aria-hidden="true"></i>
+          <i class="fa-solid fa-arrow-up-right-from-square text-xs opacity-70" aria-hidden="true"></i>
         </a>
       </div>
     </div>
@@ -198,75 +212,50 @@
         </button>
       </div>
       
-      <!-- ATLETA 1: ANDREA CORDERA (OWNER) -->
-      <div class="glass-card rounded-2xl p-6 border-l-4 border-l-brand-yellow hover:border-slate-700 transition">
-        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-          <div class="flex items-start space-x-4">
-            <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-brand-yellow to-orange-500 flex items-center justify-center text-slate-950 font-teko text-3xl font-bold shadow-lg">
-              AC
-            </div>
-            <div>
-              <div class="flex items-center gap-2">
-                <h3 class="text-xl font-bold text-white">Andrea Cordera</h3>
-                <span class="px-2 py-0.5 text-xs font-semibold bg-brand-yellow/10 text-brand-yellow border border-brand-yellow/20 rounded-md">OWNER / COACH</span>
-                <span class="px-2 py-0.5 text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-md">40 SETTIMANE INTEGRALI</span>
-              </div>
-              <p class="text-xs text-slate-400 mt-1 flex items-center gap-3">
-                <span><i class="fa-solid fa-location-dot text-slate-500"></i> Biella (IT)</span>
-                <span><i class="fa-solid fa-medal text-brand-yellow"></i> HYROX Pro & UTMB Tenerife 82K</span>
-              </p>
-            </div>
-          </div>
-
-          <div class="flex items-center gap-2 flex-wrap">
-            <button onclick="syncGarminAthlete('andrea', this)" class="px-3 py-2 text-xs font-medium bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 rounded-lg flex items-center gap-1.5 transition" title="Aggiorna calendario Garmin (0 token)">
-              <i class="fa-solid fa-arrows-rotate"></i> Aggiorna Garmin
-            </button>
-            <a href="https://docs.google.com/spreadsheets/d/1V9eRkNZDeU6UzEtsrUcXmN1MVDKC_NBYyQ-oRGfPLLg/edit" target="_blank" class="px-3 py-2 text-xs font-medium bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-200 flex items-center gap-1.5 transition" title="Foglio Master Programmazione">
-              <i class="fa-solid fa-table text-emerald-400"></i> Foglio Master
-            </a>
-            <a href="https://docs.google.com/spreadsheets/d/1vFskJozbqLWUZA6sui1iI47MaTGrC0X2qIzS72iRoeM/edit" target="_blank" class="px-3 py-2 text-xs font-medium bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-200 flex items-center gap-1.5 transition" title="Archivio Attività Garmin">
-              <i class="fa-solid fa-person-running text-sky-400"></i> File Attività
-            </a>
-          </div>
+      <!-- =========================================================================
+           FILTRI E ORDINAMENTO PER RISCHIO (ISSUE #88 - COACH UX OVERVIEW)
+           =========================================================================
+           Questa barra di filtraggio rapido consente al Coach di ispezionare
+           l'elenco degli atleti attivi ordinati per priorità di rischio decrescente:
+           1. Rischio alto (alert / semaforo rosso / dolore / assenza check-in > 48h)
+           2. Rischio medio (semaforo giallo / affaticamento moderato)
+           3. Rischio basso (semaforo verde / recupero regolare)
+           I dati di stato, semaforo, peso, trend a 7 giorni e workout settimanali
+           provengono dall'azione autenticata read-only `coach_overview` su GAS.
+           ========================================================================= -->
+      <div class="flex flex-wrap items-center justify-between gap-3 bg-slate-900/60 border border-slate-800 rounded-2xl px-4 py-3" role="region" aria-label="Filtri per livello di rischio atleti">
+        <div class="flex items-center gap-2 text-xs text-slate-300">
+          <i class="fa-solid fa-filter text-brand-yellow" aria-hidden="true"></i>
+          <span class="font-semibold">Filtra per rischio (ordinati per priorità):</span>
         </div>
-
-        <!-- DETAILS ROW -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6 pt-5 border-t border-slate-800/80 text-xs">
-          <div class="bg-slate-800/40 p-3 rounded-xl">
-            <span class="text-slate-400 block mb-1">OGGI: ALLENAMENTO</span>
-            <strong class="text-white">HYROX Strength & Sled</strong>
-            <span class="text-[10px] text-emerald-400 block mt-0.5">Ore 12:10 (Confermato)</span>
-          </div>
-          <div class="bg-slate-800/40 p-3 rounded-xl">
-            <span class="text-slate-400 block mb-1">SEMAFORO READINESS</span>
-            <span class="inline-flex items-center gap-1.5 font-bold text-emerald-400">
-              <span class="w-2 h-2 rounded-full bg-emerald-400"></span> VERDE (Sonno 85/100, HRV 42)
-            </span>
-          </div>
-          <div class="bg-slate-800/40 p-3 rounded-xl">
-            <span class="text-slate-400 block mb-1">IDRATAZIONE GIORNALIERA</span>
-            <strong class="text-white">1.80 L / 2.8 L (64%)</strong>
-            <div class="w-full bg-slate-700 h-1.5 rounded-full mt-1.5 overflow-hidden">
-              <div class="bg-cyan-400 h-full rounded-full" style="width: 64%"></div>
-            </div>
-          </div>
-          <div class="bg-slate-800/40 p-3 rounded-xl">
-            <span class="text-slate-400 block mb-1">HARDWARE & SENSORI</span>
-            <div class="flex items-center gap-2 mt-1">
-              <span class="px-1.5 py-0.5 bg-slate-700 rounded text-[10px] text-slate-200">Garmin Connect</span>
-              <span class="px-1.5 py-0.5 bg-slate-700 rounded text-[10px] text-slate-200">Bilancia Renpho</span>
-            </div>
-          </div>
+        <div class="flex flex-wrap items-center gap-1.5" id="risk-filter-bar">
+          <button type="button" id="risk-filter-all" data-risk-filter="all" onclick="setRiskFilter('all')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-brand-yellow text-slate-950 transition">
+            Tutti
+          </button>
+          <button type="button" id="risk-filter-alert" data-risk-filter="alert" onclick="setRiskFilter('alert')" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 text-amber-300 hover:bg-slate-700 border border-amber-500/30 transition">
+            ⚠️ Alert
+          </button>
+          <button type="button" id="risk-filter-red" data-risk-filter="red" onclick="setRiskFilter('red')" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 text-red-300 hover:bg-slate-700 border border-red-500/30 transition">
+            🔴 Rosso
+          </button>
+          <button type="button" id="risk-filter-yellow" data-risk-filter="yellow" onclick="setRiskFilter('yellow')" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 text-yellow-300 hover:bg-slate-700 border border-yellow-500/30 transition">
+            🟡 Giallo
+          </button>
+          <button type="button" id="risk-filter-green" data-risk-filter="green" onclick="setRiskFilter('green')" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 text-emerald-300 hover:bg-slate-700 border border-emerald-500/30 transition">
+            🟢 Verde
+          </button>
         </div>
       </div>
+
+      <!-- CARD OWNER / COACH: generata da renderAthletes() dalla lista atleti (ruolo owner_coach/coach o nome del coach) -->
+      <div id="owner-card" class="space-y-6" aria-live="polite"></div>
 
       <!-- ROSTER ATLETI DINAMICO -->
       <div id="athletes-grid" class="space-y-6" aria-live="polite">
         <!-- Popolato dinamicamente se presenti atleti addizionali -->
       </div>
-      <div id="athletes-empty-state" class="text-center py-6 glass-card rounded-2xl border border-slate-800 text-slate-400 text-xs">
-        <i class="fa-solid fa-users text-slate-500 text-lg mb-2 block" aria-hidden="true"></i>
+      <div id="athletes-empty-state" class="text-center py-6 glass-card rounded-2xl border border-slate-800 text-slate-300 text-xs">
+        <i class="fa-solid fa-users text-slate-300 text-lg mb-2 block" aria-hidden="true"></i>
         Nessun atleta registrato al momento oltre al coach.
       </div>
 
@@ -301,34 +290,44 @@
 
       <!-- EMPTY STATE -->
       <div id="inbox-empty-state" class="hidden text-center py-12 glass-card rounded-2xl border border-slate-800">
-        <div class="w-12 h-12 rounded-full bg-slate-800 text-slate-500 flex items-center justify-center mx-auto mb-3 text-lg">
+        <div class="w-12 h-12 rounded-full bg-slate-800 text-slate-300 flex items-center justify-center mx-auto mb-3 text-lg">
           <i class="fa-solid fa-inbox" aria-hidden="true"></i>
         </div>
         <h4 class="text-sm font-bold text-white">Nessuna nota o allarme da evadere.</h4>
-        <p class="text-xs text-slate-400 mt-1">Tutte le note e i feedback degli atleti sono stati gestiti.</p>
+        <p class="text-xs text-slate-300 mt-1">Tutte le note e i feedback degli atleti sono stati gestiti.</p>
       </div>
     </div>
 
     <!-- TAB 3: CODA VALIDAZIONE ISCRIZIONI -->
     <div id="content-onboarding" role="tabpanel" aria-labelledby="tab-onboarding" class="hidden space-y-6">
       
-      <!-- LINK SHARE BANNER -->
+      <!-- =========================================================================
+           LINK SHARE BANNER (ONBOARDING PUBBLICO WEB - ISSUE #88)
+           =========================================================================
+           Il link di autoregistrazione usa il segnaposto `https://andreacordy90.github.io/hyrox-web` risolto
+           in fase di build (`build_web_assets.py` / `publish_web.py`) oppure
+           `window.location.origin` quando servito via HTTP/HTTPS, evitando sempre
+           qualsiasi URL locale non condivisibile con gli atleti.
+           Il pulsante "Copia Link" invoca `copyOnboardLink()` che copia l'URL
+           pubblico negli appunti e mostra un toast di conferma non bloccante.
+           ========================================================================= -->
       <div class="glass-card p-6 rounded-2xl border border-brand-yellow/20 flex flex-col md:flex-row items-center justify-between gap-4">
         <div>
           <div class="flex items-center gap-2">
             <span class="w-8 h-8 rounded-lg bg-brand-yellow/20 text-brand-yellow flex items-center justify-center font-bold">
-              <i class="fa-solid fa-link"></i>
+              <i class="fa-solid fa-link" aria-hidden="true"></i>
             </span>
             <h3 class="text-base font-bold text-white">Link di Autoregistrazione per l'Atleta</h3>
           </div>
-          <p class="text-xs text-slate-400 mt-1">Invia questo link al nuovo atleta: compilerà lui stesso anagrafica, abitudini di sonno, orari e credenziali Garmin. Tu dovrai solo convalidare la sua scheda!</p>
+          <p class="text-xs text-slate-300 mt-1">Invia questo link al nuovo atleta: compilerà lui stesso anagrafica, abitudini di sonno, orari e credenziali Garmin. Tu dovrai solo convalidare la sua scheda!</p>
         </div>
         <div class="flex items-center gap-2 w-full md:w-auto">
-          <input type="text" readonly value="file:///Users/cordy/Desktop/Allenamenti/interfaces/onboarding_athlete.html" class="bg-slate-900 border border-slate-700 text-xs text-slate-300 px-3 py-2 rounded-lg font-mono w-full md:w-80">
+          <label for="onboard-share-link" class="sr-only">Link di autoregistrazione per l'atleta</label>
+          <input id="onboard-share-link" type="text" readonly aria-label="Link di autoregistrazione per l'atleta" value="https://andreacordy90.github.io/hyrox-web/interfaces/onboarding_athlete.html" class="bg-slate-900 border border-slate-700 text-xs text-slate-200 px-3 py-2 rounded-lg font-mono w-full md:w-80">
           <button onclick="copyOnboardLink()" class="px-3.5 py-2 bg-brand-yellow text-slate-950 font-bold rounded-lg text-xs hover:bg-yellow-400 transition whitespace-nowrap flex items-center gap-1.5">
-            <i class="fa-regular fa-copy"></i> Copia Link
+            <i class="fa-regular fa-copy" aria-hidden="true"></i> Copia Link
           </button>
-          <a href="onboarding_athlete.html" target="_blank" aria-label="Apri pagina onboarding atleta" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs transition">
+          <a href="onboarding_athlete.html" target="_blank" rel="noopener noreferrer" aria-label="Apri pagina onboarding atleta" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs transition">
             <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
           </a>
         </div>
@@ -341,7 +340,7 @@
             <h3 class="text-lg font-bold text-white flex items-center gap-2">
               <i class="fa-solid fa-user-clock text-amber-400" aria-hidden="true"></i> Richieste di Iscrizione in Attesa di Tua Validazione
             </h3>
-            <p class="text-xs text-slate-400">Verifica i dati inseriti dall'atleta prima di attivarlo nel sistema e clonare il suo foglio Google Drive.</p>
+            <p class="text-xs text-slate-300">Verifica i dati inseriti dall'atleta prima di attivarlo nel sistema e clonare il suo foglio Google Drive.</p>
           </div>
           <span id="queue-count" class="px-3 py-1 bg-amber-500/10 border border-amber-500/20 text-amber-300 rounded-lg text-xs font-semibold">
             0 Richieste Pendenti
@@ -355,11 +354,11 @@
 
         <!-- EMPTY STATE (MOSTRATO SE ZERO CANDIDATURE) -->
         <div id="no-applicants" class="text-center py-12 glass-card rounded-2xl border border-slate-800">
-          <div class="w-12 h-12 rounded-full bg-slate-800 text-slate-500 flex items-center justify-center mx-auto mb-3 text-lg">
+          <div class="w-12 h-12 rounded-full bg-slate-800 text-slate-300 flex items-center justify-center mx-auto mb-3 text-lg">
             <i class="fa-solid fa-check-double" aria-hidden="true"></i>
           </div>
           <h4 class="text-sm font-bold text-white">Nessuna richiesta di iscrizione in sospeso</h4>
-          <p class="text-xs text-slate-400 mt-1">Tutte le schede atleti inviate sono state convalidate.</p>
+          <p class="text-xs text-slate-300 mt-1">Tutte le schede atleti inviate sono state convalidate.</p>
         </div>
 
       </div>
@@ -369,7 +368,7 @@
   </main>
 
   <!-- FOOTER -->
-  <footer class="border-t border-slate-800 py-6 text-center text-xs text-slate-500 bg-[#0B0F19]">
+  <footer class="border-t border-slate-800 py-6 text-center text-xs text-slate-300 bg-[#0B0F19]">
     <p>Piattaforma di Coaching HYROX & UTMB • Head Coach Andrea Cordera • macOS LaunchAgent <code>com.cordy.hyroxbot</code></p>
   </footer>
 
@@ -397,6 +396,11 @@
 
   <script>
     const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxPti1imOEgoYrJimCthCMkCyqwmTFwbIMOZoclu9ayNaC5WdkVjMfUlU3naunw_vJNuw/exec";
+    // Dati del coach iniettati da scripts/build_web_assets.py (issue #81): nessun dato personale nel sorgente
+    const COACH_NAME = "Andrea Cordera";
+    const MASTER_SHEET_ID = "1V9eRkNZDeU6UzEtsrUcXmN1MVDKC_NBYyQ-oRGfPLLg";
+    const MASTER_ATTIVITA_SHEET_ID = "1vFskJozbqLWUZA6sui1iI47MaTGrC0X2qIzS72iRoeM";
+    const PUBLIC_WEB_BASE_URL = "https://andreacordy90.github.io/hyrox-web".replace(/\/+$/, "");
     let CURRENT_TOKEN = sessionStorage.getItem("coach_token") || "";
     let isAuthenticated = false;
     let otpCooldownTimer = null;
@@ -404,8 +408,25 @@
     // Stato locale in-memory
     let currentApplicants = [];
     let currentActiveAthletes = [];
+    let currentOverviewSummary = null;
+    let currentRiskFilter = "all";
     let currentNotes = [];
     let showArchivedNotes = false;
+
+    function resolvePublicOnboardingUrl() {
+      if (PUBLIC_WEB_BASE_URL && /^https?:\/\//i.test(PUBLIC_WEB_BASE_URL)) {
+        return `${PUBLIC_WEB_BASE_URL}/interfaces/onboarding_athlete.html`;
+      }
+      if (window.location && /^https?:$/i.test(window.location.protocol || "")) {
+        if (window.location.origin && window.location.origin !== "null") {
+          return `${window.location.origin.replace(/\/+$/, "")}/interfaces/onboarding_athlete.html`;
+        }
+        if (window.location.href && !/^file:/i.test(window.location.href)) {
+          return window.location.href.split("?")[0].replace(/[^/]*$/, "onboarding_athlete.html");
+        }
+      }
+      return "https://hyrox-coaching.web.app/interfaces/onboarding_athlete.html";
+    }
 
     window.addEventListener("DOMContentLoaded", () => {
       // Estrai eventuale token sicuro da Telegram (parametro ?auth=...)
@@ -441,10 +462,7 @@
     }
 
     function getLocalApiUrl(path) {
-      if (window.location.protocol.startsWith("http") && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")) {
-        return path;
-      }
-      return `http://localhost:5050${path}`;
+      return path;
     }
 
     function unlockDashboardUI() {
@@ -631,13 +649,17 @@
         if (inputEl) inputEl.value = "";
         unlockDashboardUI();
         currentApplicants = data.pending_applicants || [];
-        currentActiveAthletes = data.active_athletes || [];
+        currentActiveAthletes = data.active_athletes || data.athletes || [];
+        if (data.summary) {
+          currentOverviewSummary = data.summary;
+        }
         renderPendingRequests(currentApplicants);
         renderAthletes(currentActiveAthletes);
         if (data.notes) {
           currentNotes = data.notes;
           renderInboxNotes();
         }
+        loadCoachOverview();
       } else {
         CURRENT_TOKEN = "";
         sessionStorage.removeItem("coach_token");
@@ -653,6 +675,166 @@
           }
         }
       }
+    }
+
+    async function loadCoachOverview() {
+      if (!CURRENT_TOKEN) return;
+      try {
+        const resp = await fetch(WEBHOOK_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({ action: "coach_overview", coach_token: CURRENT_TOKEN })
+        });
+        const ov = await resp.json();
+        if (ov && (ov.ok === true || ov.status === "ok")) {
+          if (ov.summary) {
+            currentOverviewSummary = ov.summary;
+          }
+          if (Array.isArray(ov.athletes) && ov.athletes.length > 0) {
+            const byKey = {};
+            currentActiveAthletes.forEach(a => {
+              const k = String(a.chat_id || a.sheet_id || a.name || "").trim().toLowerCase();
+              if (k) byKey[k] = a;
+            });
+            currentActiveAthletes = ov.athletes.map(item => {
+              const k = String(item.chat_id || item.sheet_id || item.name || "").trim().toLowerCase();
+              return Object.assign({}, byKey[k] || {}, item);
+            });
+          }
+          if (Array.isArray(ov.pending_applicants)) {
+            currentApplicants = ov.pending_applicants;
+            renderPendingRequests(currentApplicants);
+          }
+          renderAthletes(currentActiveAthletes);
+        }
+      } catch (ovErr) {
+        // Fallback silenzioso ai dati base già caricati da get_coach_data
+      }
+    }
+
+    function computeAthleteRiskInfo(ath) {
+      const item = ath && typeof ath === "object" ? ath : {};
+      const rawSem = String(item.semaforo || item.color || "").trim().toUpperCase();
+      let semaforo = "N/D";
+      if (rawSem.includes("ROSSO") || rawSem === "RED" || rawSem === "🔴") semaforo = "ROSSO";
+      else if (rawSem.includes("GIALLO") || rawSem === "YELLOW" || rawSem === "🟡") semaforo = "GIALLO";
+      else if (rawSem.includes("VERDE") || rawSem === "GREEN" || rawSem === "🟢") semaforo = "VERDE";
+
+      const hasHours = item.last_checkin_hours !== undefined && item.last_checkin_hours !== null && String(item.last_checkin_hours).trim() !== "";
+      const lastHours = hasHours ? Number(item.last_checkin_hours) : null;
+      const validHours = lastHours !== null && !isNaN(lastHours) ? lastHours : null;
+      const hasPain = Boolean(
+        item.has_pain ||
+        (item.pain && !["none", "no", "false", "0", "nessuno"].includes(String(item.pain).trim().toLowerCase()))
+      );
+      const missing48h = (validHours !== null && validHours > 48) || item.risk_level === "alert";
+      const explicitRisk = String(item.risk_level || "").trim().toLowerCase();
+
+      let riskLevel = "unknown";
+      let riskRank = 4;
+      if (semaforo === "ROSSO" || explicitRisk === "red") {
+        riskLevel = "red";
+        riskRank = 0;
+      } else if (hasPain || missing48h || explicitRisk === "alert" || item.has_alert === true) {
+        riskLevel = "alert";
+        riskRank = 1;
+      } else if (semaforo === "GIALLO" || explicitRisk === "yellow") {
+        riskLevel = "yellow";
+        riskRank = 2;
+      } else if (semaforo === "VERDE" || explicitRisk === "green") {
+        riskLevel = "green";
+        riskRank = 3;
+      }
+
+      const hasAlert = riskLevel === "red" || riskLevel === "alert";
+      const checkedInToday = Boolean(item.checked_in_today || semaforo === "VERDE" || semaforo === "GIALLO" || semaforo === "ROSSO" || (validHours !== null && validHours <= 24));
+      return {
+        semaforo,
+        lastHours: validHours,
+        hasPain,
+        missing48h,
+        riskLevel,
+        riskRank,
+        hasAlert,
+        checkedInToday
+      };
+    }
+
+    function updateOverviewKpis(summary, athletesList) {
+      const list = Array.isArray(athletesList) ? athletesList : [];
+      const computedInfos = list.map(computeAthleteRiskInfo);
+      const activeCount = (summary && summary.active_athletes != null) ? Number(summary.active_athletes) : list.length;
+      const checkinsCount = (summary && summary.checkins_today != null)
+        ? Number(summary.checkins_today)
+        : computedInfos.filter(i => i.checkedInToday).length;
+      const alertsCount = (summary && summary.alerts_count != null)
+        ? Number(summary.alerts_count)
+        : computedInfos.filter(i => i.hasAlert).length;
+
+      const elActive = document.getElementById("kpi-active-athletes");
+      if (elActive) {
+        elActive.innerHTML = `${escapeHtml(String(activeCount))} <span class="text-sm font-normal text-slate-400 font-sans">Atleti Attivi</span>`;
+      }
+      const elCheckins = document.getElementById("kpi-checkins-today");
+      if (elCheckins) {
+        elCheckins.innerHTML = `${escapeHtml(String(checkinsCount))} <span class="text-sm font-normal text-slate-300 font-sans">su ${escapeHtml(String(activeCount))} Oggi</span>`;
+      }
+      const elAlerts = document.getElementById("kpi-alerts-count");
+      if (elAlerts) {
+        elAlerts.innerHTML = `${escapeHtml(String(alertsCount))} <span class="text-sm font-normal text-slate-300 font-sans">Alert Attivi</span>`;
+      }
+    }
+
+    function setRiskFilter(filterKey) {
+      currentRiskFilter = String(filterKey || "all").toLowerCase();
+      const filters = ["all", "alert", "red", "yellow", "green"];
+      filters.forEach(k => {
+        const btn = document.getElementById(`risk-filter-${k}`);
+        if (!btn) return;
+        if (k === currentRiskFilter) {
+          btn.className = "px-3 py-1.5 rounded-lg text-xs font-semibold bg-brand-yellow text-slate-950 transition";
+        } else {
+          btn.className = "px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 text-slate-200 hover:bg-slate-700 border border-slate-700 transition";
+        }
+      });
+      renderAthletes(currentActiveAthletes);
+    }
+
+    function renderAthleteReadinessBadges(ath, riskInfo) {
+      const semMap = {
+        "ROSSO": { label: "🔴 Semaforo ROSSO", cls: "bg-red-500/20 text-red-300 border-red-500/40" },
+        "GIALLO": { label: "🟡 Semaforo GIALLO", cls: "bg-amber-500/20 text-amber-300 border-amber-500/40" },
+        "VERDE": { label: "🟢 Semaforo VERDE", cls: "bg-emerald-500/20 text-emerald-300 border-emerald-500/40" },
+        "N/D": { label: "⚪ Semaforo N/D", cls: "bg-slate-800 text-slate-300 border-slate-700" }
+      };
+      const semCfg = semMap[riskInfo.semaforo] || semMap["N/D"];
+      const checkinLabel = riskInfo.lastHours !== null
+        ? `⏱️ Check-in: ${escapeHtml(String(Math.round(riskInfo.lastHours)))}h fa`
+        : "⏱️ Check-in: >48h";
+      const riskBadge = riskInfo.hasAlert
+        ? '<span class="px-2 py-0.5 text-xs font-bold bg-red-500/20 text-red-300 border border-red-500/40 rounded-md">⚠️ RISCHIO ALTO</span>'
+        : (riskInfo.riskLevel === "yellow"
+          ? '<span class="px-2 py-0.5 text-xs font-semibold bg-amber-500/15 text-amber-300 border border-amber-500/30 rounded-md">🟡 ATTENZIONE</span>'
+          : (riskInfo.riskLevel === "green"
+            ? '<span class="px-2 py-0.5 text-xs font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 rounded-md">🟢 REGOLARE</span>'
+            : ""));
+      const weightTrendSuffix = (ath.weight_trend_7d != null)
+        ? " (" + (Number(ath.weight_trend_7d) >= 0 ? "+" : "") + escapeHtml(String(ath.weight_trend_7d)) + " kg 7g)"
+        : "";
+      const weightBadge = (ath.weight_kg !== undefined && ath.weight_kg !== null && ath.weight_kg !== "")
+        ? `<span class="px-2 py-0.5 text-xs bg-slate-800 text-slate-200 border border-slate-700 rounded-md">⚖️ ${escapeHtml(String(ath.weight_kg))} kg${weightTrendSuffix}</span>`
+        : "";
+      const workoutsBadge = (ath.workouts_done !== undefined && ath.workouts_planned !== undefined)
+        ? `<span class="px-2 py-0.5 text-xs bg-slate-800 text-slate-200 border border-slate-700 rounded-md">🏋️ ${escapeHtml(String(ath.workouts_done))}/${escapeHtml(String(ath.workouts_planned))} sett.</span>`
+        : "";
+      return `
+        <div class="flex flex-wrap items-center gap-1.5 mt-2">
+          <span class="px-2 py-0.5 text-xs font-semibold border rounded-md ${semCfg.cls}">${semCfg.label}</span>
+          <span class="px-2 py-0.5 text-xs bg-slate-800/90 text-slate-200 border border-slate-700 rounded-md">${checkinLabel}</span>
+          ${riskBadge}
+          ${weightBadge}
+          ${workoutsBadge}
+        </div>`;
     }
 
     // --- SEZIONE 1: ROSTER ATLETI REALI ---
@@ -672,22 +854,13 @@
         if (!rawName) return "";
         const cfg = map[rawName] || { icon: "fa-trophy", cls: "bg-slate-700/40 text-slate-300 border-slate-600/40" };
         const safeName = escapeHtml(rawName);
-        return `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium border ${cfg.cls}"><i class="fa-solid ${cfg.icon} text-[10px]" aria-hidden="true"></i>${safeName}</span>`;
+        return `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium border ${cfg.cls}"><i class="fa-solid ${cfg.icon} text-xs" aria-hidden="true"></i>${safeName}</span>`;
       }).filter(Boolean).join("");
       return badgesHtml ? `<div class="flex flex-wrap gap-1.5 mt-2.5">${badgesHtml}</div>` : "";
     }
 
     function buildAthleteQuestionnaireUrl(chatId, name) {
-      let baseUrl = "https://andreacordy90.github.io/hyrox-web/interfaces/onboarding_athlete.html";
-      if (window.location && window.location.protocol && window.location.protocol.startsWith("http")) {
-        if (typeof URL === "function" && window.location.href) {
-          baseUrl = new URL("onboarding_athlete.html", window.location.href).href.split("?")[0];
-        } else if (window.location.href) {
-          baseUrl = window.location.href.split("?")[0].replace(/[^/]*$/, "onboarding_athlete.html");
-        } else {
-          baseUrl = "onboarding_athlete.html";
-        }
-      }
+      const baseUrl = resolvePublicOnboardingUrl();
       const cleanChatId = String(chatId || "").trim();
       const cleanName = String(name || "").trim();
       const params = [];
@@ -696,12 +869,98 @@
       return params.length ? `${baseUrl}?${params.join("&")}` : baseUrl;
     }
 
-    function renderAthletes(athletes) {
+    // L'owner è l'atleta con ruolo owner_coach/coach (o, se il backend non indica il ruolo, quello col nome del coach)
+    function isOwnerAthlete(ath) {
+      if (!ath) return false;
+      const role = String(ath.role || "").trim().toLowerCase();
+      if (role === "owner_coach" || role === "coach" || ath.is_owner === true) return true;
+      const name = String(ath.name || "").trim().toLowerCase();
+      const coach = String(COACH_NAME || "").trim().toLowerCase();
+      return !!name && !!coach && name === coach;
+    }
+
+    function renderOwnerCard(owner) {
+      const container = document.getElementById("owner-card");
+      if (!container) return;
+      if (!owner) {
+        container.innerHTML = "";
+        return;
+      }
+      const initials = (owner.name || "CO").split(" ").map(w => w[0]).join("").substring(0, 2).toUpperCase();
+      const safeName = escapeHtml(owner.name || "Coach");
+      const safeCity = escapeHtml(owner.city || "");
+      const safeGoals = escapeHtml(owner.goals || "");
+      const garminKey = escapeHtml(owner.garmin_email || owner.name || "");
+      const sheetId = owner.sheet_id || MASTER_SHEET_ID;
+      const attivitaId = owner.attivita_sheet_id || MASTER_ATTIVITA_SHEET_ID;
+      const validId = id => !!id;
+      const sheetLink = validId(sheetId) ? `https://docs.google.com/spreadsheets/d/${escapeHtml(sheetId)}/edit` : "";
+      const attivitaLink = owner.attivita_sheet_url
+        ? escapeHtml(owner.attivita_sheet_url)
+        : (validId(attivitaId) ? `https://docs.google.com/spreadsheets/d/${escapeHtml(attivitaId)}/edit` : "");
+      container.innerHTML = `
+        <div class="glass-card rounded-2xl p-6 border-l-4 border-l-brand-yellow hover:border-slate-700 transition">
+          <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div class="flex items-start space-x-4">
+              <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-brand-yellow to-orange-500 flex items-center justify-center text-slate-950 font-teko text-3xl font-bold shadow-lg">
+                ${escapeHtml(initials)}
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h3 class="text-xl font-bold text-white">${safeName}</h3>
+                  <span class="px-2 py-0.5 text-xs font-semibold bg-brand-yellow/10 text-brand-yellow border border-brand-yellow/20 rounded-md">OWNER / COACH</span>
+                </div>
+                <p class="text-xs text-slate-300 mt-1 flex items-center gap-3 flex-wrap">
+                  ${safeCity ? `<span><i class="fa-solid fa-location-dot text-slate-300" aria-hidden="true"></i> ${safeCity}</span>` : ""}
+                  ${safeGoals ? `<span><i class="fa-solid fa-medal text-brand-yellow" aria-hidden="true"></i> ${safeGoals}</span>` : ""}
+                </p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <button onclick="syncGarminAthlete('${garminKey}', this)" class="px-3 py-2 text-xs font-medium bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 rounded-lg flex items-center gap-1.5 transition" title="Aggiorna calendario Garmin (0 token)">
+                <i class="fa-solid fa-arrows-rotate"></i> Aggiorna Garmin
+              </button>
+              ${sheetLink ? `<a href="${sheetLink}" target="_blank" rel="noopener noreferrer" class="px-3 py-2 text-xs font-medium bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-200 flex items-center gap-1.5 transition" title="Foglio Master Programmazione">
+                <i class="fa-solid fa-table text-emerald-400"></i> Foglio Master
+              </a>` : ""}
+              ${attivitaLink ? `<a href="${attivitaLink}" target="_blank" rel="noopener noreferrer" class="px-3 py-2 text-xs font-medium bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-200 flex items-center gap-1.5 transition" title="Archivio Attività Garmin">
+                <i class="fa-solid fa-person-running text-sky-400"></i> File Attività
+              </a>` : ""}
+            </div>
+          </div>
+        </div>`;
+    }
+
+    function renderAthletes(allAthletes) {
       const grid = document.getElementById("athletes-grid");
       const emptyState = document.getElementById("athletes-empty-state");
       window._activeAthletesMap = {};
 
-      if (!athletes || athletes.length === 0) {
+      const list = Array.isArray(allAthletes) ? allAthletes : [];
+      updateOverviewKpis(currentOverviewSummary, list);
+      const owner = list.find(isOwnerAthlete) || null;
+      renderOwnerCard(owner);
+      const rawAthletes = list.filter(a => a !== owner).map((ath, idx) => ({
+        ath,
+        origIdx: idx,
+        risk: computeAthleteRiskInfo(ath)
+      }));
+
+      rawAthletes.sort((a, b) => {
+        if (a.risk.riskRank !== b.risk.riskRank) return a.risk.riskRank - b.risk.riskRank;
+        return a.origIdx - b.origIdx;
+      });
+
+      const filtered = rawAthletes.filter(item => {
+        if (!currentRiskFilter || currentRiskFilter === "all") return true;
+        if (currentRiskFilter === "alert") return item.risk.hasAlert;
+        if (currentRiskFilter === "red") return item.risk.semaforo === "ROSSO" || item.risk.riskLevel === "red";
+        if (currentRiskFilter === "yellow") return item.risk.semaforo === "GIALLO" || item.risk.riskLevel === "yellow";
+        if (currentRiskFilter === "green") return item.risk.semaforo === "VERDE" || item.risk.riskLevel === "green";
+        return true;
+      });
+
+      if (!filtered || filtered.length === 0) {
         if (grid) grid.innerHTML = "";
         if (emptyState) emptyState.classList.remove("hidden");
         return;
@@ -709,7 +968,8 @@
 
       if (emptyState) emptyState.classList.add("hidden");
       if (grid) {
-        grid.innerHTML = athletes.map((ath, idx) => {
+        grid.innerHTML = filtered.map(({ ath, origIdx, risk }) => {
+          const idx = origIdx;
           const athleteId = String(ath.chat_id || ath.sheet_id || ath.rowIndex || `ath_${idx}`).trim();
           window._activeAthletesMap[athleteId] = ath;
           const initials = (ath.name || "AT").split(" ").map(w => w[0]).join("").substring(0, 2).toUpperCase();
@@ -723,6 +983,7 @@
             : (ath.attivita_sheet_id ? `https://docs.google.com/spreadsheets/d/${escapeHtml(ath.attivita_sheet_id)}/edit` : "");
           const questionnaireUrl = buildAthleteQuestionnaireUrl(ath.chat_id || "", ath.name || "");
           const disciplinesHtml = renderDisciplineBadges(ath.disciplines);
+          const readinessBadgesHtml = renderAthleteReadinessBadges(ath, risk);
 
           let nextRaceHtml = "";
           if (ath.next_race && ath.next_race.name) {
@@ -738,7 +999,7 @@
                 <i class="fa-solid fa-flag-checkered mt-0.5 text-emerald-400" aria-hidden="true"></i>
                 <div>
                   <span class="font-semibold text-emerald-200">Prossima Gara: ${raceName}</span>
-                  ${details ? `<div class="text-[11px] text-emerald-300/90 mt-0.5">${details}</div>` : ""}
+                  ${details ? `<div class="text-xs text-emerald-300/90 mt-0.5">${details}</div>` : ""}
                 </div>
               </div>`;
           }
@@ -754,7 +1015,7 @@
                 <i class="fa-solid fa-umbrella-beach mt-0.5 text-amber-400" aria-hidden="true"></i>
                 <div>
                   <span class="font-semibold text-amber-200">Ferie: ${period}</span>
-                  ${vNotes ? `<div class="text-[11px] text-amber-300/90 mt-0.5">${vNotes}</div>` : ""}
+                  ${vNotes ? `<div class="text-xs text-amber-300/90 mt-0.5">${vNotes}</div>` : ""}
                 </div>
               </div>`;
           }
@@ -772,11 +1033,12 @@
                       <span class="px-2 py-0.5 text-xs font-semibold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 rounded-md">CLIENTE</span>
                       <span class="px-2 py-0.5 text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-md">ATTIVO</span>
                     </div>
-                    <p class="text-xs text-slate-400 mt-1 flex items-center gap-3 flex-wrap">
-                      <span><i class="fa-solid fa-location-dot text-slate-500"></i> ${safeCity}</span>
+                    <p class="text-xs text-slate-300 mt-1 flex items-center gap-3 flex-wrap">
+                      <span><i class="fa-solid fa-location-dot text-slate-300" aria-hidden="true"></i> ${safeCity}</span>
                       <span><i class="fa-brands fa-telegram text-sky-400"></i> Chat ID: <code>${safeChatId}</code></span>
                       <span><i class="fa-solid fa-bullseye text-orange-400"></i> ${safeGoals}</span>
                     </p>
+                    ${readinessBadgesHtml}
                     ${disciplinesHtml}
                     ${nextRaceHtml}
                     ${vacationHtml}
@@ -833,8 +1095,8 @@
       if (pendingBadge) {
         pendingBadge.innerText = `${count}`;
         pendingBadge.className = count > 0
-          ? "px-1.5 py-0.5 text-[10px] bg-brand-yellow text-slate-950 rounded-full font-bold animate-pulse cursor-pointer"
-          : "px-1.5 py-0.5 text-[10px] bg-slate-800 text-slate-400 rounded-full font-bold cursor-pointer";
+          ? "px-1.5 py-0.5 text-xs bg-brand-yellow text-slate-950 rounded-full font-bold animate-pulse cursor-pointer"
+          : "px-1.5 py-0.5 text-xs bg-slate-800 text-slate-300 rounded-full font-bold cursor-pointer";
       }
 
       if (alertBanner) {
@@ -953,18 +1215,18 @@
 
           const sledBadgeHtml = equipKnown
             ? (hasSled
-              ? '<span class="px-2 py-0.5 text-[11px] font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 rounded-lg">Slitta: SI</span>'
-              : '<span class="px-2 py-0.5 text-[11px] font-semibold bg-amber-500/15 text-amber-300 border border-amber-500/30 rounded-lg">Slitta: NO</span>')
-            : '<span class="px-2 py-0.5 text-[11px] font-semibold bg-slate-800 text-slate-400 border border-slate-700 rounded-lg">Attrezzatura: N/D</span>';
+              ? '<span class="px-2 py-0.5 text-xs font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 rounded-lg">Slitta: SI</span>'
+              : '<span class="px-2 py-0.5 text-xs font-semibold bg-amber-500/15 text-amber-300 border border-amber-500/30 rounded-lg">Slitta: NO</span>')
+            : '<span class="px-2 py-0.5 text-xs font-semibold bg-slate-800 text-slate-300 border border-slate-700 rounded-lg">Attrezzatura: N/D</span>';
 
           const equipBadgesHtml = equipItems.length > 0
-            ? equipItems.map(eq => `<span class="px-2 py-0.5 text-[11px] bg-slate-800 text-slate-200 border border-slate-700 rounded-lg">${escapeHtml(eq)}</span>`).join("")
-            : (equipKnown ? '<span class="text-xs text-slate-400">Nessuna attrezzatura selezionata</span>' : "");
+            ? equipItems.map(eq => `<span class="px-2 py-0.5 text-xs bg-slate-800 text-slate-200 border border-slate-700 rounded-lg">${escapeHtml(eq)}</span>`).join("")
+            : (equipKnown ? '<span class="text-xs text-slate-300">Nessuna attrezzatura selezionata</span>' : "");
 
           const injuriesBlockHtml = injuries
             ? `
               <div class="bg-amber-500/10 p-3.5 rounded-xl border border-amber-500/20 text-xs space-y-1">
-                <span class="text-amber-300 font-semibold uppercase text-[10px] flex items-center gap-1.5">
+                <span class="text-amber-300 font-semibold uppercase text-xs flex items-center gap-1.5">
                   <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> Note Fisiche / Infortuni Pregressi
                 </span>
                 <p class="text-slate-200">${safeInjuries}</p>
@@ -982,10 +1244,10 @@
                   <div>
                     <div class="flex items-center gap-2 flex-wrap">
                       <h4 class="text-base font-bold text-white">${safeName}</h4>
-                      <span class="px-2 py-0.5 text-[10px] font-semibold bg-amber-500/20 text-amber-300 rounded">DA VALIDARE</span>
-                      <span class="px-2 py-0.5 text-[10px] font-semibold bg-purple-500/20 text-purple-300 border border-purple-500/30 rounded">${safeFocus}</span>
-                      <span class="px-2 py-0.5 text-[10px] font-semibold bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 rounded">${safeDaysLabel}</span>
-                      <span class="px-2 py-0.5 text-[10px] font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 rounded">${safeFitnessLevel}</span>
+                      <span class="px-2 py-0.5 text-xs font-semibold bg-amber-500/20 text-amber-300 rounded">DA VALIDARE</span>
+                      <span class="px-2 py-0.5 text-xs font-semibold bg-purple-500/20 text-purple-300 border border-purple-500/30 rounded">${safeFocus}</span>
+                      <span class="px-2 py-0.5 text-xs font-semibold bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 rounded">${safeDaysLabel}</span>
+                      <span class="px-2 py-0.5 text-xs font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 rounded">${safeFitnessLevel}</span>
                     </div>
                     <p class="text-xs text-slate-400 mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1">
                       <span>Inviata: <strong class="text-slate-200">${safeDate}</strong></span>
@@ -1026,7 +1288,7 @@
               </div>
 
               <div class="bg-slate-900/50 p-3.5 rounded-xl border border-slate-800/80 text-xs space-y-2">
-                <span class="text-slate-400 font-semibold uppercase text-[10px] block">Profilo Anamnestico &amp; Attrezzatura Disponibile:</span>
+                <span class="text-slate-300 font-semibold uppercase text-xs block">Profilo Anamnestico &amp; Attrezzatura Disponibile:</span>
                 <div class="flex flex-wrap items-center gap-1.5">
                   ${sledBadgeHtml}
                   ${equipBadgesHtml}
@@ -1036,7 +1298,7 @@
               ${injuriesBlockHtml}
 
               <div class="bg-slate-900/40 p-3.5 rounded-xl border border-slate-800/80 text-xs space-y-1">
-                <span class="text-slate-400 font-semibold uppercase text-[10px]">Obiettivo Sportivo Inserito:</span>
+                <span class="text-slate-300 font-semibold uppercase text-xs">Obiettivo Sportivo Inserito:</span>
                 <p class="text-slate-200 italic font-serif">"${safeGoals}"</p>
               </div>
             </div>
@@ -1094,8 +1356,8 @@
       if (tabBadge) {
         tabBadge.innerText = activeCount;
         tabBadge.className = activeCount > 0
-          ? "px-1.5 py-0.5 text-[10px] bg-amber-500/20 text-amber-300 rounded-full font-bold animate-pulse"
-          : "px-1.5 py-0.5 text-[10px] bg-slate-800 text-slate-400 rounded-full font-bold";
+          ? "px-1.5 py-0.5 text-xs bg-amber-500/20 text-amber-300 rounded-full font-bold animate-pulse"
+          : "px-1.5 py-0.5 text-xs bg-slate-800 text-slate-300 rounded-full font-bold";
       }
 
       if (inboxCountBadge) {
@@ -1139,10 +1401,10 @@
               <div class="flex items-center justify-between text-xs">
                 <div class="flex items-center gap-2">
                   <span class="font-bold text-white text-sm">${safeName}</span>
-                  <span class="px-2 py-0.5 rounded ${isResolved ? "bg-emerald-500/20 text-emerald-300" : "bg-amber-500/20 text-amber-300"} font-semibold text-[10px]">${safeType}</span>
-                  <span class="text-slate-400">${safeDate}</span>
+                  <span class="px-2 py-0.5 rounded ${isResolved ? "bg-emerald-500/20 text-emerald-300" : "bg-amber-500/20 text-amber-300"} font-semibold text-xs">${safeType}</span>
+                  <span class="text-slate-300">${safeDate}</span>
                 </div>
-                ${safeChat ? `<span class="text-slate-500 font-mono text-[11px]">Chat ID: ${safeChat}</span>` : ""}
+                ${safeChat ? `<span class="text-slate-300 font-mono text-xs">Chat ID: ${safeChat}</span>` : ""}
               </div>
               <p class="text-sm text-slate-200 bg-slate-900/60 p-3.5 rounded-xl border border-slate-800 font-serif italic">
                 "${safeText}"
@@ -1216,6 +1478,20 @@
       if (modal) modal.classList.toggle('hidden', !show);
     }
 
+    function toggleMobileStatusMenu() {
+      const panel = document.getElementById('navbar-status-pills');
+      const btn = document.getElementById('mobile-status-toggle');
+      if (!panel || !btn) return;
+      const isHidden = panel.classList.contains('hidden');
+      panel.classList.toggle('hidden', !isHidden);
+      if (isHidden) {
+        panel.classList.add('flex');
+      } else {
+        panel.classList.remove('flex');
+      }
+      btn.setAttribute('aria-expanded', isHidden ? 'true' : 'false');
+    }
+
     function switchTab(tab) {
       currentTab = tab;
       const cRoster = document.getElementById("content-roster");
@@ -1271,13 +1547,13 @@
     }
 
     function copyOnboardLink() {
-      const url = window.location.protocol.startsWith("http")
-        ? new URL("onboarding_athlete.html", window.location.href).href
-        : "file:///Users/cordy/Desktop/Allenamenti/interfaces/onboarding_athlete.html";
+      const url = resolvePublicOnboardingUrl();
+      const inputEl = document.getElementById("onboard-share-link");
+      if (inputEl) inputEl.value = url;
       navigator.clipboard.writeText(url).then(() => {
         UIFeedback.toast({
           title: "Link copiato negli appunti!",
-          message: `Puoi incollarlo su WhatsApp o Telegram:<br><code class="text-[10px]">${escapeHtml(url)}</code>`,
+          message: `Puoi incollarlo su WhatsApp o Telegram:<br><code class="text-xs">${escapeHtml(url)}</code>`,
           type: "success"
         });
       }).catch(() => {
@@ -1463,7 +1739,7 @@
       btn.disabled = true;
       btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Sincronizzazione...';
       try {
-        const resp = await fetch('http://localhost:5050/api/athlete/sync-garmin', {
+        const resp = await fetch(getLocalApiUrl('/api/athlete/sync-garmin'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ user_id: userId })
@@ -1572,7 +1848,7 @@
           const prefilledUrl = buildAthleteQuestionnaireUrl(cleanChatId, safeName);
           UIFeedback.toast({
             title: "Questionario Inviato",
-            message: `Notifica Telegram inviata a ${escapeHtml(safeName)}<br><code class="text-[10px]">${escapeHtml(prefilledUrl)}</code>`,
+            message: `Notifica Telegram inviata a ${escapeHtml(safeName)}<br><code class="text-xs">${escapeHtml(prefilledUrl)}</code>`,
             type: "success"
           });
         }
@@ -2057,25 +2333,25 @@
           <div class="text-xs text-slate-300" id="plan-athlete-goals"></div>
           <div class="text-xs text-amber-300" id="plan-athlete-race"></div>
           <div class="text-xs text-sky-300" id="plan-athlete-vacation"></div>
-          <div class="text-[11px] text-slate-400 pt-1 border-t border-slate-700/40 hidden" id="plan-athlete-constraints"></div>
+          <div class="text-xs text-slate-300 pt-1 border-t border-slate-700/40 hidden" id="plan-athlete-constraints"></div>
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Modalità di Generazione</label>
+          <span class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Modalità di Generazione</span>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <label class="flex flex-col p-3 rounded-xl border border-slate-700 bg-slate-800/40 hover:bg-slate-800 cursor-pointer transition has-[:checked]:border-emerald-500 has-[:checked]:bg-emerald-500/10">
               <div class="flex items-center gap-2 mb-1">
                 <input id="plan-mode-current-week" type="radio" name="plan_generation_mode" value="current_week" checked class="text-emerald-500 focus:ring-emerald-500 bg-slate-900 border-slate-700">
                 <span class="font-semibold text-xs text-slate-200">Settimana Corrente</span>
               </div>
-              <span class="text-[11px] text-slate-400">Settimana Corrente (7 giorni Lun-Dom)</span>
+              <span class="text-xs text-slate-300">Settimana Corrente (7 giorni Lun-Dom)</span>
             </label>
             <label class="flex flex-col p-3 rounded-xl border border-slate-700 bg-slate-800/40 hover:bg-slate-800 cursor-pointer transition has-[:checked]:border-emerald-500 has-[:checked]:bg-emerald-500/10">
               <div class="flex items-center gap-2 mb-1">
                 <input id="plan-mode-full" type="radio" name="plan_generation_mode" value="full" class="text-emerald-500 focus:ring-emerald-500 bg-slate-900 border-slate-700">
                 <span class="font-semibold text-xs text-slate-200">Piano Completo</span>
               </div>
-              <span class="text-[11px] text-slate-400">Piano Completo (Macrociclo fino a Gara A o 12 settimane)</span>
+              <span class="text-xs text-slate-300">Piano Completo (Macrociclo fino a Gara A o 12 settimane)</span>
             </label>
           </div>
         </div>

@@ -3,36 +3,39 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#FFDD00">
   <title>Hub Coaching HYROX & UTMB | Andrea Cordera</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="interfaces/assets/theme.css">
+  <script src="interfaces/assets/ui-feedback.js"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Teko:wght@600;700&display=swap');
-    body { font-family: 'Inter', sans-serif; background-color: #0B0F19; }
-    .font-teko { font-family: 'Teko', sans-serif; }
-    .glass-card {
-      background: rgba(22, 31, 48, 0.7);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-    }
+    body { font-family: var(--ds-font-sans); background-color: var(--ds-bg); color: var(--ds-text); }
+    .font-teko { font-family: var(--ds-font-display); }
   </style>
 </head>
 <body class="text-slate-100 min-h-screen flex flex-col justify-between antialiased">
 
   <header class="border-b border-slate-800 px-6 py-4 bg-[#0D1424]/90 backdrop-blur">
-    <div class="max-w-4xl mx-auto flex items-center justify-between">
+    <div class="max-w-4xl mx-auto flex items-center justify-between gap-3 flex-wrap">
       <div class="flex items-center space-x-3">
         <div class="w-10 h-10 rounded-xl bg-yellow-400 flex items-center justify-center text-slate-950 font-teko text-2xl font-bold shadow-lg shadow-yellow-400/20">
           AC
         </div>
         <div>
           <h1 class="text-base font-bold text-white tracking-wide">HYROX & UTMB COACHING HUB</h1>
-          <p class="text-xs text-slate-400">Head Coach: <strong class="text-yellow-400">Andrea Cordera</strong></p>
+          <p class="text-xs text-slate-300">Head Coach: <strong class="text-yellow-400">Andrea Cordera</strong></p>
         </div>
       </div>
-      <span class="text-xs px-2.5 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full font-semibold">
-        Cloud Production Online
-      </span>
+      <div class="flex items-center gap-2">
+        <span class="text-xs px-2.5 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full font-semibold">
+          Cloud Production Online
+        </span>
+        <button type="button" data-theme-toggle onclick="toggleAppTheme()" aria-label="Cambia tema chiaro o scuro" aria-pressed="false" class="theme-toggle-btn">
+          <i class="fa-solid fa-circle-half-stroke" aria-hidden="true"></i>
+          <span data-theme-label>Chiaro</span>
+        </button>
+      </div>
     </div>
   </header>
 
@@ -54,11 +57,11 @@
           </div>
           <h3 class="text-lg font-bold text-white">Coach HQ Dashboard</h3>
           <p class="text-xs text-slate-400 mt-1.5 leading-relaxed">
-            Pannello di controllo esclusivo per Andrea: Roster atleti, Feed della Coach Inbox, approvazione nuove iscrizioni e monitoraggio 0-Token.
+            Pannello di controllo esclusivo per il coach: Roster atleti, Feed della Coach Inbox, approvazione nuove iscrizioni e monitoraggio 0-Token.
           </p>
         </div>
         <div class="text-xs font-semibold text-yellow-400 flex items-center gap-1.5 pt-2">
-          <span>Accedi come Coach</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
+          <span>Accedi come Coach</span> <i class="fa-solid fa-arrow-right text-xs" aria-hidden="true"></i>
         </div>
       </a>
 
@@ -66,15 +69,15 @@
       <a href="interfaces/onboarding_athlete.html" class="glass-card rounded-2xl p-6 border-t-4 border-t-cyan-400 hover:border-cyan-400/40 hover:-translate-y-1 transition group flex flex-col justify-between space-y-4">
         <div>
           <div class="w-12 h-12 rounded-xl bg-cyan-400/10 text-cyan-400 flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition">
-            <i class="fa-solid fa-user-plus"></i>
+            <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
           </div>
           <h3 class="text-lg font-bold text-white">Iscrizione Nuovo Atleta</h3>
-          <p class="text-xs text-slate-400 mt-1.5 leading-relaxed">
+          <p class="text-xs text-slate-300 mt-1.5 leading-relaxed">
             Modulo self-service per gli atleti: inserimento anagrafica, abitudini di sonno, orari abituali, connessione Garmin cifrata e gare obiettivo.
           </p>
         </div>
         <div class="text-xs font-semibold text-cyan-400 flex items-center gap-1.5 pt-2">
-          <span>Compila la Scheda</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
+          <span>Compila la Scheda</span> <i class="fa-solid fa-arrow-right text-xs" aria-hidden="true"></i>
         </div>
       </a>
 
@@ -82,22 +85,22 @@
       <a href="interfaces/athlete_portal.html" class="glass-card rounded-2xl p-6 border-t-4 border-t-orange-500 hover:border-orange-500/40 hover:-translate-y-1 transition group flex flex-col justify-between space-y-4">
         <div>
           <div class="w-12 h-12 rounded-xl bg-orange-500/10 text-orange-400 flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition">
-            <i class="fa-solid fa-person-running"></i>
+            <i class="fa-solid fa-person-running" aria-hidden="true"></i>
           </div>
           <h3 class="text-lg font-bold text-white">Portale Personale Atleta</h3>
-          <p class="text-xs text-slate-400 mt-1.5 leading-relaxed">
+          <p class="text-xs text-slate-300 mt-1.5 leading-relaxed">
             Visualizzazione del piano a 7 giorni (Rolling Window), check-in mattutino con semaforo, alert pre-workout, logger idratazione 1-tap e note al Coach.
           </p>
         </div>
         <div class="text-xs font-semibold text-orange-400 flex items-center gap-1.5 pt-2">
-          <span>Visualizza Allenamento</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
+          <span>Visualizza Allenamento</span> <i class="fa-solid fa-arrow-right text-xs" aria-hidden="true"></i>
         </div>
       </a>
 
     </div>
   </main>
 
-  <footer class="border-t border-slate-800 py-6 text-center text-xs text-slate-500">
+  <footer class="border-t border-slate-800 py-6 text-center text-xs text-slate-300">
     <p>Piattaforma di Coaching HYROX & UTMB • Head Coach Andrea Cordera • 100% 0-Token Policy</p>
   </footer>
 

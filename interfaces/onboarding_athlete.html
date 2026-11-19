@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#FFDD00">
   <title>Registrazione Atleta | Coaching HYROX & UTMB</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -26,38 +27,35 @@
   </script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="assets/ui-feedback.css">
+  <link rel="stylesheet" href="assets/theme.css">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Teko:wght@600;700&display=swap');
-    body { font-family: 'Inter', sans-serif; }
-    .font-teko { font-family: 'Teko', sans-serif; }
-    .glass-card {
-      background: rgba(22, 31, 48, 0.85);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-    }
-    :focus-visible {
-      outline: 2px solid #FFDD00 !important;
-      outline-offset: 2px !important;
-    }
+    body { font-family: var(--ds-font-sans); background-color: var(--ds-bg); color: var(--ds-text); }
+    .font-teko { font-family: var(--ds-font-display); }
   </style>
 </head>
 <body class="bg-brand-dark text-slate-100 min-h-screen flex flex-col justify-between antialiased">
 
   <!-- HEADER -->
   <header class="border-b border-brand-border bg-[#0D1424]/90 backdrop-blur px-6 py-4">
-    <div class="max-w-2xl mx-auto flex items-center justify-between">
+    <div class="max-w-2xl mx-auto flex items-center justify-between gap-3 flex-wrap">
       <div class="flex items-center space-x-3">
         <div class="w-10 h-10 rounded-xl bg-brand-yellow flex items-center justify-center text-slate-950 font-teko text-2xl font-bold shadow-lg">
           AC
         </div>
         <div>
           <h1 class="text-base font-bold text-white tracking-wide">PROGRAMMA COACHING HYROX & UTMB</h1>
-          <p class="text-xs text-slate-400">Head Coach: <strong class="text-brand-yellow">Andrea Cordera</strong></p>
+          <p class="text-xs text-slate-300">Head Coach: <strong class="text-brand-yellow">Andrea Cordera</strong></p>
         </div>
       </div>
-      <span class="text-xs px-2.5 py-1 bg-brand-yellow/10 text-brand-yellow border border-brand-yellow/30 rounded-lg font-semibold">
-        Self-Onboarding Atleta
-      </span>
+      <div class="flex items-center gap-2">
+        <span class="text-xs px-2.5 py-1 bg-brand-yellow/10 text-brand-yellow border border-brand-yellow/30 rounded-lg font-semibold">
+          Self-Onboarding Atleta
+        </span>
+        <button type="button" data-theme-toggle onclick="toggleAppTheme()" aria-label="Cambia tema chiaro o scuro" aria-pressed="false" class="theme-toggle-btn">
+          <i class="fa-solid fa-circle-half-stroke" aria-hidden="true"></i>
+          <span data-theme-label>Chiaro</span>
+        </button>
+      </div>
     </div>
   </header>
 
@@ -69,12 +67,31 @@
       <!-- HERO TITLE -->
       <div class="border-b border-slate-800 pb-4">
         <h2 class="text-2xl font-bold text-white">Iscrizione & Configurazione Profilo</h2>
-        <p class="text-xs text-slate-400 mt-1 leading-relaxed">
-          Compila i tuoi dati e le tue abitudini sportive. Una volta inviato, il **Coach Andrea validerà la tua scheda**, attiverà il tuo bot Telegram e clonerà il tuo foglio di allenamento personale.
+        <p class="text-xs text-slate-300 mt-1 leading-relaxed">
+          Compila i tuoi dati e le tue abitudini sportive in 6 semplici passaggi. Una volta inviato, il <strong>Coach Andrea validerà la tua scheda</strong>, attiverà il tuo bot Telegram e clonerà il tuo foglio di allenamento personale.
         </p>
       </div>
 
       <form id="athlete-onboard-form" onsubmit="submitAthleteForm(event)" novalidate class="space-y-5 text-xs">
+
+        <!-- BARRA AVANZAMENTO WIZARD 6 STEP -->
+        <div id="onboarding-progress-wrapper" class="p-4 rounded-xl bg-slate-900/70 border border-slate-800 space-y-3" role="region" aria-label="Avanzamento procedura di iscrizione">
+          <div class="flex items-center justify-between gap-2">
+            <span id="onboarding-step-label" class="text-xs font-extrabold uppercase tracking-wider text-brand-yellow" aria-live="polite">Passo 1/6</span>
+            <span id="onboarding-step-title" class="text-xs font-semibold text-slate-200">1. Dati Personali</span>
+          </div>
+          <div id="onboarding-progress-bar" role="progressbar" aria-valuemin="1" aria-valuemax="6" aria-valuenow="1" aria-label="Avanzamento iscrizione" class="w-full h-2.5 bg-slate-800 rounded-full overflow-hidden border border-slate-700">
+            <div id="onboarding-progress-fill" class="h-full bg-brand-yellow transition-all duration-300 rounded-full" style="width: 16.6667%"></div>
+          </div>
+          <div class="grid grid-cols-6 gap-1.5" role="list" aria-label="Elenco passaggi">
+            <button type="button" data-step-dot="1" onclick="goToOnboardingStep(1)" aria-label="Vai al passo 1: Dati Personali" aria-current="step" class="py-1.5 rounded-lg text-xs font-bold bg-brand-yellow text-slate-950 transition">1</button>
+            <button type="button" data-step-dot="2" onclick="goToOnboardingStep(2)" aria-label="Vai al passo 2: Telegram" class="py-1.5 rounded-lg text-xs font-bold bg-slate-800 text-slate-300 border border-slate-700 transition">2</button>
+            <button type="button" data-step-dot="3" onclick="goToOnboardingStep(3)" aria-label="Vai al passo 3: Abitudini" class="py-1.5 rounded-lg text-xs font-bold bg-slate-800 text-slate-300 border border-slate-700 transition">3</button>
+            <button type="button" data-step-dot="4" onclick="goToOnboardingStep(4)" aria-label="Vai al passo 4: Garmin" class="py-1.5 rounded-lg text-xs font-bold bg-slate-800 text-slate-300 border border-slate-700 transition">4</button>
+            <button type="button" data-step-dot="5" onclick="goToOnboardingStep(5)" aria-label="Vai al passo 5: Questionario Tecnico" class="py-1.5 rounded-lg text-xs font-bold bg-slate-800 text-slate-300 border border-slate-700 transition">5</button>
+            <button type="button" data-step-dot="6" onclick="goToOnboardingStep(6)" aria-label="Vai al passo 6: Obiettivi" class="py-1.5 rounded-lg text-xs font-bold bg-slate-800 text-slate-300 border border-slate-700 transition">6</button>
+          </div>
+        </div>
 
         <!-- BANNER PRECOMPILAZIONE DA LINK COACH (HIDDEN INITIALLY) -->
         <div id="prefill-banner" role="status" aria-live="polite" class="hidden flex items-start gap-3 p-3.5 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-200">
@@ -83,14 +100,14 @@
             <p class="font-bold text-white text-xs">
               Aggiornamento profilo anamnestico in corso <span id="prefill-athlete-label"></span>
             </p>
-            <p class="text-[11px] text-cyan-200/80">
+            <p class="text-xs text-cyan-200/80">
               I tuoi identificativi Telegram/Nome sono stati precompilati dal link del Coach. Verifica i campi e compila il questionario tecnico qui sotto.
             </p>
           </div>
         </div>
         
         <!-- SEZIONE 1: ANAGRAFICA -->
-        <fieldset class="space-y-3">
+        <fieldset data-step="1" class="onboarding-step space-y-3">
           <legend class="text-sm font-bold text-brand-yellow uppercase tracking-wider flex items-center gap-2">
             <i class="fa-solid fa-user" aria-hidden="true"></i> 1. Dati Personali
           </legend>
@@ -98,38 +115,38 @@
             <div>
               <label for="at-name" class="block text-slate-200 font-semibold mb-1">Nome e Cognome *</label>
               <input type="text" id="at-name" required placeholder="es. Marco Rossi" aria-required="true" aria-describedby="err-at-name" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-brand-yellow text-xs">
-              <span id="err-at-name" class="text-red-400 text-[11px] hidden mt-1 block" role="alert">Inserisci il tuo nome e cognome</span>
+              <span id="err-at-name" class="text-red-400 text-xs hidden mt-1 block" role="alert">Inserisci il tuo nome e cognome</span>
             </div>
             <div>
               <label for="at-city" class="block text-slate-200 font-semibold mb-1">Città di Residenza (per Meteo ore 12:00) *</label>
-              <input type="text" id="at-city" required placeholder="es. Milano, Torino, Biella" aria-required="true" aria-describedby="err-at-city" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-brand-yellow text-xs">
-              <span id="err-at-city" class="text-red-400 text-[11px] hidden mt-1 block" role="alert">Inserisci la tua città di residenza</span>
+              <input type="text" id="at-city" required placeholder="es. Milano, Torino, Bologna" aria-required="true" aria-describedby="err-at-city" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-brand-yellow text-xs">
+              <span id="err-at-city" class="text-red-400 text-xs hidden mt-1 block" role="alert">Inserisci la tua città di residenza</span>
             </div>
           </div>
         </fieldset>
 
         <!-- SEZIONE 2: TELEGRAM -->
-        <fieldset class="space-y-3 pt-3 border-t border-slate-800">
+        <fieldset data-step="2" class="onboarding-step hidden space-y-3 pt-3 border-t border-slate-800">
           <legend class="text-sm font-bold text-cyan-400 uppercase tracking-wider flex items-center gap-2">
             <i class="fa-brands fa-telegram" aria-hidden="true"></i> 2. Connessione Bot Telegram
           </legend>
           <div>
             <div class="flex items-center justify-between mb-1">
               <label for="at-chat" class="block text-slate-200 font-semibold">Il tuo Telegram ID Numerico *</label>
-              <span id="prefill-chat-badge" class="hidden inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 text-[10px] font-semibold">
+              <span id="prefill-chat-badge" class="hidden inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 text-xs font-semibold">
                 <i class="fa-solid fa-check" aria-hidden="true"></i> Confermato dal Coach
               </span>
             </div>
             <input type="number" id="at-chat" required placeholder="es. 987654321" aria-required="true" aria-describedby="err-at-chat hint-at-chat" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-cyan-400 text-xs">
-            <span id="err-at-chat" class="text-red-400 text-[11px] hidden mt-1 block" role="alert">Inserisci il tuo ID numerico di Telegram</span>
-            <p id="hint-at-chat" class="text-[11px] text-slate-300 mt-1.5 bg-slate-900/60 p-2.5 rounded-lg border border-slate-800">
-              💡 <strong>Come trovarlo in 5 secondi:</strong> Cerca su Telegram il bot gratuito <a href="https://t.me/userinfobot" target="_blank" rel="noopener noreferrer" class="text-cyan-400 underline font-bold">@userinfobot</a>, premi <em>Avvia</em> e copia il numero che ti risponde (campo <code>Id:</code>).
+            <span id="err-at-chat" class="text-red-400 text-xs hidden mt-1 block" role="alert">Inserisci il tuo ID numerico di Telegram</span>
+            <p id="hint-at-chat" class="text-xs text-slate-300 mt-1.5 bg-slate-900/60 p-2.5 rounded-lg border border-slate-800">
+              💡 <strong>Come trovarlo in 5 secondi:</strong> Apri il bot Telegram del Coach (<a href="https://t.me/andrea_hyrox_coach_bot" target="_blank" rel="noopener noreferrer" class="text-cyan-400 underline font-bold">@andrea_hyrox_coach_bot</a>) e premi <em>Avvia</em> (<code>/start</code>): il bot ti risponderà subito con il tuo <strong>ID Telegram</strong> da incollare qui.
             </p>
           </div>
         </fieldset>
 
         <!-- SEZIONE 3: DISPOSITIVI & ABITUDINI -->
-        <fieldset class="space-y-3 pt-3 border-t border-slate-800">
+        <fieldset data-step="3" class="onboarding-step hidden space-y-3 pt-3 border-t border-slate-800">
           <legend class="text-sm font-bold text-orange-400 uppercase tracking-wider flex items-center gap-2">
             <i class="fa-solid fa-sliders" aria-hidden="true"></i> 3. Dispositivi & Abitudini Fisiologiche
           </legend>
@@ -139,7 +156,7 @@
               <input type="checkbox" id="at-sleep" class="mt-0.5 w-4 h-4 text-brand-yellow rounded focus:ring-0">
               <div>
                 <span class="font-bold text-white block">Tengo l'orologio al polso di notte (Sonno & HRV)</span>
-                <span class="text-[11px] text-slate-300">Se NON lo tieni, lascia deselezionato: il bot adatterà il check-in mattutino senza dare falsi allarmi sul recupero.</span>
+                <span class="text-xs text-slate-300">Se NON lo tieni, lascia deselezionato: il bot adatterà il check-in mattutino senza dare falsi allarmi sul recupero.</span>
               </div>
             </label>
 
@@ -147,7 +164,7 @@
               <input type="checkbox" id="at-scale" class="mt-0.5 w-4 h-4 text-brand-yellow rounded focus:ring-0">
               <div>
                 <span class="font-bold text-white block">Possiedo una Bilancia Smart compatibile (Renpho)</span>
-                <span class="text-[11px] text-slate-300">Se usi una bilancia normale, potrai inserire il peso manualmente scrivendo direttamente al bot.</span>
+                <span class="text-xs text-slate-300">Se usi una bilancia normale, potrai inserire il peso manualmente scrivendo direttamente al bot.</span>
               </div>
             </label>
           </div>
@@ -175,7 +192,7 @@
         </fieldset>
 
         <!-- SEZIONE 4: COLLEGAMENTO DISPOSITIVI GARMIN (PRIVACY & SICUREZZA) -->
-        <fieldset class="space-y-3 pt-3 border-t border-slate-800">
+        <fieldset data-step="4" class="onboarding-step hidden space-y-3 pt-3 border-t border-slate-800">
           <legend class="text-sm font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-2">
             <i class="fa-solid fa-shield-halved" aria-hidden="true"></i> 4. Dispositivo Garmin Connect
           </legend>
@@ -183,19 +200,20 @@
             <div class="flex items-center gap-2 text-white font-semibold text-xs">
               <i class="fa-solid fa-lock text-emerald-400" aria-hidden="true"></i> Massima Privacy: Nessuna Password sul Web
             </div>
-            <p class="text-[11px] text-slate-300 leading-relaxed">
+            <p class="text-xs text-slate-300 leading-relaxed">
               Per proteggere al 100% la tua sicurezza informatica, <strong>non ti chiederemo mai la password Garmin su questa pagina web</strong>.
               Il collegamento del tuo orologio avverrà in totale riservatezza in chat privata Telegram con il bot una volta approvata la tua candidatura.
             </p>
             <div class="pt-1">
               <label for="at-garmin-email" class="block text-slate-200 font-semibold mb-1">Email del tuo Account Garmin (Opzionale)</label>
-              <input type="email" id="at-garmin-email" placeholder="tua.email@garmin.com" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-white focus:outline-none focus:border-emerald-400 text-xs">
+              <input type="email" id="at-garmin-email" placeholder="tua.email@garmin.com" aria-describedby="err-at-garmin-email" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-white focus:outline-none focus:border-emerald-400 text-xs">
+              <span id="err-at-garmin-email" class="text-red-400 text-xs hidden mt-1 block" role="alert">Inserisci un indirizzo email valido oppure lascia vuoto</span>
             </div>
           </div>
         </fieldset>
 
         <!-- SEZIONE 5: QUESTIONARIO TECNICO / ANAMNESTICO COMPLETO -->
-        <fieldset id="athletic-questionnaire-section" class="space-y-6 pt-3 border-t border-slate-800">
+        <fieldset id="athletic-questionnaire-section" data-step="5" class="onboarding-step hidden space-y-6 pt-3 border-t border-slate-800">
           <legend class="text-sm font-bold text-purple-400 uppercase tracking-wider flex items-center gap-2">
             <i class="fa-solid fa-clipboard-list" aria-hidden="true"></i> 5. Questionario Tecnico / Anamnestico Completo
           </legend>
@@ -244,7 +262,7 @@
               <span class="block text-slate-200 font-bold text-xs uppercase tracking-wider text-purple-300">
                 5A. Discipline Praticate (Multi-disciplina)
               </span>
-              <p class="text-[11px] text-slate-400 mt-0.5">Seleziona tutte le discipline che vuoi includere nella tua programmazione settimanale.</p>
+              <p class="text-xs text-slate-300 mt-0.5">Seleziona tutte le discipline che vuoi includere nella tua programmazione settimanale.</p>
             </div>
             <div id="at-disciplines" role="group" aria-label="Discipline praticate" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
               <label class="relative flex items-center gap-3 p-3 bg-slate-900/70 rounded-xl border border-slate-800 cursor-pointer hover:border-purple-500/50 transition has-[:checked]:border-brand-yellow has-[:checked]:bg-brand-yellow/10">
@@ -388,7 +406,7 @@
                 <span class="block text-slate-200 font-bold text-xs uppercase tracking-wider text-brand-yellow">
                   5C. Gare in Programma
                 </span>
-                <p class="text-[11px] text-slate-400">Inserisci una o più gare già iscritte o nel mirino (verranno caricate nel tuo tab Gare).</p>
+                <p class="text-xs text-slate-300">Inserisci una o più gare già iscritte o nel mirino (verranno caricate nel tuo tab Gare).</p>
               </div>
               <button type="button" onclick="addRaceRow()" aria-label="Aggiungi gara in programma" class="self-start sm:self-auto inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand-yellow/15 hover:bg-brand-yellow/25 text-brand-yellow border border-brand-yellow/30 font-bold text-xs transition">
                 <i class="fa-solid fa-plus" aria-hidden="true"></i> Aggiungi Gara
@@ -404,7 +422,7 @@
                 <span class="block text-slate-200 font-bold text-xs uppercase tracking-wider text-cyan-300">
                   5D. Ferie &amp; Periodi di Stop / Indisponibilità
                 </span>
-                <p class="text-[11px] text-slate-400">Segnala vacanze, trasferte o periodi con disponibilità ridotta per pianificare scarico o riposo.</p>
+                <p class="text-xs text-slate-300">Segnala vacanze, trasferte o periodi con disponibilità ridotta per pianificare scarico o riposo.</p>
               </div>
               <button type="button" onclick="addVacationRow()" aria-label="Aggiungi periodo ferie" class="self-start sm:self-auto inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 border border-cyan-500/30 font-bold text-xs transition">
                 <i class="fa-solid fa-plus" aria-hidden="true"></i> Aggiungi Periodo Ferie
@@ -419,7 +437,7 @@
               <span class="block text-slate-200 font-bold text-xs uppercase tracking-wider text-rose-300">
                 5E. Infortuni &amp; Limitazioni Articolari
               </span>
-              <p class="text-[11px] text-slate-400">Seleziona eventuali zone delicate e indica movimenti o carichi da evitare.</p>
+              <p class="text-xs text-slate-300">Seleziona eventuali zone delicate e indica movimenti o carichi da evitare.</p>
             </div>
             <div id="at-injury-zones" role="group" aria-label="Zone articolari delicate o infortuni" class="flex flex-wrap gap-2">
               <label class="inline-flex items-center gap-2 px-3 py-1.5 bg-slate-900/70 rounded-lg border border-slate-800 cursor-pointer hover:border-rose-500/40 has-[:checked]:border-rose-400 has-[:checked]:bg-rose-500/10">
@@ -455,24 +473,32 @@
         </fieldset>
 
         <!-- SEZIONE 6: NOTE & OBIETTIVI -->
-        <fieldset class="space-y-3 pt-3 border-t border-slate-800">
+        <fieldset data-step="6" class="onboarding-step hidden space-y-3 pt-3 border-t border-slate-800">
           <legend class="text-sm font-bold text-slate-200 uppercase tracking-wider flex items-center gap-2">
             <i class="fa-solid fa-bullseye" aria-hidden="true"></i> 6. Obiettivi & Note per Coach Andrea
           </legend>
           <div>
             <label for="at-goals" class="block text-slate-200 font-semibold mb-1">Qual è la tua gara obiettivo principale?</label>
-            <textarea id="at-goals" rows="2" placeholder="es. HYROX Milano Open Men ad Aprile 2026, oppure UTMB 50K..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-white focus:outline-none focus:border-brand-yellow text-xs resize-none"></textarea>
+            <textarea id="at-goals" rows="3" placeholder="es. HYROX Milano Open Men ad Aprile 2026, oppure UTMB 50K..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-white focus:outline-none focus:border-brand-yellow text-xs resize-none"></textarea>
           </div>
         </fieldset>
 
-        <!-- SUBMIT BUTTON -->
+        <!-- WIZARD NAVIGATION & SUBMIT -->
         <div class="pt-4 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <span class="text-[11px] text-slate-500">
-            <i class="fa-solid fa-lock text-emerald-400"></i> Dati cifrati e protetti secondo policy 0-Token
+          <span class="text-xs text-slate-300 flex items-center gap-1.5">
+            <i class="fa-solid fa-lock text-emerald-400" aria-hidden="true"></i> Dati cifrati e bozza salvata in locale
           </span>
-          <button type="submit" aria-label="Invia candidatura atleta al Coach Andrea" class="w-full sm:w-auto px-6 py-3 bg-brand-yellow hover:bg-yellow-400 text-slate-950 font-extrabold rounded-xl text-sm transition shadow-lg shadow-brand-yellow/20 flex items-center justify-center gap-2">
-            <i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Invia Candidatura al Coach Andrea
-          </button>
+          <div class="flex items-center gap-2.5 w-full sm:w-auto justify-end">
+            <button type="button" id="btn-step-prev" onclick="prevOnboardingStep()" class="hidden px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold rounded-xl text-xs border border-slate-700 transition flex items-center justify-center gap-1.5">
+              <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Indietro
+            </button>
+            <button type="button" id="btn-step-next" onclick="nextOnboardingStep()" class="w-full sm:w-auto px-5 py-2.5 bg-brand-yellow hover:bg-yellow-400 text-slate-950 font-extrabold rounded-xl text-xs transition shadow-lg shadow-brand-yellow/20 flex items-center justify-center gap-1.5">
+              <span>Avanti</span> <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+            </button>
+            <button type="submit" id="btn-submit-onboarding" aria-label="Invia candidatura atleta al Coach Andrea" class="hidden w-full sm:w-auto px-6 py-3 bg-brand-yellow hover:bg-yellow-400 text-slate-950 font-extrabold rounded-xl text-sm transition shadow-lg shadow-brand-yellow/20 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed">
+              <i class="fa-solid fa-paper-plane" aria-hidden="true"></i> <span>Invia Candidatura al Coach Andrea</span>
+            </button>
+          </div>
         </div>
 
       </form>
@@ -480,16 +506,16 @@
       <!-- SUCCESS MESSAGE (HIDDEN INITIALLY) -->
       <div id="success-box" aria-live="polite" role="status" class="hidden text-center py-8 space-y-4">
         <div class="w-16 h-16 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-full flex items-center justify-center mx-auto text-2xl">
-          <i class="fa-solid fa-check"></i>
+          <i class="fa-solid fa-check" aria-hidden="true"></i>
         </div>
         <h3 class="text-xl font-bold text-white">Candidatura Inviata con Successo!</h3>
-        <p class="text-xs text-slate-300 max-w-md mx-auto leading-relaxed">
-          I tuoi dati sono arrivati nella **Coach Inbox di Andrea Cordera**.<br>
+        <p id="success-summary" class="text-xs text-slate-200 max-w-md mx-auto leading-relaxed">
+          I tuoi dati sono arrivati nella <strong>Coach Inbox di Andrea Cordera</strong>.<br>
           Non appena Andrea validerà il tuo profilo, riceverai un messaggio di benvenuto su Telegram con il link al tuo Foglio Google Master Plan personalizzato.
         </p>
         <div class="pt-2">
-          <a href="https://t.me/andrea_hyrox_coach_bot" target="_blank" class="inline-flex items-center gap-2 px-5 py-2.5 bg-sky-500 hover:bg-sky-400 text-white font-bold text-xs rounded-xl transition">
-            <i class="fa-brands fa-telegram"></i> Apri il Bot Telegram (@andrea_hyrox_coach_bot)
+          <a href="https://t.me/andrea_hyrox_coach_bot" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-5 py-2.5 bg-sky-500 hover:bg-sky-400 text-white font-bold text-xs rounded-xl transition">
+            <i class="fa-brands fa-telegram" aria-hidden="true"></i> Apri il Bot Telegram (@andrea_hyrox_coach_bot)
           </a>
         </div>
       </div>
@@ -499,13 +525,384 @@
   </main>
 
   <!-- FOOTER -->
-  <footer class="border-t border-brand-border py-4 text-center text-xs text-slate-500 bg-brand-dark">
+  <footer class="border-t border-brand-border py-4 text-center text-xs text-slate-300 bg-brand-dark">
     <p>Piattaforma di Coaching HYROX & UTMB • Head Coach Andrea Cordera • 100% 0-Token Guardrail</p>
   </footer>
 
   <script src="assets/ui-feedback.js"></script>
   <script>
     const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxPti1imOEgoYrJimCthCMkCyqwmTFwbIMOZoclu9ayNaC5WdkVjMfUlU3naunw_vJNuw/exec";
+    const ONBOARDING_DRAFT_KEY = "hyrox_onboarding_draft_v1";
+    const ONBOARDING_TOTAL_STEPS = 6;
+    const ONBOARDING_STEP_TITLES = {
+      1: "1. Dati Personali",
+      2: "2. Connessione Bot Telegram",
+      3: "3. Dispositivi & Abitudini",
+      4: "4. Dispositivo Garmin Connect",
+      5: "5. Questionario Tecnico / Anamnestico",
+      6: "6. Obiettivi & Note Finali"
+    };
+
+    let currentOnboardingStep = 1;
+    let dynamicRowCounter = 0;
+
+    /**
+     * Aggiorna barra di avanzamento "Passo X/6", visibilità degli step e pulsanti Indietro/Avanti/Invia.
+     */
+    function updateOnboardingProgressUI() {
+      const step = currentOnboardingStep;
+      const labelEl = document.getElementById('onboarding-step-label');
+      const titleEl = document.getElementById('onboarding-step-title');
+      const barEl = document.getElementById('onboarding-progress-bar');
+      const fillEl = document.getElementById('onboarding-progress-fill');
+      const prevBtn = document.getElementById('btn-step-prev');
+      const nextBtn = document.getElementById('btn-step-next');
+      const submitBtn = document.getElementById('btn-submit-onboarding');
+
+      if (labelEl) labelEl.textContent = `Passo ${step}/${ONBOARDING_TOTAL_STEPS}`;
+      if (titleEl) titleEl.textContent = ONBOARDING_STEP_TITLES[step] || '';
+      if (barEl) barEl.setAttribute('aria-valuenow', String(step));
+      if (fillEl) fillEl.style.width = `${(step / ONBOARDING_TOTAL_STEPS) * 100}%`;
+
+      document.querySelectorAll('.onboarding-step').forEach(function (fs) {
+        const fsStep = parseInt(fs.getAttribute('data-step'), 10);
+        if (fsStep === step) {
+          fs.classList.remove('hidden');
+        } else {
+          fs.classList.add('hidden');
+        }
+      });
+
+      document.querySelectorAll('[data-step-dot]').forEach(function (dot) {
+        const dotStep = parseInt(dot.getAttribute('data-step-dot'), 10);
+        if (dotStep === step) {
+          dot.className = 'py-1.5 rounded-lg text-xs font-bold bg-brand-yellow text-slate-950 transition';
+          dot.setAttribute('aria-current', 'step');
+        } else if (dotStep < step) {
+          dot.className = 'py-1.5 rounded-lg text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 transition';
+          dot.removeAttribute('aria-current');
+        } else {
+          dot.className = 'py-1.5 rounded-lg text-xs font-bold bg-slate-800 text-slate-300 border border-slate-700 transition';
+          dot.removeAttribute('aria-current');
+        }
+      });
+
+      if (prevBtn) {
+        prevBtn.classList.toggle('hidden', step <= 1);
+      }
+      if (nextBtn) {
+        nextBtn.classList.toggle('hidden', step >= ONBOARDING_TOTAL_STEPS);
+      }
+      if (submitBtn) {
+        submitBtn.classList.toggle('hidden', step < ONBOARDING_TOTAL_STEPS);
+      }
+    }
+
+    /**
+     * Valida i campi obbligatori e i vincoli dello step corrente prima di avanzare o inviare.
+     */
+    function validateOnboardingStep(step) {
+      if (step === 1) {
+        const inputName = document.getElementById('at-name');
+        const inputCity = document.getElementById('at-city');
+        const errName = document.getElementById('err-at-name');
+        const errCity = document.getElementById('err-at-city');
+        if (errName) errName.classList.add('hidden');
+        if (errCity) errCity.classList.add('hidden');
+        if (inputName) inputName.removeAttribute('aria-invalid');
+        if (inputCity) inputCity.removeAttribute('aria-invalid');
+
+        let firstInvalid = null;
+        if (inputName && !inputName.value.trim()) {
+          if (errName) errName.classList.remove('hidden');
+          inputName.setAttribute('aria-invalid', 'true');
+          firstInvalid = inputName;
+        }
+        if (inputCity && !inputCity.value.trim()) {
+          if (errCity) errCity.classList.remove('hidden');
+          inputCity.setAttribute('aria-invalid', 'true');
+          if (!firstInvalid) firstInvalid = inputCity;
+        }
+        if (firstInvalid) {
+          firstInvalid.focus();
+          if (window.UIFeedback) {
+            UIFeedback.toast({
+              title: "Campi obbligatori mancanti",
+              message: "Inserisci Nome e Cognome e Città di Residenza per proseguire.",
+              type: 'warning'
+            });
+          }
+          return false;
+        }
+      }
+
+      if (step === 2) {
+        const inputChat = document.getElementById('at-chat');
+        const errChat = document.getElementById('err-at-chat');
+        if (errChat) errChat.classList.add('hidden');
+        if (inputChat) inputChat.removeAttribute('aria-invalid');
+        if (inputChat && !inputChat.value.trim()) {
+          if (errChat) errChat.classList.remove('hidden');
+          inputChat.setAttribute('aria-invalid', 'true');
+          inputChat.focus();
+          if (window.UIFeedback) {
+            UIFeedback.toast({
+              title: "Telegram ID obbligatorio",
+              message: "Inserisci il tuo ID numerico di Telegram per proseguire.",
+              type: 'warning'
+            });
+          }
+          return false;
+        }
+      }
+
+      if (step === 4) {
+        const emailEl = document.getElementById('at-garmin-email');
+        const errEmail = document.getElementById('err-at-garmin-email');
+        if (errEmail) errEmail.classList.add('hidden');
+        if (emailEl) {
+          emailEl.removeAttribute('aria-invalid');
+          const val = emailEl.value.trim();
+          if (val && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
+            if (errEmail) errEmail.classList.remove('hidden');
+            emailEl.setAttribute('aria-invalid', 'true');
+            emailEl.focus();
+            if (window.UIFeedback) {
+              UIFeedback.toast({
+                title: "Email Garmin non valida",
+                message: "Controlla l'indirizzo email oppure lascia il campo vuoto.",
+                type: 'warning'
+              });
+            }
+            return false;
+          }
+        }
+      }
+
+      if (step === 5) {
+        document.querySelectorAll('#vacations-list .vacation-end').forEach(function (el) {
+          el.removeAttribute('aria-invalid');
+          el.classList.remove('border-red-500');
+        });
+        const vacationRows = Array.from(document.querySelectorAll('#vacations-list .vacation-row'));
+        for (let i = 0; i < vacationRows.length; i++) {
+          const startEl = vacationRows[i].querySelector('.vacation-start');
+          const endEl = vacationRows[i].querySelector('.vacation-end');
+          const startVal = startEl ? startEl.value.trim() : '';
+          const endVal = endEl ? endEl.value.trim() : '';
+          if (startVal && endVal && endVal < startVal) {
+            endEl.setAttribute('aria-invalid', 'true');
+            endEl.classList.add('border-red-500');
+            endEl.focus();
+            if (window.UIFeedback) {
+              UIFeedback.toast({
+                title: "Date ferie non valide",
+                message: "La data di fine ('Al') deve essere successiva o uguale alla data di inizio ('Dal').",
+                type: 'warning'
+              });
+            }
+            return false;
+          }
+        }
+      }
+
+      return true;
+    }
+
+    /**
+     * Avanza allo step successivo previa validazione dello step corrente.
+     */
+    function nextOnboardingStep() {
+      if (!validateOnboardingStep(currentOnboardingStep)) return;
+      if (currentOnboardingStep < ONBOARDING_TOTAL_STEPS) {
+        currentOnboardingStep += 1;
+        updateOnboardingProgressUI();
+        saveOnboardingDraft();
+      }
+    }
+
+    /**
+     * Torna allo step precedente salvando lo stato della bozza.
+     */
+    function prevOnboardingStep() {
+      if (currentOnboardingStep > 1) {
+        currentOnboardingStep -= 1;
+        updateOnboardingProgressUI();
+        saveOnboardingDraft();
+      }
+    }
+
+    /**
+     * Consente la navigazione diretta tramite i pulsanti numerati previa validazione degli step intermedi.
+     */
+    function goToOnboardingStep(targetStep) {
+      const target = Math.max(1, Math.min(ONBOARDING_TOTAL_STEPS, parseInt(targetStep, 10) || 1));
+      if (target > currentOnboardingStep) {
+        for (let s = currentOnboardingStep; s < target; s++) {
+          if (!validateOnboardingStep(s)) {
+            currentOnboardingStep = s;
+            updateOnboardingProgressUI();
+            return;
+          }
+        }
+      }
+      currentOnboardingStep = target;
+      updateOnboardingProgressUI();
+      saveOnboardingDraft();
+    }
+
+    /**
+     * Raccoglie lo stato completo del form per il salvataggio della bozza in localStorage.
+     */
+    function collectOnboardingDraftData() {
+      const val = (id) => {
+        const el = document.getElementById(id);
+        return el ? el.value : '';
+      };
+      const chk = (id) => {
+        const el = document.getElementById(id);
+        return el ? Boolean(el.checked) : false;
+      };
+      const checkedVals = (selector) => Array.from(document.querySelectorAll(selector + ':checked')).map((el) => el.value);
+
+      const races = Array.from(document.querySelectorAll('#races-list .race-row')).map((row) => ({
+        name: (row.querySelector('.race-name')?.value || ''),
+        discipline: (row.querySelector('.race-discipline')?.value || 'HYROX'),
+        date: (row.querySelector('.race-date')?.value || ''),
+        distance: (row.querySelector('.race-distance')?.value || ''),
+        elevation: (row.querySelector('.race-elevation')?.value || ''),
+        priority: (row.querySelector('.race-priority')?.value || 'A - Gara Obiettivo'),
+        notes: (row.querySelector('.race-notes')?.value || '')
+      }));
+
+      const vacations = Array.from(document.querySelectorAll('#vacations-list .vacation-row')).map((row) => ({
+        start: (row.querySelector('.vacation-start')?.value || ''),
+        end: (row.querySelector('.vacation-end')?.value || ''),
+        mode: (row.querySelector('.vacation-mode')?.value || 'Riposo Totale'),
+        notes: (row.querySelector('.vacation-notes')?.value || '')
+      }));
+
+      return {
+        step: currentOnboardingStep,
+        name: val('at-name'),
+        city: val('at-city'),
+        chat: val('at-chat'),
+        sleep: chk('at-sleep'),
+        scale: chk('at-scale'),
+        water: val('at-water'),
+        time: val('at-time'),
+        garmin_email: val('at-garmin-email'),
+        focus: val('at-focus'),
+        days: val('at-days'),
+        fitness_level: val('at-fitness-level'),
+        nutrition: val('at-nutrition'),
+        disciplines: checkedVals('#at-disciplines input[type="checkbox"]'),
+        discipline_notes: val('at-discipline-notes'),
+        gym_access: val('at-gym-access'),
+        gym_notes: val('at-gym-notes'),
+        equipment: checkedVals('#at-equipment input[type="checkbox"]'),
+        races: races,
+        vacations: vacations,
+        injury_zones: checkedVals('#at-injury-zones input[type="checkbox"]'),
+        injuries: val('at-injuries'),
+        goals: val('at-goals')
+      };
+    }
+
+    /**
+     * Salva automaticamente la bozza in localStorage proteggendo da errori di storage/privacy.
+     */
+    function saveOnboardingDraft() {
+      try {
+        const draft = collectOnboardingDraftData();
+        localStorage.setItem(ONBOARDING_DRAFT_KEY, JSON.stringify(draft));
+      } catch (e) {}
+    }
+
+    /**
+     * Rimuove la bozza salvata in localStorage dopo l'invio riuscito.
+     */
+    function clearOnboardingDraft() {
+      try {
+        localStorage.removeItem(ONBOARDING_DRAFT_KEY);
+      } catch (e) {}
+    }
+
+    /**
+     * Ripristina la bozza salvata da localStorage al caricamento della pagina.
+     */
+    function restoreOnboardingDraft() {
+      let raw = null;
+      try {
+        raw = localStorage.getItem(ONBOARDING_DRAFT_KEY);
+      } catch (e) {
+        raw = null;
+      }
+      if (!raw) return false;
+      let draft = null;
+      try {
+        draft = JSON.parse(raw);
+      } catch (e) {
+        return false;
+      }
+      if (!draft || typeof draft !== 'object') return false;
+
+      const setVal = (id, v) => {
+        const el = document.getElementById(id);
+        if (el && v !== undefined && v !== null) el.value = v;
+      };
+      const setChk = (id, v) => {
+        const el = document.getElementById(id);
+        if (el) el.checked = Boolean(v);
+      };
+      const setGroup = (selector, values) => {
+        if (!Array.isArray(values)) return;
+        const set = new Set(values);
+        document.querySelectorAll(selector).forEach((el) => {
+          el.checked = set.has(el.value);
+        });
+      };
+
+      setVal('at-name', draft.name);
+      setVal('at-city', draft.city);
+      setVal('at-chat', draft.chat);
+      setChk('at-sleep', draft.sleep);
+      setChk('at-scale', draft.scale);
+      if (draft.water) setVal('at-water', draft.water);
+      if (draft.time) setVal('at-time', draft.time);
+      setVal('at-garmin-email', draft.garmin_email);
+      if (draft.focus) setVal('at-focus', draft.focus);
+      if (draft.days) setVal('at-days', draft.days);
+      if (draft.fitness_level) setVal('at-fitness-level', draft.fitness_level);
+      if (draft.nutrition) setVal('at-nutrition', draft.nutrition);
+      setGroup('#at-disciplines input[type="checkbox"]', draft.disciplines);
+      setVal('at-discipline-notes', draft.discipline_notes);
+      if (draft.gym_access) setVal('at-gym-access', draft.gym_access);
+      setVal('at-gym-notes', draft.gym_notes);
+      setGroup('#at-equipment input[type="checkbox"]', draft.equipment);
+      setGroup('#at-injury-zones input[type="checkbox"]', draft.injury_zones);
+      setVal('at-injuries', draft.injuries);
+      setVal('at-goals', draft.goals);
+
+      if (Array.isArray(draft.races) && draft.races.length > 0) {
+        const rList = document.getElementById('races-list');
+        if (rList) rList.innerHTML = '';
+        draft.races.forEach((r) => addRaceRow(r));
+      }
+      if (Array.isArray(draft.vacations) && draft.vacations.length > 0) {
+        const vList = document.getElementById('vacations-list');
+        if (vList) vList.innerHTML = '';
+        draft.vacations.forEach((v) => addVacationRow(v));
+      }
+
+      if (draft.step) {
+        const s = parseInt(draft.step, 10);
+        if (s >= 1 && s <= ONBOARDING_TOTAL_STEPS) {
+          currentOnboardingStep = s;
+        }
+      }
+      return true;
+    }
 
     /**
      * Aggiorna i titoli numerati delle righe gare dopo aggiunta o rimozione.
@@ -523,27 +920,29 @@
     /**
      * Aggiunge dinamicamente una card gara nel contenitore #races-list.
      */
-    function addRaceRow() {
+    function addRaceRow(initialData) {
       const list = document.getElementById('races-list');
       if (!list) return;
+      dynamicRowCounter += 1;
+      const uid = 'race-' + dynamicRowCounter;
       const idx = list.querySelectorAll('.race-row').length + 1;
       const card = document.createElement('div');
       card.className = 'race-row p-3.5 bg-slate-900/70 rounded-xl border border-slate-800 space-y-3';
       card.innerHTML = [
         '<div class="flex items-center justify-between border-b border-slate-800/80 pb-2">',
         '<span class="race-row-title font-bold text-brand-yellow text-xs">Gara #' + idx + '</span>',
-        '<button type="button" onclick="removeRaceRow(this)" aria-label="Rimuovi gara" class="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 text-[11px] font-semibold transition">',
+        '<button type="button" onclick="removeRaceRow(this)" aria-label="Rimuovi gara" class="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 text-xs font-semibold transition">',
         '<i class="fa-solid fa-trash-can" aria-hidden="true"></i> Rimuovi',
         '</button>',
         '</div>',
         '<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">',
         '<div>',
-        '<label class="block text-slate-300 font-semibold mb-1">Nome Gara &amp; Localit&agrave;</label>',
-        '<input type="text" class="race-name w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-brand-yellow text-xs" placeholder="es. HYROX Milano, Spartan Orte, Trail 42K">',
+        '<label for="' + uid + '-name" class="block text-slate-300 font-semibold mb-1">Nome Gara &amp; Localit&agrave;</label>',
+        '<input id="' + uid + '-name" type="text" class="race-name w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-brand-yellow text-xs" placeholder="es. HYROX Milano, Spartan Orte, Trail 42K">',
         '</div>',
         '<div>',
-        '<label class="block text-slate-300 font-semibold mb-1">Tipologia Gara</label>',
-        '<select class="race-discipline w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-brand-yellow text-xs">',
+        '<label for="' + uid + '-disc" class="block text-slate-300 font-semibold mb-1">Tipologia Gara</label>',
+        '<select id="' + uid + '-disc" class="race-discipline w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-brand-yellow text-xs">',
         '<option value="HYROX">HYROX</option>',
         '<option value="Spartan">Spartan</option>',
         '<option value="Trail">Trail Running</option>',
@@ -555,20 +954,20 @@
         '</div>',
         '<div class="grid grid-cols-1 sm:grid-cols-4 gap-3">',
         '<div>',
-        '<label class="block text-slate-300 font-semibold mb-1">Data Gara</label>',
-        '<input type="date" class="race-date w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-brand-yellow text-xs">',
+        '<label for="' + uid + '-date" class="block text-slate-300 font-semibold mb-1">Data Gara</label>',
+        '<input id="' + uid + '-date" type="date" class="race-date w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-brand-yellow text-xs">',
         '</div>',
         '<div>',
-        '<label class="block text-slate-300 font-semibold mb-1">Distanza (km)</label>',
-        '<input type="number" step="0.1" min="0" class="race-distance w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-brand-yellow text-xs" placeholder="es. 21.1 o 8.0">',
+        '<label for="' + uid + '-dist" class="block text-slate-300 font-semibold mb-1">Distanza (km)</label>',
+        '<input id="' + uid + '-dist" type="number" step="0.1" min="0" class="race-distance w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-brand-yellow text-xs" placeholder="es. 21.1 o 8.0">',
         '</div>',
         '<div>',
-        '<label class="block text-slate-300 font-semibold mb-1">Dislivello D+ (m)</label>',
-        '<input type="number" step="10" min="0" class="race-elevation w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-brand-yellow text-xs" placeholder="es. 1200">',
+        '<label for="' + uid + '-elev" class="block text-slate-300 font-semibold mb-1">Dislivello D+ (m)</label>',
+        '<input id="' + uid + '-elev" type="number" step="10" min="0" class="race-elevation w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-brand-yellow text-xs" placeholder="es. 1200">',
         '</div>',
         '<div>',
-        '<label class="block text-slate-300 font-semibold mb-1">Priorit&agrave;</label>',
-        '<select class="race-priority w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-brand-yellow text-xs">',
+        '<label for="' + uid + '-prio" class="block text-slate-300 font-semibold mb-1">Priorit&agrave;</label>',
+        '<select id="' + uid + '-prio" class="race-priority w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-brand-yellow text-xs">',
         '<option value="A - Gara Obiettivo">Gara Obiettivo (A)</option>',
         '<option value="B - Gara di Passaggio">Gara di Passaggio (B)</option>',
         '<option value="C - Allenamento">Allenamento (C)</option>',
@@ -576,11 +975,20 @@
         '</div>',
         '</div>',
         '<div>',
-        '<label class="block text-slate-300 font-semibold mb-1">Note Gara (Facoltativo)</label>',
-        '<input type="text" class="race-notes w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-brand-yellow text-xs" placeholder="es. Categoria Open Men, obiettivo sub 1h20...">',
+        '<label for="' + uid + '-notes" class="block text-slate-300 font-semibold mb-1">Note Gara (Facoltativo)</label>',
+        '<input id="' + uid + '-notes" type="text" class="race-notes w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-brand-yellow text-xs" placeholder="es. Categoria Open Men, obiettivo sub 1h20...">',
         '</div>'
       ].join('');
       list.appendChild(card);
+      if (initialData && typeof initialData === 'object') {
+        if (initialData.name) card.querySelector('.race-name').value = initialData.name;
+        if (initialData.discipline) card.querySelector('.race-discipline').value = initialData.discipline;
+        if (initialData.date) card.querySelector('.race-date').value = initialData.date;
+        if (initialData.distance) card.querySelector('.race-distance').value = initialData.distance;
+        if (initialData.elevation) card.querySelector('.race-elevation').value = initialData.elevation;
+        if (initialData.priority) card.querySelector('.race-priority').value = initialData.priority;
+        if (initialData.notes) card.querySelector('.race-notes').value = initialData.notes;
+      }
       renumberRaceRows();
     }
 
@@ -592,6 +1000,7 @@
       if (row) {
         row.remove();
         renumberRaceRows();
+        saveOnboardingDraft();
       }
     }
 
@@ -611,31 +1020,33 @@
     /**
      * Aggiunge dinamicamente una card periodo ferie/indisponibilità in #vacations-list.
      */
-    function addVacationRow() {
+    function addVacationRow(initialData) {
       const list = document.getElementById('vacations-list');
       if (!list) return;
+      dynamicRowCounter += 1;
+      const uid = 'vac-' + dynamicRowCounter;
       const idx = list.querySelectorAll('.vacation-row').length + 1;
       const card = document.createElement('div');
       card.className = 'vacation-row p-3.5 bg-slate-900/70 rounded-xl border border-slate-800 space-y-3';
       card.innerHTML = [
         '<div class="flex items-center justify-between border-b border-slate-800/80 pb-2">',
         '<span class="vacation-row-title font-bold text-cyan-300 text-xs">Periodo #' + idx + '</span>',
-        '<button type="button" onclick="removeVacationRow(this)" aria-label="Rimuovi periodo ferie" class="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 text-[11px] font-semibold transition">',
+        '<button type="button" onclick="removeVacationRow(this)" aria-label="Rimuovi periodo ferie" class="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 text-xs font-semibold transition">',
         '<i class="fa-solid fa-trash-can" aria-hidden="true"></i> Rimuovi',
         '</button>',
         '</div>',
         '<div class="grid grid-cols-1 sm:grid-cols-3 gap-3">',
         '<div>',
-        '<label class="block text-slate-300 font-semibold mb-1">Dal (Data Inizio)</label>',
-        '<input type="date" class="vacation-start w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-cyan-400 text-xs">',
+        '<label for="' + uid + '-start" class="block text-slate-300 font-semibold mb-1">Dal (Data Inizio)</label>',
+        '<input id="' + uid + '-start" type="date" class="vacation-start w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-cyan-400 text-xs">',
         '</div>',
         '<div>',
-        '<label class="block text-slate-300 font-semibold mb-1">Al (Data Fine)</label>',
-        '<input type="date" class="vacation-end w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-cyan-400 text-xs">',
+        '<label for="' + uid + '-end" class="block text-slate-300 font-semibold mb-1">Al (Data Fine)</label>',
+        '<input id="' + uid + '-end" type="date" class="vacation-end w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-cyan-400 text-xs">',
         '</div>',
         '<div>',
-        '<label class="block text-slate-300 font-semibold mb-1">Modalit&agrave;</label>',
-        '<select class="vacation-mode w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-cyan-400 text-xs">',
+        '<label for="' + uid + '-mode" class="block text-slate-300 font-semibold mb-1">Modalit&agrave;</label>',
+        '<select id="' + uid + '-mode" class="vacation-mode w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-cyan-400 text-xs">',
         '<option value="Riposo Totale">Riposo Totale</option>',
         '<option value="Scarico Attivo con corsa leggera">Scarico Attivo con corsa leggera</option>',
         '<option value="Viaggio">Viaggio</option>',
@@ -643,11 +1054,17 @@
         '</div>',
         '</div>',
         '<div>',
-        '<label class="block text-slate-300 font-semibold mb-1">Note (Facoltativo)</label>',
-        '<input type="text" class="vacation-notes w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-cyan-400 text-xs" placeholder="es. Ferie mare — solo corsa/nuoto, Trasferta lavoro...">',
+        '<label for="' + uid + '-notes" class="block text-slate-300 font-semibold mb-1">Note (Facoltativo)</label>',
+        '<input id="' + uid + '-notes" type="text" class="vacation-notes w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-cyan-400 text-xs" placeholder="es. Ferie mare — solo corsa/nuoto, Trasferta lavoro...">',
         '</div>'
       ].join('');
       list.appendChild(card);
+      if (initialData && typeof initialData === 'object') {
+        if (initialData.start) card.querySelector('.vacation-start').value = initialData.start;
+        if (initialData.end) card.querySelector('.vacation-end').value = initialData.end;
+        if (initialData.mode) card.querySelector('.vacation-mode').value = initialData.mode;
+        if (initialData.notes) card.querySelector('.vacation-notes').value = initialData.notes;
+      }
       renumberVacationRows();
     }
 
@@ -659,6 +1076,7 @@
       if (row) {
         row.remove();
         renumberVacationRows();
+        saveOnboardingDraft();
       }
     }
 
@@ -699,12 +1117,29 @@
     }
 
     document.addEventListener('DOMContentLoaded', function () {
+      const restored = restoreOnboardingDraft();
       prefillFromQueryParams();
       if (document.querySelectorAll('#races-list .race-row').length === 0) {
         addRaceRow();
       }
       if (document.querySelectorAll('#vacations-list .vacation-row').length === 0) {
         addVacationRow();
+      }
+      updateOnboardingProgressUI();
+
+      const formEl = document.getElementById('athlete-onboard-form');
+      if (formEl) {
+        formEl.addEventListener('input', saveOnboardingDraft);
+        formEl.addEventListener('change', saveOnboardingDraft);
+      }
+
+      if (restored && window.UIFeedback) {
+        UIFeedback.toast({
+          title: "Bozza ripristinata",
+          message: "Abbiamo recuperato i dati salvati automaticamente in precedenza.",
+          type: "info",
+          duration: 3500
+        });
       }
     });
 
@@ -715,79 +1150,25 @@
     async function submitAthleteForm(e) {
       e.preventDefault();
 
-      const errName = document.getElementById('err-at-name');
-      const errCity = document.getElementById('err-at-city');
-      const errChat = document.getElementById('err-at-chat');
-      const inputName = document.getElementById('at-name');
-      const inputCity = document.getElementById('at-city');
-      const inputChat = document.getElementById('at-chat');
-
-      errName.classList.add('hidden');
-      errCity.classList.add('hidden');
-      errChat.classList.add('hidden');
-      inputName.removeAttribute('aria-invalid');
-      inputCity.removeAttribute('aria-invalid');
-      inputChat.removeAttribute('aria-invalid');
-
-      document.querySelectorAll('#vacations-list .vacation-end').forEach(function (el) {
-        el.removeAttribute('aria-invalid');
-        el.classList.remove('border-red-500');
-      });
-
-      let firstInvalid = null;
-
-      if (!inputName.value.trim()) {
-        errName.classList.remove('hidden');
-        inputName.setAttribute('aria-invalid', 'true');
-        if (!firstInvalid) firstInvalid = inputName;
-      }
-
-      if (!inputCity.value.trim()) {
-        errCity.classList.remove('hidden');
-        inputCity.setAttribute('aria-invalid', 'true');
-        if (!firstInvalid) firstInvalid = inputCity;
-      }
-
-      if (!inputChat.value.trim()) {
-        errChat.classList.remove('hidden');
-        inputChat.setAttribute('aria-invalid', 'true');
-        if (!firstInvalid) firstInvalid = inputChat;
-      }
-
-      if (firstInvalid) {
-        firstInvalid.focus();
-        UIFeedback.toast({
-          title: "Campi obbligatori mancanti",
-          message: "Compila tutti i campi contrassegnati con asterisco per procedere.",
-          type: 'warning'
-        });
-        return;
-      }
-
-      // Validazione date ferie (Al >= Dal)
-      const vacationRows = Array.from(document.querySelectorAll('#vacations-list .vacation-row'));
-      for (let i = 0; i < vacationRows.length; i++) {
-        const startEl = vacationRows[i].querySelector('.vacation-start');
-        const endEl = vacationRows[i].querySelector('.vacation-end');
-        const startVal = startEl ? startEl.value.trim() : '';
-        const endVal = endEl ? endEl.value.trim() : '';
-        if (startVal && endVal && endVal < startVal) {
-          endEl.setAttribute('aria-invalid', 'true');
-          endEl.classList.add('border-red-500');
-          endEl.focus();
-          UIFeedback.toast({
-            title: "Date ferie non valide",
-            message: "La data di fine ('Al') deve essere successiva o uguale alla data di inizio ('Dal').",
-            type: 'warning'
-          });
+      for (let s = 1; s <= ONBOARDING_TOTAL_STEPS; s++) {
+        if (!validateOnboardingStep(s)) {
+          currentOnboardingStep = s;
+          updateOnboardingProgressUI();
           return;
         }
       }
 
-      const btn = e.target.querySelector('button[type="submit"]');
+      const inputName = document.getElementById('at-name');
+      const inputCity = document.getElementById('at-city');
+      const inputChat = document.getElementById('at-chat');
+      const vacationRows = Array.from(document.querySelectorAll('#vacations-list .vacation-row'));
+
+      const btn = document.getElementById('btn-submit-onboarding') || e.target.querySelector('button[type="submit"]');
+      const prevBtn = document.getElementById('btn-step-prev');
       const originalText = btn.innerHTML;
-      btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin" aria-hidden="true"></i> Invio in corso al Coach...';
+      btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin" aria-hidden="true"></i> <span>Invio in corso al Coach...</span>';
       btn.disabled = true;
+      if (prevBtn) prevBtn.disabled = true;
 
       const name = inputName.value.trim();
       const city = inputCity.value.trim();
@@ -909,8 +1290,20 @@
           body: JSON.stringify(payload)
         });
       } catch (err) {
-        console.warn("Chiamata inviata in background:", err);
+        console.warn("Errore invio candidatura:", err);
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+        if (prevBtn) prevBtn.disabled = false;
+        UIFeedback.toast({
+          title: "Errore di connessione",
+          message: "Impossibile inviare la scheda in questo momento. La bozza è salva: riprova tra poco.",
+          type: 'error',
+          duration: 6000
+        });
+        return;
       }
+
+      clearOnboardingDraft();
 
       UIFeedback.toast({
         title: "Candidatura Inviata!",

@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#FFDD00">
   <title>HYROX & UTMB | Release Console</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -25,40 +26,41 @@
     }
   </script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="assets/ui-feedback.css">
+  <link rel="stylesheet" href="assets/theme.css">
+  <script src="assets/ui-feedback.js"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Teko:wght@600;700&display=swap');
-    body { font-family: 'Inter', sans-serif; background-color: #0B0F19; }
-    .font-teko { font-family: 'Teko', sans-serif; }
-    .glass-card {
-      background: rgba(22, 31, 48, 0.75);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-    }
+    body { font-family: var(--ds-font-sans); background-color: var(--ds-bg); color: var(--ds-text); }
+    .font-teko { font-family: var(--ds-font-display); }
   </style>
 </head>
 <body class="text-slate-100 min-h-screen flex flex-col antialiased">
 
   <!-- TOP HEADER -->
   <header class="border-b border-slate-800 bg-[#0F172A]/90 backdrop-blur sticky top-0 z-50 px-6 py-4">
-    <div class="max-w-5xl mx-auto flex items-center justify-between">
+    <div class="max-w-5xl mx-auto flex items-center justify-between gap-3 flex-wrap">
       <div class="flex items-center space-x-4">
-        <div class="w-10 h-10 rounded-xl bg-brand-yellow flex items-center justify-center text-slate-950 font-teko text-2xl font-bold shadow-lg shadow-brand-yellow/20">
+        <div class="w-10 h-10 rounded-xl bg-brand-yellow flex items-center justify-center text-slate-950 font-teko text-2xl font-bold shadow-lg shadow-brand-yellow/20" aria-hidden="true">
           🚀
         </div>
         <div>
-          <div class="flex items-center space-x-2">
+          <div class="flex items-center space-x-2 flex-wrap gap-1">
             <h1 class="text-lg font-bold tracking-tight text-white">RELEASE CONSOLE <span class="text-brand-yellow font-normal">| HYROX & UTMB</span></h1>
-            <span class="px-2 py-0.5 text-[10px] font-semibold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 rounded-full flex items-center gap-1">
-              <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span> DEVELOP ➔ MAIN
+            <span class="px-2 py-0.5 text-xs font-semibold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 rounded-full flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" aria-hidden="true"></span> DEVELOP ➔ MAIN
             </span>
           </div>
-          <p class="text-xs text-slate-400">Head Coach: <strong class="text-slate-200">Andrea Cordera</strong> • Gestione Rilasci Produzione</p>
+          <p class="text-xs text-slate-300">Head Coach: <strong class="text-slate-100">Andrea Cordera</strong> • Gestione Rilasci Produzione</p>
         </div>
       </div>
 
-      <div class="flex items-center space-x-3">
-        <button onclick="fetchStatus()" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition flex items-center gap-1.5">
-          <i class="fa-solid fa-arrows-rotate" id="refresh-icon"></i> Aggiorna
+      <div class="flex items-center space-x-2">
+        <button type="button" data-theme-toggle onclick="toggleAppTheme()" aria-label="Cambia tema chiaro o scuro" aria-pressed="false" class="theme-toggle-btn">
+          <i class="fa-solid fa-circle-half-stroke" aria-hidden="true"></i>
+          <span data-theme-label>Chiaro</span>
+        </button>
+        <button type="button" onclick="fetchStatus()" aria-label="Aggiorna stato rilasci" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1.5">
+          <i class="fa-solid fa-arrows-rotate" id="refresh-icon" aria-hidden="true"></i> Aggiorna
         </button>
       </div>
     </div>
@@ -67,11 +69,13 @@
   <main class="max-w-5xl mx-auto px-4 sm:px-6 py-8 flex-1 w-full space-y-6">
 
     <!-- BOT STATUS CARD -->
-    <div class="glass-card rounded-2xl p-4 flex items-center justify-between border border-slate-800 shadow-xl" id="bot-status-card">
-      <span class="px-3 py-1.5 text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full flex items-center gap-1.5" id="bot-status-badge">
+    <div class="glass-card rounded-2xl p-4 flex items-center justify-between gap-3 flex-wrap border border-slate-800 shadow-xl" id="bot-status-card" role="region" aria-label="Stato del demone Bot Telegram">
+      <span class="px-3 py-1.5 text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full flex items-center gap-1.5" id="bot-status-badge" role="status" aria-live="polite">
         🤖 Bot: ATTIVO (PID <span id="bot-pid">‑</span>)
       </span>
-      <button onclick="restartBot()" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-brand-yellow/10 hover:bg-brand-yellow/20 text-brand-yellow border border-brand-yellow/30 transition flex items-center gap-1.5">
+      <button type="button" id="btn-restart-bot" onclick="restartBot(this)" aria-label="Riavvia il demone Bot Telegram" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-brand-yellow/10 hover:bg-brand-yellow/20 text-brand-yellow border border-brand-yellow/30 transition flex items-center gap-1.5">
+        <i class="fa-solid fa-rotate" id="bot-restart-icon" aria-hidden="true"></i>
+        <i class="fa-solid fa-spinner fa-spin hidden" id="bot-restart-spinner" aria-hidden="true"></i>
         🔄 Riavvia Bot Telegram
       </button>
     </div>
@@ -83,29 +87,29 @@
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
         <!-- VERSIONE ATTUALE -->
         <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4 text-center space-y-1">
-          <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Versione Attuale (Produzione)</span>
+          <span class="text-xs font-semibold text-slate-300 uppercase tracking-wider">Versione Attuale (Produzione)</span>
           <div class="text-4xl font-extrabold text-emerald-400 font-teko tracking-wider" id="current-version">v1.0.0</div>
-          <div class="text-[11px] text-slate-400 flex items-center justify-center gap-1">
-            <i class="fa-solid fa-circle-check text-emerald-400 text-[10px]"></i> Live su branch <code>main</code>
+          <div class="text-xs text-slate-300 flex items-center justify-center gap-1">
+            <i class="fa-solid fa-circle-check text-emerald-400 text-xs" aria-hidden="true"></i> Live su branch <code>main</code>
           </div>
         </div>
 
         <!-- FRECCIA DI PROMOZIONE -->
         <div class="flex flex-col items-center justify-center space-y-2">
           <div class="w-12 h-12 rounded-full bg-brand-yellow/10 border border-brand-yellow/30 flex items-center justify-center text-brand-yellow text-lg shadow-lg shadow-brand-yellow/10">
-            <i class="fa-solid fa-arrow-right"></i>
+            <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
           </div>
-          <span class="text-[11px] text-slate-400 font-medium">Promozione Controllata</span>
+          <span class="text-xs text-slate-300 font-medium">Promozione Controllata</span>
         </div>
 
         <!-- PROSSIMA VERSIONE -->
         <div class="bg-slate-900/80 border border-brand-yellow/30 rounded-xl p-4 text-center space-y-1 shadow-lg shadow-brand-yellow/5">
-          <span class="text-[11px] font-semibold text-brand-yellow uppercase tracking-wider">Prossima Versione (Target)</span>
+          <span class="text-xs font-semibold text-brand-yellow uppercase tracking-wider">Prossima Versione (Target)</span>
           <div class="text-4xl font-extrabold text-brand-yellow font-teko tracking-wider flex items-center justify-center gap-2">
             <span id="next-version">v1.1.0</span>
           </div>
-          <div class="text-[11px] text-slate-400 flex items-center justify-center gap-1">
-            <i class="fa-solid fa-clock text-brand-yellow text-[10px]"></i> Pronta per il rilascio
+          <div class="text-xs text-slate-300 flex items-center justify-center gap-1">
+            <i class="fa-solid fa-clock text-brand-yellow text-xs" aria-hidden="true"></i> Pronta per il rilascio
           </div>
         </div>
       </div>
@@ -115,18 +119,18 @@
     <div class="glass-card rounded-2xl p-4 border border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
       <div class="flex items-center space-x-3">
         <div class="w-9 h-9 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center text-lg">
-          <i class="fa-solid fa-list-check"></i>
+          <i class="fa-solid fa-list-check" aria-hidden="true"></i>
         </div>
         <div>
           <h4 class="text-xs font-bold text-white flex items-center gap-2">
             GitHub Project Board: <span id="project-board-title" class="text-brand-yellow font-mono">v1.1.0</span>
-            <span class="text-[10px] text-slate-400 font-normal">(Multi-Repo: Backend + Frontend)</span>
+            <span class="text-xs text-slate-300 font-normal">(Multi-Repo: Backend + Frontend)</span>
           </h4>
-          <p class="text-[11px] text-slate-400">Controlla l'avanzamento dei ticket. Trigger AI: <code class="text-purple-300">action:plan</code> (elabora piano) ➔ <code class="text-emerald-300">action:execute</code> (esegui codice).</p>
+          <p class="text-xs text-slate-300">Controlla l'avanzamento dei ticket. Trigger AI: <code class="text-purple-300">action:plan</code> (elabora piano) ➔ <code class="text-emerald-300">action:execute</code> (esegui codice).</p>
         </div>
       </div>
-      <a href="https://github.com/users/andreacordy90/projects" target="_blank" class="px-3.5 py-2 rounded-xl bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 border border-purple-500/30 text-xs font-bold transition flex items-center gap-1.5 shrink-0">
-        <i class="fa-solid fa-arrow-up-right-from-square"></i> Apri Tabellone GitHub
+      <a href="https://github.com/users/andreacordy90/projects" target="_blank" rel="noopener noreferrer" aria-label="Apri Tabellone GitHub Projects in nuova scheda" class="px-3.5 py-2 rounded-xl bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 border border-purple-500/30 text-xs font-bold transition flex items-center gap-1.5 shrink-0">
+        <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> Apri Tabellone GitHub
       </a>
     </div>
 
@@ -135,30 +139,30 @@
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div class="flex items-center space-x-3">
           <div class="w-9 h-9 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 flex items-center justify-center text-lg">
-            <i class="fa-solid fa-code"></i>
+            <i class="fa-solid fa-code" aria-hidden="true"></i>
           </div>
           <div>
             <div class="flex items-center gap-2">
               <h3 class="text-sm font-bold text-white">Coda Scrittura Codice & Sequenza FIFO</h3>
-              <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1">
-                <i class="fa-solid fa-bolt text-[9px]"></i> 0 Token AI
+              <span class="px-2 py-0.5 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1">
+                <i class="fa-solid fa-bolt text-xs" aria-hidden="true"></i> 0 Token AI
               </span>
             </div>
-            <p class="text-xs text-slate-400">Tracciamento deterministico del worker e ordine di esecuzione ticket su <code>develop</code>.</p>
+            <p class="text-xs text-slate-300">Tracciamento deterministico del worker e ordine di esecuzione ticket su <code>develop</code>.</p>
           </div>
         </div>
 
         <div class="flex items-center gap-2">
-          <button onclick="fetchCodeQueue()" id="btn-queue-refresh" class="px-3 py-1.5 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
-            <i class="fa-solid fa-arrows-rotate" id="queue-refresh-icon"></i> Ispeziona Coda
+          <button type="button" onclick="fetchCodeQueue()" id="btn-queue-refresh" aria-label="Ispeziona e aggiorna la coda di scrittura" class="px-3 py-1.5 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+            <i class="fa-solid fa-arrows-rotate" id="queue-refresh-icon" aria-hidden="true"></i> Ispeziona Coda
           </button>
         </div>
       </div>
 
       <!-- CONTAINER DINAMICO DELLA CODA -->
-      <div id="code-queue-container" class="space-y-3 pt-1">
-        <div class="text-center py-4 text-slate-500 text-xs flex items-center justify-center gap-2">
-          <i class="fa-solid fa-circle-notch fa-spin text-cyan-400"></i> Lettura coda di scrittura in corso...
+      <div id="code-queue-container" class="space-y-3 pt-1" aria-live="polite" role="region" aria-label="Stato coda scrittura codice">
+        <div class="text-center py-4 text-slate-300 text-xs flex items-center justify-center gap-2">
+          <i class="fa-solid fa-circle-notch fa-spin text-cyan-400" aria-hidden="true"></i> Lettura coda di scrittura in corso...
         </div>
       </div>
     </div>
@@ -169,28 +173,28 @@
       <!-- PRE-FLIGHT CHECKS -->
       <div class="glass-card rounded-2xl p-5 border border-slate-800 space-y-4">
         <h3 class="text-sm font-bold text-white flex items-center gap-2">
-          <i class="fa-solid fa-shield-halved text-cyan-400"></i> Pre-Flight Health Checks
+          <i class="fa-solid fa-shield-halved text-cyan-400" aria-hidden="true"></i> Pre-Flight Health Checks
         </h3>
         <ul class="space-y-3 text-xs">
           <li class="flex items-center justify-between p-2.5 rounded-lg bg-slate-900/50 border border-slate-800/80">
-            <span class="text-slate-300">Sintassi Python Scripts</span>
-            <span id="check-syntax" class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">PASS ✅</span>
+            <span class="text-slate-200">Sintassi Python Scripts</span>
+            <span id="check-syntax" class="px-2 py-0.5 rounded text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">PASS ✅</span>
           </li>
           <li class="flex items-center justify-between p-2.5 rounded-lg bg-slate-900/50 border border-slate-800/80">
-            <span class="text-slate-300">Stato Git Repository</span>
-            <span id="check-git" class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">PASS ✅</span>
+            <span class="text-slate-200">Stato Git Repository</span>
+            <span id="check-git" class="px-2 py-0.5 rounded text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">PASS ✅</span>
           </li>
           <li class="flex items-center justify-between p-2.5 rounded-lg bg-slate-900/50 border border-slate-800/80">
-            <span class="text-slate-300">Isolamento Multi-Tenant</span>
-            <span id="check-isolation" class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">PASS ✅</span>
+            <span class="text-slate-200">Isolamento Multi-Tenant</span>
+            <span id="check-isolation" class="px-2 py-0.5 rounded text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">PASS ✅</span>
           </li>
         </ul>
 
-        <div class="p-3 rounded-xl bg-cyan-500/5 border border-cyan-500/20 text-[11px] text-cyan-300 space-y-1">
+        <div class="p-3 rounded-xl bg-cyan-500/5 border border-cyan-500/20 text-xs text-cyan-300 space-y-1">
           <div class="font-bold flex items-center gap-1.5">
-            <i class="fa-solid fa-info-circle"></i> Regola di Sicurezza:
+            <i class="fa-solid fa-info-circle" aria-hidden="true"></i> Regola di Sicurezza:
           </div>
-          <p class="text-slate-400">Il rilascio su <code>main</code> avvia automaticamente il server cloud 24/7 in zero-downtime.</p>
+          <p class="text-slate-300">Il rilascio su <code>main</code> avvia automaticamente il server cloud 24/7 in zero-downtime.</p>
         </div>
       </div>
 
@@ -198,23 +202,23 @@
       <div class="md:col-span-2 glass-card rounded-2xl p-5 border border-slate-800 space-y-4">
         <div class="flex items-center justify-between">
           <h3 class="text-sm font-bold text-white flex items-center gap-2">
-            <i class="fa-solid fa-code-commit text-brand-yellow"></i> Modifiche Pronte per il Rilascio
+            <i class="fa-solid fa-code-commit text-brand-yellow" aria-hidden="true"></i> Modifiche Pronte per il Rilascio
           </h3>
-          <span id="pending-badge" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-brand-yellow/10 text-brand-yellow border border-brand-yellow/20">
+          <span id="pending-badge" class="px-2 py-0.5 rounded-full text-xs font-bold bg-brand-yellow/10 text-brand-yellow border border-brand-yellow/20">
             0 commit
           </span>
         </div>
 
-        <div id="commits-container" class="space-y-2 max-h-48 overflow-y-auto pr-1">
+        <div id="commits-container" class="space-y-2 max-h-48 overflow-y-auto pr-1" aria-live="polite">
           <!-- Render dinamico commit -->
-          <div class="text-center py-6 text-slate-500 text-xs">
+          <div class="text-center py-6 text-slate-300 text-xs">
             Nessuna modifica pendente rilevata tra develop e main.
           </div>
         </div>
 
         <!-- NOTE DI RELEASE -->
         <div>
-          <label class="block text-xs font-semibold text-slate-400 mb-1">Note di Rilascio (Changelog opzionale):</label>
+          <label for="release-summary" class="block text-xs font-semibold text-slate-300 mb-1">Note di Rilascio (Changelog opzionale):</label>
           <input type="text" id="release-summary" placeholder="Es. Nuova architettura disaccoppiata e webhook separato Coach" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-brand-yellow">
         </div>
       </div>
@@ -225,32 +229,32 @@
     <div class="glass-card rounded-2xl p-6 border border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
       <div>
         <h4 class="text-sm font-bold text-white">Pronto a Rilasciare?</h4>
-        <p class="text-xs text-slate-400">Verrà eseguito il merge controllato su <code>main</code>, creato il tag e notificato il cloud.</p>
+        <p class="text-xs text-slate-300">Verrà eseguito il merge controllato su <code>main</code>, creato il tag e notificato il cloud.</p>
       </div>
 
       <div class="flex items-center gap-3 w-full sm:w-auto">
-        <button onclick="handleRollback()" id="rollback-btn" class="w-full sm:w-auto px-4 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-rose-400 font-bold text-xs border border-rose-500/20 transition flex items-center justify-center gap-2">
-          <i class="fa-solid fa-rotate-left"></i> Rollback
+        <button type="button" onclick="handleRollback()" id="rollback-btn" aria-label="Esegui rollback alla versione precedente" class="w-full sm:w-auto px-4 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-rose-400 font-bold text-xs border border-rose-500/20 transition flex items-center justify-center gap-2">
+          <i class="fa-solid fa-rotate-left" aria-hidden="true"></i> Rollback
         </button>
 
-        <button onclick="handleDeploy()" id="deploy-btn" class="w-full sm:w-auto px-6 py-3 rounded-xl bg-brand-yellow text-slate-950 font-bold text-xs hover:bg-yellow-400 transition shadow-lg shadow-brand-yellow/20 flex items-center justify-center gap-2 font-teko text-lg tracking-wider">
-          <i class="fa-solid fa-rocket"></i> <span id="deploy-text">RILASCIA IN PRODUZIONE</span>
+        <button type="button" onclick="handleDeploy()" id="deploy-btn" aria-label="Rilascia nuova versione in produzione" class="w-full sm:w-auto px-6 py-3 rounded-xl bg-brand-yellow text-slate-950 font-bold text-xs hover:bg-yellow-400 transition shadow-lg shadow-brand-yellow/20 flex items-center justify-center gap-2 font-teko text-lg tracking-wider">
+          <i class="fa-solid fa-rocket" aria-hidden="true"></i> <span id="deploy-text">RILASCIA IN PRODUZIONE</span>
         </button>
       </div>
     </div>
 
     <!-- MODALE SUCCESSO -->
-    <div id="success-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+    <div id="success-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
       <div class="glass-card max-w-sm w-full p-6 rounded-2xl border border-emerald-500/30 text-center space-y-4">
         <div class="w-16 h-16 bg-emerald-500/10 text-emerald-400 rounded-full flex items-center justify-center text-3xl mx-auto border border-emerald-500/20 animate-bounce">
-          <i class="fa-solid fa-circle-check"></i>
+          <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
         </div>
         <div>
           <h3 class="text-lg font-bold text-white" id="modal-title">Rilascio Completato!</h3>
-          <p class="text-xs text-slate-400 mt-1" id="modal-desc">La nuova versione è stata promossa con successo sul branch main ed è attiva sul cloud.</p>
+          <p class="text-xs text-slate-300 mt-1" id="modal-desc">La nuova versione è stata promossa con successo sul branch main ed è attiva sul cloud.</p>
         </div>
         <div id="modal-project-cta" class="pt-1 hidden"></div>
-        <button onclick="closeModal()" class="w-full py-2.5 bg-emerald-500 text-slate-950 font-bold rounded-xl text-xs hover:bg-emerald-400 transition">
+        <button type="button" onclick="closeModal()" class="w-full py-2.5 bg-emerald-500 text-slate-950 font-bold rounded-xl text-xs hover:bg-emerald-400 transition">
           Ho Capito
         </button>
       </div>
@@ -258,7 +262,37 @@
 
   </main>
 
+  <!-- APP TOAST LIVE REGION -->
+  <div id="app-toast-container" class="app-toast-container" role="status" aria-live="polite" aria-atomic="true"></div>
+
   <script>
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('app-toast-container');
+      if (!container) return;
+      const toast = document.createElement('div');
+      const allowed = ['success', 'error', 'warning', 'info'];
+      const variant = allowed.includes(type) ? type : 'info';
+      toast.className = `app-toast app-toast--${variant}`;
+      toast.setAttribute('role', variant === 'error' ? 'alert' : 'status');
+      toast.setAttribute('aria-live', 'polite');
+
+      const textEl = document.createElement('span');
+      textEl.textContent = String(message || '');
+      toast.appendChild(textEl);
+
+      const closeBtn = document.createElement('button');
+      closeBtn.type = 'button';
+      closeBtn.className = 'app-toast-close';
+      closeBtn.setAttribute('aria-label', 'Chiudi notifica');
+      closeBtn.textContent = '×';
+      closeBtn.onclick = () => toast.remove();
+      toast.appendChild(closeBtn);
+
+      container.appendChild(toast);
+      setTimeout(() => {
+        if (toast.parentNode) toast.remove();
+      }, 5000);
+    }
     let releaseData = null;
 
     async function fetchStatus() {
@@ -275,8 +309,8 @@
         document.getElementById('commits-container').innerHTML = `
           <div class="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs text-center space-y-2">
             <div class="font-bold">⚠️ Server Locale Release non attivo</div>
-            <p class="text-slate-300 text-[11px]">Per abilitare i pulsanti e rilasciare con 1 clic, avvia il server con il comando:</p>
-            <code class="px-2 py-1 bg-slate-900 rounded font-mono text-[10px] text-brand-yellow block max-w-xs mx-auto">python scripts/ops_cli.py release-ui</code>
+            <p class="text-slate-300 text-xs">Per abilitare i pulsanti e rilasciare con 1 clic, avvia il server con il comando:</p>
+            <code class="px-2 py-1 bg-slate-900 rounded font-mono text-xs text-brand-yellow block max-w-xs mx-auto">python scripts/ops_cli.py release-ui</code>
           </div>
         `;
       } finally {
@@ -296,8 +330,8 @@
       // Preflight
       document.getElementById('check-syntax').innerHTML = data.preflight.syntax_check ? 'PASS ✅' : 'FAIL ❌';
       document.getElementById('check-syntax').className = data.preflight.syntax_check 
-        ? 'px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-        : 'px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/10 text-rose-400 border border-rose-500/20';
+        ? 'px-2 py-0.5 rounded text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+        : 'px-2 py-0.5 rounded text-xs font-bold bg-rose-500/10 text-rose-400 border border-rose-500/20';
 
       // Commits
       const container = document.getElementById('commits-container');
@@ -308,16 +342,16 @@
         container.innerHTML = data.pending_commits.map(c => `
           <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 text-xs">
             <div class="flex items-center space-x-2.5 overflow-hidden">
-              <span class="font-mono text-[10px] text-brand-yellow font-bold bg-brand-yellow/10 px-1.5 py-0.5 rounded">${c.hash}</span>
+              <span class="font-mono text-xs text-brand-yellow font-bold bg-brand-yellow/10 px-1.5 py-0.5 rounded">${c.hash}</span>
               <span class="text-slate-200 truncate font-medium">${c.message}</span>
             </div>
-            <span class="text-[10px] text-slate-500 shrink-0 ml-2">${c.time}</span>
+            <span class="text-xs text-slate-300 shrink-0 ml-2">${c.time}</span>
           </div>
         `).join('');
       } else {
         container.innerHTML = `
-          <div class="text-center py-6 text-slate-500 text-xs">
-            <i class="fa-solid fa-check-circle text-emerald-400 mb-1 text-sm block"></i>
+          <div class="text-center py-6 text-slate-300 text-xs">
+            <i class="fa-solid fa-check-circle text-emerald-400 mb-1 text-sm block" aria-hidden="true"></i>
             Tutto allineato! Nessun commit in sospeso tra <code>develop</code> e <code>main</code>.
           </div>
         `;
@@ -347,11 +381,11 @@
         if (container) {
           container.innerHTML = `
             <div class="card p-4 text-center border-warning bg-dark text-warning rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 space-y-2">
-              <i class="fas fa-exclamation-triangle mb-2 text-amber-400" style="font-size:1.5rem;"></i>
+              <i class="fas fa-exclamation-triangle mb-2 text-amber-400" style="font-size:1.5rem;" aria-hidden="true"></i>
               <div><strong>Server locale non raggiungibile o in aggiornamento</strong></div>
-              <div class="small text-muted text-slate-400 text-xs mb-2">Impossibile recuperare la coda di scrittura (errore di connessione o HTTP).</div>
-              <button class="btn btn-sm btn-outline-warning px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 border border-amber-500/40 text-xs font-bold transition inline-flex items-center gap-1.5 mt-1" onclick="fetchCodeQueue()">
-                <i class="fas fa-sync-alt"></i> Riprova
+              <div class="small text-muted text-slate-300 text-xs mb-2">Impossibile recuperare la coda di scrittura (errore di connessione o HTTP).</div>
+              <button type="button" class="btn btn-sm btn-outline-warning px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 border border-amber-500/40 text-xs font-bold transition inline-flex items-center gap-1.5 mt-1" onclick="fetchCodeQueue()">
+                <i class="fas fa-sync-alt" aria-hidden="true"></i> Riprova
               </button>
             </div>
           `;
@@ -380,19 +414,19 @@
                 </span>
                 <div>
                   <div class="flex items-center gap-2">
-                    <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">IN SCRITTURA ORA</span>
+                    <span class="text-xs font-bold px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">IN SCRITTURA ORA</span>
                     <span class="font-mono text-xs font-bold text-brand-yellow">#${w.issue}</span>
                     <span class="text-xs font-semibold text-white">${w.title || 'Implementazione Codice'}</span>
                   </div>
-                  <div class="text-[11px] text-slate-400 mt-0.5 flex items-center gap-3">
-                    <span><i class="fa-solid fa-code-branch text-slate-500 text-[10px]"></i> develop</span>
-                    <span><i class="fa-solid fa-microchip text-slate-500 text-[10px]"></i> PID: <code class="text-slate-300">${w.pid || 'n/a'}</code></span>
-                    <span><i class="fa-regular fa-clock text-slate-500 text-[10px]"></i> In corso da: <strong class="text-cyan-300">${w.elapsed_formatted}</strong></span>
+                  <div class="text-xs text-slate-300 mt-0.5 flex items-center gap-3 flex-wrap">
+                    <span><i class="fa-solid fa-code-branch text-slate-300 text-xs" aria-hidden="true"></i> develop</span>
+                    <span><i class="fa-solid fa-microchip text-slate-300 text-xs" aria-hidden="true"></i> PID: <code class="text-slate-200">${w.pid || 'n/a'}</code></span>
+                    <span><i class="fa-regular fa-clock text-slate-300 text-xs" aria-hidden="true"></i> In corso da: <strong class="text-cyan-300">${w.elapsed_formatted}</strong></span>
                   </div>
                 </div>
               </div>
-              <a href="https://github.com/${w.full_repo || 'andreacordy90/hyrox-utmb-coaching'}/issues/${w.issue}" target="_blank" class="px-2.5 py-1 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 text-[11px] font-medium rounded-lg transition self-start sm:self-center shrink-0">
-                Apri Ticket <i class="fa-solid fa-external-link text-[9px] ml-1"></i>
+              <a href="https://github.com/${w.full_repo || 'andreacordy90/hyrox-utmb-coaching'}/issues/${w.issue}" target="_blank" rel="noopener noreferrer" aria-label="Apri ticket numero ${w.issue}" class="px-2.5 py-1 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 text-xs font-medium rounded-lg transition self-start sm:self-center shrink-0">
+                Apri Ticket <i class="fa-solid fa-external-link text-xs ml-1" aria-hidden="true"></i>
               </a>
             </div>
           </div>
@@ -400,11 +434,11 @@
       } else {
         html += `
           <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800 flex items-center justify-between text-xs">
-            <div class="flex items-center space-x-2.5 text-slate-400">
-              <i class="fa-solid fa-circle-pause text-slate-500"></i>
+            <div class="flex items-center space-x-2.5 text-slate-300">
+              <i class="fa-solid fa-circle-pause text-slate-300" aria-hidden="true"></i>
               <span>Nessun worker attualmente in scrittura. Processi a riposo (0 token).</span>
             </div>
-            <span class="text-[10px] font-mono text-slate-500 bg-slate-800/80 px-2 py-0.5 rounded">Idle</span>
+            <span class="text-xs font-mono text-slate-300 bg-slate-800/80 px-2 py-0.5 rounded">Idle</span>
           </div>
         `;
       }
@@ -414,9 +448,9 @@
       
       html += `
         <div class="space-y-1.5 pt-1">
-          <div class="flex items-center justify-between text-[11px] font-semibold text-slate-400 px-1">
+          <div class="flex items-center justify-between text-xs font-semibold text-slate-300 px-1">
             <span>Sequenza Prossimi Ticket in Coda FIFO:</span>
-            <span class="text-slate-500">${pendingQueue.length} in attesa</span>
+            <span class="text-slate-300">${pendingQueue.length} in attesa</span>
           </div>
       `;
 
@@ -426,16 +460,16 @@
           html += `
             <div class="flex items-center justify-between p-2 rounded-xl bg-slate-900/40 border border-slate-800/80 hover:border-slate-700 transition text-xs">
               <div class="flex items-center space-x-2.5 overflow-hidden">
-                <span class="w-5 h-5 rounded-md bg-slate-800 text-slate-300 font-mono text-[10px] font-bold flex items-center justify-center shrink-0 border border-slate-700">
+                <span class="w-5 h-5 rounded-md bg-slate-800 text-slate-200 font-mono text-xs font-bold flex items-center justify-center shrink-0 border border-slate-700">
                   ${rank}°
                 </span>
-                <span class="font-mono text-[11px] text-brand-yellow font-bold bg-brand-yellow/10 px-1.5 py-0.5 rounded shrink-0">#${item.number}</span>
+                <span class="font-mono text-xs text-brand-yellow font-bold bg-brand-yellow/10 px-1.5 py-0.5 rounded shrink-0">#${item.number}</span>
                 <span class="text-slate-200 truncate font-medium">${item.title}</span>
               </div>
               <div class="flex items-center space-x-2 shrink-0 ml-2">
-                <span class="text-[10px] px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/20 font-medium">In Coda</span>
-                <a href="${item.url}" target="_blank" class="text-slate-400 hover:text-white transition text-xs p-1">
-                  <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                <span class="text-xs px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/20 font-medium">In Coda</span>
+                <a href="${item.url}" target="_blank" rel="noopener noreferrer" aria-label="Apri ticket numero ${item.number}" class="text-slate-300 hover:text-white transition text-xs p-1">
+                  <i class="fa-solid fa-arrow-up-right-from-square text-xs" aria-hidden="true"></i>
                 </a>
               </div>
             </div>
@@ -443,8 +477,8 @@
         });
       } else {
         html += `
-          <div class="p-2.5 rounded-xl bg-slate-900/30 border border-slate-800/60 text-slate-500 text-center text-xs">
-            <i class="fa-solid fa-circle-check text-emerald-400/80 mr-1.5"></i>
+          <div class="p-2.5 rounded-xl bg-slate-900/30 border border-slate-800/60 text-slate-300 text-center text-xs">
+            <i class="fa-solid fa-circle-check text-emerald-400/80 mr-1.5" aria-hidden="true"></i>
             Tutti i ticket con piano approvato sono stati completati o non ci sono altri ticket in coda FIFO.
           </div>
         `;
@@ -462,15 +496,15 @@
         if (fc.length > 0) {
           html += `
             <div class="p-2.5 rounded-xl bg-orange-500/5 border border-orange-500/20 text-xs space-y-1.5">
-              <div class="font-bold text-orange-300 text-[11px] flex items-center justify-between">
+              <div class="font-bold text-orange-300 text-xs flex items-center justify-between">
                 <span>🟠 Pronti per Controllo Finale (${fc.length}):</span>
-                <span class="text-[10px] font-normal text-slate-400">FinalCheck</span>
+                <span class="text-xs font-normal text-slate-300">FinalCheck</span>
               </div>
               <div class="space-y-1 max-h-24 overflow-y-auto">
                 ${fc.map(t => `
-                  <div class="flex items-center justify-between text-[11px] text-slate-300 truncate">
+                  <div class="flex items-center justify-between text-xs text-slate-200 truncate">
                     <span class="truncate">• #${t.number} ${t.title}</span>
-                    <a href="${t.url}" target="_blank" class="text-orange-400 hover:underline shrink-0 ml-1 text-[10px]">Vedi</a>
+                    <a href="${t.url}" target="_blank" rel="noopener noreferrer" class="text-orange-400 hover:underline shrink-0 ml-1 text-xs">Vedi</a>
                   </div>
                 `).join('')}
               </div>
@@ -482,15 +516,15 @@
         if (errs.length > 0) {
           html += `
             <div class="p-2.5 rounded-xl bg-rose-500/5 border border-rose-500/20 text-xs space-y-1.5">
-              <div class="font-bold text-rose-300 text-[11px] flex items-center justify-between">
+              <div class="font-bold text-rose-300 text-xs flex items-center justify-between">
                 <span>🔴 Errori / Timeout Rilevati (${errs.length}):</span>
-                <span class="text-[10px] font-normal text-slate-400">Error</span>
+                <span class="text-xs font-normal text-slate-300">Error</span>
               </div>
               <div class="space-y-1 max-h-24 overflow-y-auto">
                 ${errs.map(t => `
-                  <div class="flex items-center justify-between text-[11px] text-slate-300 truncate">
+                  <div class="flex items-center justify-between text-xs text-slate-200 truncate">
                     <span class="truncate">• #${t.number} ${t.title}</span>
-                    <a href="${t.url}" target="_blank" class="text-rose-400 hover:underline shrink-0 ml-1 text-[10px]">Vedi</a>
+                    <a href="${t.url}" target="_blank" rel="noopener noreferrer" class="text-rose-400 hover:underline shrink-0 ml-1 text-xs">Vedi</a>
                   </div>
                 `).join('')}
               </div>
@@ -511,7 +545,7 @@
 
       const btn = document.getElementById('deploy-btn');
       btn.disabled = true;
-      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Rilascio in corso...`;
+      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Rilascio in corso...`;
 
       const baseApi = window.location.protocol.startsWith('http') ? '' : 'http://localhost:5050';
       try {
@@ -530,7 +564,7 @@
           }
           const ctaContainer = document.getElementById('modal-project-cta');
           if (ctaContainer) {
-            ctaContainer.innerHTML = `<a id="modal-project-link" href="${newProjUrl || '#'}" target="_blank" class="inline-flex items-center gap-2 px-5 py-2.5 bg-brand-yellow hover:bg-yellow-400 text-slate-950 font-bold rounded-xl text-xs transition">Apri Nuovo Project v${res.next_version} <i class="fa-solid fa-arrow-up-right-from-square"></i></a>`;
+            ctaContainer.innerHTML = `<a id="modal-project-link" href="${newProjUrl || '#'}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-5 py-2.5 bg-brand-yellow hover:bg-yellow-400 text-slate-950 font-bold rounded-xl text-xs transition">Apri Nuovo Project v${res.next_version} <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a>`;
             if (newProjUrl) {
               ctaContainer.classList.remove('hidden');
             } else {
@@ -538,15 +572,16 @@
             }
           }
           document.getElementById('success-modal').classList.remove('hidden');
+          showToast(`Rilascio v${res.released_version} completato!`, 'success');
           fetchStatus();
         } else {
-          alert("❌ Errore durante il rilascio:\n" + res.message);
+          showToast(`Errore durante il rilascio: ${res.message || 'errore sconosciuto'}`, 'error');
         }
       } catch (err) {
-        alert("Errore di rete: " + err);
+        showToast(`Errore di rete: ${err}`, 'error');
       } finally {
         btn.disabled = false;
-        btn.innerHTML = `<i class="fa-solid fa-rocket"></i> <span>RILASCIA IN PRODUZIONE</span>`;
+        btn.innerHTML = `<i class="fa-solid fa-rocket" aria-hidden="true"></i> <span>RILASCIA IN PRODUZIONE</span>`;
       }
     }
 
@@ -556,10 +591,10 @@
       try {
         const resp = await fetch(`${baseApi}/api/rollback`, { method: 'POST' });
         const res = await resp.json();
-        alert(res.message);
+        showToast(res.message || 'Rollback eseguito.', res.status === 'ok' ? 'success' : 'warning');
         fetchStatus();
       } catch (err) {
-        alert("Errore rollback: " + err);
+        showToast(`Errore rollback: ${err}`, 'error');
       }
     }
 

@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#FFDD00">
   <title>Portale Atleta | Coaching HYROX & UTMB</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -26,21 +27,11 @@
   </script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="assets/ui-feedback.css">
+  <link rel="stylesheet" href="assets/theme.css">
   <script src="assets/ui-feedback.js"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Teko:wght@600;700&display=swap');
-    body { font-family: 'Inter', sans-serif; }
-    .font-teko { font-family: 'Teko', sans-serif; }
-    .glass-card {
-      background: rgba(22, 31, 48, 0.85);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-    }
-    /* A11Y Focus Visible */
-    button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible {
-      outline: 2px solid #FFDD00 !important;
-      outline-offset: 2px !important;
-    }
+    body { font-family: var(--ds-font-sans); background-color: var(--ds-bg); color: var(--ds-text); }
+    .font-teko { font-family: var(--ds-font-display); }
   </style>
 </head>
 <body class="bg-brand-dark text-slate-100 min-h-screen flex flex-col antialiased">
@@ -55,17 +46,17 @@
         <div>
           <div class="flex items-center space-x-2">
             <h1 id="athlete-name" class="text-base font-bold text-white">Il Tuo Profilo</h1>
-            <span class="px-2 py-0.5 text-[10px] font-semibold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 rounded-full">
+            <span class="px-2 py-0.5 text-xs font-semibold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 rounded-full">
               ATLETA
             </span>
           </div>
-          <p class="text-xs text-slate-400">Head Coach: <strong class="text-brand-yellow">Andrea Cordera</strong><span id="athlete-city"></span></p>
+          <p class="text-xs text-slate-300">Head Coach: <strong class="text-brand-yellow">Andrea Cordera</strong><span id="athlete-city"></span></p>
         </div>
       </div>
 
-      <div class="flex items-center space-x-2">
+      <div class="flex items-center space-x-2 flex-wrap gap-y-2">
         <span class="hidden sm:inline-block px-2.5 py-1 text-xs font-semibold bg-orange-500/10 text-orange-400 border border-orange-500/20 rounded-lg">
-          <i class="fa-solid fa-lock text-[10px]" aria-hidden="true"></i> Settimana 1 di 40
+          <i class="fa-solid fa-lock text-xs" aria-hidden="true"></i> Settimana 1 di 40
         </span>
         <a id="athlete-attivita-link" href="#" target="_blank" rel="noopener noreferrer" aria-label="Apri il tuo File Attività Garmin su Google Sheets in nuova scheda" class="hidden min-h-[44px] px-3.5 py-2 text-xs font-medium bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-lg flex items-center gap-1.5 transition" title="Archivio Attività Garmin personale">
           <i class="fa-solid fa-person-running" aria-hidden="true"></i> <span>File Attività</span>
@@ -73,6 +64,10 @@
         <a href="https://t.me/andrea_hyrox_coach_bot" target="_blank" rel="noopener noreferrer" aria-label="Apri Bot Telegram del Coach Andrea in nuova scheda" class="min-h-[44px] px-3.5 py-2 text-xs font-medium bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 border border-sky-500/30 rounded-lg flex items-center gap-1.5 transition">
           <i class="fa-brands fa-telegram" aria-hidden="true"></i> Bot Telegram
         </a>
+        <button type="button" data-theme-toggle onclick="toggleAppTheme()" aria-label="Cambia tema chiaro o scuro" aria-pressed="false" class="theme-toggle-btn min-h-[44px]">
+          <i class="fa-solid fa-circle-half-stroke" aria-hidden="true"></i>
+          <span data-theme-label>Chiaro</span>
+        </button>
         <button id="athlete-logout-btn" onclick="logoutAthlete()" aria-label="Disconnetti sessione atleta" class="min-h-[44px] px-3 py-2 text-xs font-medium bg-slate-800 hover:bg-red-500/20 hover:text-red-300 text-slate-300 border border-slate-700 rounded-lg flex items-center gap-1.5 transition">
           <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i> <span class="hidden sm:inline">Esci</span>
         </button>
@@ -86,15 +81,15 @@
       <div class="text-center space-y-2">
         <div class="w-12 h-12 rounded-full bg-cyan-500/10 text-cyan-400 flex items-center justify-center mx-auto text-xl font-bold border border-cyan-500/20">⚡</div>
         <h2 id="auth-modal-title" class="text-xl font-bold tracking-tight text-white">Accesso Portale Atleta</h2>
-        <p class="text-xs text-slate-400">Autenticazione sicura a due fattori tramite bot Telegram ufficiale.</p>
+        <p class="text-xs text-slate-300">Autenticazione sicura a due fattori tramite bot Telegram ufficiale.</p>
       </div>
 
       <!-- Step 1: Inserimento Identificativo -->
       <div id="athlete-step-identifier" class="space-y-4">
         <div>
-          <label for="athlete-identifier-input" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Email Registrata / Garmin</label>
-          <input type="email" id="athlete-identifier-input" placeholder="es. tua.email@gmail.com" class="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-900 text-white placeholder-slate-500 text-sm focus:ring-2 focus:ring-brand-yellow focus:outline-none transition-all" autocomplete="email" required>
-          <p class="text-[11px] text-slate-400 mt-1">Inserisci l'email con cui ti sei registrato. Riceverai il codice OTP sul tuo Telegram.</p>
+          <label for="athlete-identifier-input" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">ID Telegram o Email</label>
+          <input type="text" id="athlete-identifier-input" placeholder="es. 123456789 oppure nome@gmail.com" class="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-900 text-white placeholder-slate-400 text-sm focus:ring-2 focus:ring-brand-yellow focus:outline-none transition-all" autocomplete="username" required>
+          <p class="text-xs text-slate-300 mt-1">Inserisci il tuo ID Telegram (lo vedi con <code>/start</code> o <code>/portale</code> nel bot) o la tua email. Riceverai il codice OTP su Telegram.</p>
         </div>
         <button id="athlete-btn-send-otp" onclick="requestAthleteOtp()" class="w-full py-3 px-4 bg-brand-yellow text-slate-950 font-bold rounded-xl text-sm shadow-lg shadow-brand-yellow/20 hover:bg-yellow-400 transition-all flex items-center justify-center gap-2">
           <span>Invia Codice OTP su Telegram</span>
@@ -193,7 +188,7 @@
 
         <!-- 1-TAP BUTTONS -->
         <div>
-          <span class="text-[11px] font-semibold text-slate-400 block mb-2 uppercase">Registra Acqua con 1 Tap:</span>
+          <span class="text-xs font-semibold text-slate-300 block mb-2 uppercase">Registra Acqua con 1 Tap:</span>
           <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
             <button onclick="logAthleteWater(250)" aria-label="Registra 250 millilitri d'acqua" class="min-h-[44px] py-2.5 px-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs rounded-xl font-medium transition active:scale-95 flex items-center justify-center gap-1">
               <span>🥛</span> <span>+250ml</span>
@@ -211,7 +206,7 @@
         </div>
       </div>
 
-      <!-- DIRECT NOTE TO COACH ANDREA -->
+      <!-- DIRECT NOTE TO COACH -->
       <div class="glass-card rounded-2xl p-5 flex flex-col justify-between">
         <div>
           <h3 class="text-sm font-bold text-white flex items-center gap-2 mb-1">
@@ -224,7 +219,7 @@
           <label for="athlete-note" class="sr-only">Scrivi un messaggio o segnala un fastidio al Coach Andrea</label>
           <textarea id="athlete-note" rows="2" placeholder="es. Oggi sento tirare il polpaccio destro al 4° lap..." aria-label="Scrivi un messaggio o segnala un fastidio al Coach Andrea" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-yellow resize-none"></textarea>
           <div class="flex items-center justify-between">
-            <span class="text-[10px] text-slate-500">Notifica istantanea via Telegram</span>
+            <span class="text-xs text-slate-300">Notifica istantanea via Telegram</span>
             <button id="athlete-send-note-btn" onclick="sendAthleteNote()" aria-label="Invia nota istantanea al Coach Andrea" class="min-h-[44px] px-4 py-2 bg-brand-yellow text-slate-950 font-bold text-xs rounded-lg hover:bg-yellow-400 transition flex items-center gap-1.5 active:scale-95">
               <i class="fa-solid fa-paper-plane" aria-hidden="true"></i> <span>Invia al Coach</span>
             </button>
@@ -241,9 +236,9 @@
           <h3 class="text-base font-bold text-white flex items-center gap-2">
             <i class="fa-solid fa-calendar-days text-cyan-400"></i> Piano Settimanale Corrente (Rolling Window)
           </h3>
-          <p id="athlete-weekly-range" class="text-xs text-slate-400">Settimana attiva: (Sbloccata)</p>
+          <p id="athlete-weekly-range" class="text-xs text-slate-300">Settimana attiva: (Sbloccata)</p>
         </div>
-        <span class="px-2.5 py-1 text-[11px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-lg">
+        <span class="px-2.5 py-1 text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-lg">
           Settimana 1 / 40
         </span>
       </div>
@@ -256,12 +251,12 @@
       <!-- LOCKED FUTURE WEEKS (ANTI-LEAK BANNER) -->
       <div class="mt-4 p-4 rounded-xl bg-slate-900/80 border border-dashed border-slate-700 text-center space-y-2">
         <div class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-slate-800 text-orange-400">
-          <i class="fa-solid fa-lock text-sm"></i>
+          <i class="fa-solid fa-lock text-sm" aria-hidden="true"></i>
         </div>
         <div class="text-xs font-bold text-slate-200">
           Settimane Future Riservate
         </div>
-        <p class="text-[11px] text-slate-400 max-w-md mx-auto">
+        <p class="text-xs text-slate-300 max-w-md mx-auto">
           I carichi successivi vengono sbloccati dal Coach Andrea solo dopo aver analizzato le risposte fisiologiche e i tuoi feedback della settimana in corso.
         </p>
       </div>
@@ -271,7 +266,7 @@
   </main>
 
   <!-- FOOTER -->
-  <footer class="border-t border-brand-border py-4 text-center text-xs text-slate-500 bg-brand-dark">
+  <footer class="border-t border-brand-border py-4 text-center text-xs text-slate-300 bg-brand-dark">
     <p>Portale Personale Atleta • Coaching HYROX & UTMB con Andrea Cordera • 100% 0-Token Policy</p>
   </footer>
 
@@ -410,7 +405,7 @@
       const inputEl = document.getElementById("athlete-identifier-input");
       const identifier = (inputEl ? inputEl.value : "").trim() || (isResend ? sessionStorage.getItem(ATHLETE_ID_KEY) || "" : "");
       if (!identifier) {
-        showAuthError("Inserisci l'indirizzo email con cui ti sei registrato.");
+        showAuthError("Inserisci il tuo ID Telegram o l'email con cui ti sei registrato.");
         return;
       }
       const btn = isResend ? document.getElementById("athlete-resend-otp-btn") : document.getElementById("athlete-btn-send-otp");
@@ -635,10 +630,10 @@
               <span class="w-20 font-bold ${isToday ? 'text-brand-yellow' : 'text-slate-400'}">${escapeHtml(item.workout.split(' - ')[0] || 'Sessione')}</span>
               <div>
                 <span class="font-semibold text-white">${escapeHtml(item.workout.split(' - ').slice(1).join(' - ') || item.workout)}</span>
-                <span class="block text-[10px] text-slate-400">${escapeHtml(item.feedback || item.score ? `Voto: ${item.score || '--'}` : 'In programma')}</span>
+                <span class="block text-xs text-slate-300">${escapeHtml(item.feedback || item.score ? `Voto: ${item.score || '--'}` : 'In programma')}</span>
               </div>
             </div>
-            <span class="px-2 py-0.5 rounded ${isToday ? 'bg-brand-yellow text-slate-950' : 'bg-slate-800 text-slate-400'} font-bold text-[10px]">
+            <span class="px-2 py-0.5 rounded ${isToday ? 'bg-brand-yellow text-slate-950' : 'bg-slate-800 text-slate-300'} font-bold text-xs">
               ${isToday ? 'OGGI' : (item.readiness || 'PIANO')}
             </span>
           `;
@@ -741,7 +736,7 @@
         });
         const res = await response.json();
         if (res.status === "ok") {
-          showToast(`✅ <strong>Nota inviata al Coach Andrea!</strong><br><span class="text-[11px] text-slate-400">Recapitata istantaneamente nella Coach Inbox privata.</span>`, 'success');
+          showToast(`✅ <strong>Nota inviata al Coach Andrea!</strong><br><span class="text-xs text-slate-200">Recapitata istantaneamente nella Coach Inbox privata.</span>`, 'success');
           if (noteInput) noteInput.value = "";
         } else if (res.status === "unauthorized") {
           logoutAthlete();

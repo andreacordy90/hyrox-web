@@ -391,11 +391,67 @@
     }
   };
 
-  // Espone globalmente sia showToast compatibile sia UIFeedback
+  // Gestione tema chiaro/scuro persistita in localStorage con try/catch
+  const THEME_STORAGE_KEY = 'app_theme';
+
+  function applyTheme(theme) {
+    if (typeof document === 'undefined') return;
+    const root = document.documentElement;
+    if (theme === 'light' || theme === 'dark') {
+      root.setAttribute('data-theme', theme);
+      if (theme === 'dark') root.classList.add('dark');
+      else root.classList.remove('dark');
+    } else {
+      root.removeAttribute('data-theme');
+    }
+    const btns = document.querySelectorAll('[data-theme-toggle]');
+    const isLight = root.getAttribute('data-theme') === 'light' ||
+      (!root.hasAttribute('data-theme') && typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches);
+    btns.forEach((btn) => {
+      btn.setAttribute('aria-pressed', isLight ? 'true' : 'false');
+      const label = isLight ? 'Tema Scuro' : 'Tema Chiaro';
+      btn.setAttribute('aria-label', `Passa a ${label}`);
+      const textSpan = btn.querySelector('[data-theme-label]');
+      if (textSpan) textSpan.textContent = isLight ? 'Scuro' : 'Chiaro';
+    });
+  }
+
+  function initAppTheme() {
+    let saved = null;
+    try {
+      saved = localStorage.getItem(THEME_STORAGE_KEY);
+    } catch (e) {}
+    applyTheme(saved);
+  }
+
+  function toggleAppTheme() {
+    if (typeof document === 'undefined') return;
+    const root = document.documentElement;
+    const current = root.getAttribute('data-theme');
+    const prefersLight = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+    const isCurrentlyLight = current === 'light' || (!current && prefersLight);
+    const next = isCurrentlyLight ? 'dark' : 'light';
+    try {
+      localStorage.setItem(THEME_STORAGE_KEY, next);
+    } catch (e) {}
+    applyTheme(next);
+  }
+
+  // Espone globalmente sia showToast compatibile sia UIFeedback e theme helpers
   global.UIFeedback = UIFeedback;
   global.showToast = function (message, type, duration) {
     return UIFeedback.toast({ message, type, duration });
   };
+  global.initAppTheme = initAppTheme;
+  global.toggleAppTheme = toggleAppTheme;
+
+  if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initAppTheme);
+    } else {
+      initAppTheme();
+    }
+  }
 
   // Supporto CommonJS/Node se importato in test
   if (typeof module !== 'undefined' && module.exports) {
