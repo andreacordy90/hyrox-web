@@ -1933,7 +1933,11 @@
 
       const raceEl = document.getElementById("plan-athlete-race");
       if (raceEl) {
-        raceEl.innerHTML = formatRaceSummaryHtml(race);
+        let raceHtml = formatRaceSummaryHtml(race);
+        if (previewData && previewData.warning) {
+          raceHtml += `<div class="mt-1.5 text-xs text-amber-300 bg-amber-500/10 border border-amber-500/30 rounded-lg px-2.5 py-1.5" role="alert"><i class="fa-solid fa-triangle-exclamation mr-1" aria-hidden="true"></i>${escapeHtml(String(previewData.warning))}</div>`;
+        }
+        raceEl.innerHTML = raceHtml;
       }
 
       const vacEl = document.getElementById("plan-athlete-vacation");
@@ -2189,6 +2193,14 @@
             type: "success",
             duration: 7000
           });
+          if (data.warning) {
+            UIFeedback.toast({
+              title: "Attenzione: gara target assente",
+              message: escapeHtml(String(data.warning)),
+              type: "warning",
+              duration: 9000
+            });
+          }
         }
       } catch (err) {
         console.warn("Errore generazione piano:", err);
