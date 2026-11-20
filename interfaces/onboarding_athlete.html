@@ -396,6 +396,10 @@
                   <span class="text-slate-200">Rulli / Cyclette indoor</span>
                 </label>
               </div>
+              <label for="at-crowded-gym" class="mt-2.5 flex items-center space-x-2.5 p-2.5 bg-slate-900/60 rounded-xl border border-slate-800 cursor-pointer hover:border-slate-700">
+                <input type="checkbox" id="at-crowded-gym" name="crowded_gym" value="true" class="w-4 h-4 text-brand-yellow rounded focus:ring-0">
+                <span class="text-slate-200 text-xs">Mi alleno spesso in palestra in orari affollati (ordine libero &amp; alternative rapide)</span>
+              </label>
             </div>
           </div>
 
@@ -800,6 +804,7 @@
         discipline_notes: val('at-discipline-notes'),
         gym_access: val('at-gym-access'),
         gym_notes: val('at-gym-notes'),
+        crowded_gym: chk('at-crowded-gym'),
         equipment: checkedVals('#at-equipment input[type="checkbox"]'),
         races: races,
         vacations: vacations,
@@ -879,6 +884,7 @@
       setVal('at-discipline-notes', draft.discipline_notes);
       if (draft.gym_access) setVal('at-gym-access', draft.gym_access);
       setVal('at-gym-notes', draft.gym_notes);
+      setChk('at-crowded-gym', draft.crowded_gym);
       setGroup('#at-equipment input[type="checkbox"]', draft.equipment);
       setGroup('#at-injury-zones input[type="checkbox"]', draft.injury_zones);
       setVal('at-injuries', draft.injuries);
@@ -1192,6 +1198,8 @@
 
       const gymAccess = document.getElementById('at-gym-access').value;
       const gymNotes = document.getElementById('at-gym-notes').value.trim();
+      const crowdedGymEl = document.getElementById('at-crowded-gym');
+      const crowdedGym = Boolean(crowdedGymEl && crowdedGymEl.checked);
       const equipment = Array.from(document.querySelectorAll('#at-equipment input[type="checkbox"]:checked')).map(function (cb) {
         return cb.value;
       });
@@ -1263,9 +1271,11 @@
         discipline_notes: disciplineNotes,
         gym_access: gymAccess,
         gym_notes: gymNotes,
+        crowded_gym: crowdedGym,
         equipment: equipment,
         gym_equipment: {
           access: gymAccess,
+          crowded_gym: crowdedGym,
           equipment: equipment,
           notes: gymNotes
         },
