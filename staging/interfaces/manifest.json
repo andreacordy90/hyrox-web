@@ -1,0 +1,39 @@
+{
+  "name": "HYROX & UTMB Coach Portal",
+  "short_name": "CoachHQ",
+  "description": "Portale Coach & Athlete HQ per preparazione Hyrox e Ultratrail UTMB",
+  "start_url": "/interfaces/coach_dashboard.html",
+  "display": "standalone",
+  "background_color": "#0B0F19",
+  "theme_color": "#FFDD00",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "assets/logo/00-192.jpeg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/logo/00.jpeg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/logo/10.jpeg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "assets/logo/20.jpeg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "assets/logo/30.jpeg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    }
+  ]
+}

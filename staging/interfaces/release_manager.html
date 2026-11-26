@@ -1,0 +1,1837 @@
+<!DOCTYPE html>
+<html lang="it" data-theme="dark" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#b1cc5b">
+  <script>
+    (function () {
+      try {
+        var p = localStorage.getItem('hud_palette') || '00';
+        if (['00', '10', '20', '30'].indexOf(p) !== -1) {
+          document.documentElement.setAttribute('data-hud-palette', p);
+        }
+      } catch (e) {}
+    })();
+  </script>
+  <title>HYROX & UTMB | Release Console</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              yellow: '#FFDD00',
+              lime: '#b1cc5b',
+              orange: '#FF5E00',
+              cyan: '#00F0FF',
+              dark: '#12171e',
+              card: '#1a212b',
+              border: '#2c3644'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="assets/ui-feedback.css">
+  <link rel="stylesheet" href="assets/theme.css">
+  <script src="assets/ui-feedback.js"></script>
+  <style>
+    body {
+      font-family: var(--ds-font-sans);
+      background-color: var(--ds-bg);
+      color: var(--ds-text);
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      padding-left: env(safe-area-inset-left, 0px);
+      padding-right: env(safe-area-inset-right, 0px);
+    }
+    .font-teko { font-family: var(--ds-font-display); }
+    header.release-header {
+      padding-top: calc(1rem + env(safe-area-inset-top, 0px));
+    }
+
+    /* ==================== RELEASE CONSOLE HUD SPLASH / INTRO OVERLAY (#182) ==================== */
+    .pwa-intro-overlay {
+      --intro-accent: var(--ds-accent, #b1cc5b);
+      --intro-accent-bright: var(--ds-accent-bright, #d9f99d);
+      --intro-accent-rgb: var(--ds-accent-rgb, 177, 204, 91);
+      --intro-glow: rgba(var(--ds-accent-rgb), 0.9);
+      position: fixed;
+      inset: 0;
+      z-index: 120;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: calc(20px + env(safe-area-inset-top, 0px)) 20px calc(20px + env(safe-area-inset-bottom, 0px));
+      background:
+        radial-gradient(circle at 50% 42%, rgba(var(--intro-accent-rgb), 0.28) 0%, transparent 58%),
+        radial-gradient(circle at 20% 82%, rgba(var(--intro-accent-rgb), 0.14) 0%, transparent 45%),
+        linear-gradient(180deg, #0d1117 0%, #12171e 55%, #0d1117 100%);
+      color: #f1f5f9;
+      overflow: hidden;
+      opacity: 1;
+      transform: scale(1);
+      transition: opacity 0.45s cubic-bezier(0.22, 1, 0.36, 1), transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .pwa-intro-overlay.is-fading-out {
+      opacity: 0;
+      transform: scale(1.02);
+      pointer-events: none;
+    }
+
+    .pwa-intro-overlay.is-hidden {
+      display: none !important;
+    }
+
+    .intro-hud-grid {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(to right, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+      background-size: 40px 40px;
+      mask-image: radial-gradient(circle at 50% 48%, rgba(0, 0, 0, 0.94) 25%, transparent 82%);
+      -webkit-mask-image: radial-gradient(circle at 50% 48%, rgba(0, 0, 0, 0.94) 25%, transparent 82%);
+    }
+
+    .intro-scanlines {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent 3px,
+        rgba(0, 0, 0, 0.18) 4px
+      );
+      opacity: 0.45;
+    }
+
+    .intro-bracket {
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      border-color: var(--intro-accent);
+      border-style: solid;
+      opacity: 0.78;
+      pointer-events: none;
+    }
+    .intro-bracket.tl { top: calc(16px + env(safe-area-inset-top, 0px)); left: 16px; border-width: 2px 0 0 2px; border-top-left-radius: 6px; }
+    .intro-bracket.tr { top: calc(16px + env(safe-area-inset-top, 0px)); right: 16px; border-width: 2px 2px 0 0; border-top-right-radius: 6px; }
+    .intro-bracket.bl { bottom: calc(16px + env(safe-area-inset-bottom, 0px)); left: 16px; border-width: 0 0 2px 2px; border-bottom-left-radius: 6px; }
+    .intro-bracket.br { bottom: calc(16px + env(safe-area-inset-bottom, 0px)); right: 16px; border-width: 0 2px 2px 0; border-bottom-right-radius: 6px; }
+
+    .intro-topbar {
+      position: relative;
+      z-index: 3;
+      width: 100%;
+      max-width: 760px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding-top: 8px;
+    }
+
+    .intro-live-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(var(--intro-accent-rgb), 0.14);
+      border: 1px solid rgba(var(--intro-accent-rgb), 0.45);
+      color: var(--intro-accent-bright);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .intro-live-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--intro-accent);
+      box-shadow: 0 0 12px var(--intro-accent);
+      animation: introDotPulse 1s ease-in-out infinite;
+    }
+
+    @keyframes introDotPulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.4); opacity: 0.55; }
+    }
+
+    .intro-skip-btn {
+      min-height: 44px;
+      min-width: 44px;
+      padding: 8px 16px;
+      border-radius: 12px;
+      border: 1px solid rgba(var(--intro-accent-rgb), 0.5);
+      background: rgba(15, 23, 42, 0.88);
+      color: #f8fafc;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+    }
+
+    .intro-skip-btn:hover {
+      background: rgba(var(--intro-accent-rgb), 0.24);
+      border-color: var(--intro-accent);
+      transform: translateY(-1px);
+    }
+
+    .intro-center-stage {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      width: 100%;
+      max-width: 720px;
+      margin: auto 0;
+    }
+
+    .intro-emblem-stage {
+      position: relative;
+      width: 216px;
+      height: 216px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .intro-emblem-halo {
+      position: absolute;
+      inset: -28px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(var(--ds-accent-rgb), 0.82) 0%, rgba(var(--ds-accent-rgb), 0.4) 45%, rgba(var(--ds-accent-rgb), 0.16) 64%, transparent 76%);
+      border: 2px solid rgba(var(--ds-accent-rgb), 0.55);
+      filter: blur(16px) drop-shadow(0 0 38px rgba(var(--ds-accent-rgb), 0.92));
+      opacity: 0;
+      transform: scale(0.75);
+      transition: opacity 0.45s ease, transform 0.45s ease;
+      pointer-events: none;
+    }
+
+    .pwa-intro-overlay.boot-glow .intro-emblem-halo {
+      opacity: 1;
+      transform: scale(1.06);
+      animation: boot-glow 1.3s ease-in-out infinite alternate;
+    }
+
+    .intro-emblem-stage.beat-pulse .intro-emblem-halo {
+      opacity: 1;
+      transform: scale(1.14);
+      filter: blur(18px) drop-shadow(0 0 50px rgba(var(--ds-accent-rgb), 1));
+      transition: transform 0.12s ease-out, opacity 0.12s ease-out;
+    }
+
+    .intro-shockwave {
+      position: absolute;
+      inset: 14px;
+      border-radius: 50%;
+      border: 2.5px solid var(--intro-accent);
+      box-shadow: 0 0 20px rgba(var(--ds-accent-rgb), 0.72);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .intro-shockwave.animate {
+      animation: introShockwaveExpand 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes introShockwaveExpand {
+      0% { transform: scale(0.86); opacity: 0.95; }
+      100% { transform: scale(1.42); opacity: 0; }
+    }
+
+    .intro-rings-svg {
+      position: absolute;
+      inset: -24px;
+      width: calc(100% + 48px);
+      height: calc(100% + 48px);
+      pointer-events: none;
+      opacity: 0;
+      transform: scale(0.84);
+      filter: drop-shadow(0 0 18px rgba(var(--ds-accent-rgb), 0.85));
+      transition: opacity 0.4s ease, transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .pwa-intro-overlay.boot-rings .intro-rings-svg {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .intro-ring-cw {
+      transform-origin: 200px 200px;
+      animation: introSpinCW 7s linear infinite;
+    }
+
+    .intro-ring-ccw {
+      transform-origin: 200px 200px;
+      animation: introSpinCCW 5s linear infinite;
+    }
+
+    @keyframes introSpinCW {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes introSpinCCW {
+      from { transform: rotate(360deg); }
+      to { transform: rotate(0deg); }
+    }
+
+    .intro-logo-aperture {
+      position: relative;
+      width: 166px;
+      height: 166px;
+      min-width: 120px;
+      min-height: 120px;
+      border-radius: 50%;
+      overflow: hidden;
+      background: #0d1320;
+      border: 2.5px solid rgba(var(--ds-accent-rgb), 0.9);
+      box-shadow:
+        0 0 0 5px rgba(5, 8, 17, 0.92),
+        0 0 52px 6px var(--intro-glow),
+        inset 0 0 24px rgba(0, 0, 0, 0.85);
+      opacity: 0;
+      transform: scale(0.76);
+      filter: brightness(0.45) contrast(1.18) blur(4px) drop-shadow(0 0 18px rgba(var(--ds-accent-rgb), 0.5));
+      transition:
+        opacity 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+        transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+        filter 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .pwa-intro-overlay.boot-logo .intro-logo-aperture {
+      opacity: 1;
+      transform: scale(1);
+      filter: brightness(1.1) contrast(1.08) blur(0px) drop-shadow(0 0 32px rgba(var(--ds-accent-rgb), 0.82));
+    }
+
+    .intro-emblem-stage.beat-pulse .intro-logo-aperture {
+      transform: scale(1.055);
+      box-shadow:
+        0 0 0 5px rgba(5, 8, 17, 0.92),
+        0 0 68px 10px var(--intro-glow),
+        inset 0 0 24px rgba(var(--intro-accent-rgb), 0.38);
+    }
+
+    .intro-logo-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scale(1.16);
+      display: block;
+      user-select: none;
+      -webkit-user-drag: none;
+      opacity: 0;
+      transition: opacity 0.65s cubic-bezier(0.4, 0, 0.2, 1);
+      will-change: opacity;
+    }
+
+    .intro-logo-img.active {
+      opacity: 1;
+    }
+
+    .intro-logo-vignette {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: radial-gradient(
+        circle at 50% 50%,
+        transparent 62%,
+        rgba(var(--intro-accent-rgb), 0.16) 82%,
+        rgba(4, 7, 14, 0.9) 99%
+      );
+      pointer-events: none;
+    }
+
+    .intro-logo-sweep {
+      position: absolute;
+      inset: -30%;
+      background: linear-gradient(
+        112deg,
+        transparent 38%,
+        rgba(255, 255, 255, 0.12) 45%,
+        rgba(var(--intro-accent-rgb), 0.52) 50%,
+        rgba(255, 255, 255, 0.38) 52%,
+        transparent 60%
+      );
+      transform: translateX(-120%) rotate(12deg);
+      pointer-events: none;
+    }
+
+    .intro-logo-sweep.run {
+      animation: introSpecularSweep 0.95s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    }
+
+    @keyframes introSpecularSweep {
+      0% { transform: translateX(-115%) rotate(12deg); opacity: 0.95; }
+      100% { transform: translateX(125%) rotate(12deg); opacity: 0; }
+    }
+
+    .intro-boot-badge {
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 4px 12px;
+      border-radius: 999px;
+      background: rgba(6, 10, 19, 0.95);
+      border: 1px solid rgba(var(--intro-accent-rgb), 0.65);
+      color: var(--intro-accent-bright);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.7), 0 0 20px -2px var(--intro-glow);
+    }
+
+    .intro-ecg-panel {
+      position: relative;
+      width: 100%;
+      max-width: 720px;
+      height: 76px;
+      border-radius: 16px;
+      background: rgba(5, 9, 18, 0.84);
+      border: 1px solid rgba(var(--intro-accent-rgb), 0.32);
+      overflow: hidden;
+      box-shadow: inset 0 0 24px rgba(0, 0, 0, 0.7);
+      z-index: 2;
+    }
+
+    #intro-ecg-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .intro-ecg-label {
+      position: absolute;
+      top: 8px;
+      left: 14px;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(var(--intro-accent-rgb), 0.95);
+      pointer-events: none;
+    }
+
+    .intro-ecg-bpm {
+      position: absolute;
+      top: 7px;
+      right: 14px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--intro-accent-bright);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      pointer-events: none;
+    }
+
+    @media (min-width: 521px) {
+      .intro-emblem-stage { width: 256px; height: 256px; }
+      .intro-logo-aperture {
+        width: 196px;
+        height: 196px;
+        min-width: 160px;
+        min-height: 160px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .intro-ring-cw, .intro-ring-ccw, .intro-live-dot, .pwa-intro-overlay.boot-glow .intro-emblem-halo { animation: none !important; }
+      .pwa-intro-overlay, .intro-logo-aperture, .intro-rings-svg, .intro-emblem-halo { transition-duration: 0.01ms !important; }
+    }
+  </style>
+</head>
+<body class="bg-[#12171e] text-slate-100 min-h-screen flex flex-col antialiased overflow-x-hidden">
+
+  <!-- RELEASE CONSOLE HUD SPLASH / INTRO OVERLAY (#182) -->
+  <div id="pwa-intro-overlay" class="pwa-intro-overlay is-hidden" role="dialog" aria-modal="true" aria-label="Introduzione animata Release Console HUD">
+    <div class="intro-hud-grid" aria-hidden="true"></div>
+    <div class="intro-scanlines" aria-hidden="true"></div>
+    <div class="intro-bracket tl" aria-hidden="true"></div>
+    <div class="intro-bracket tr" aria-hidden="true"></div>
+    <div class="intro-bracket bl" aria-hidden="true"></div>
+    <div class="intro-bracket br" aria-hidden="true"></div>
+
+    <div class="intro-topbar">
+      <div class="intro-live-pill">
+        <span class="intro-live-dot" aria-hidden="true"></span>
+        <span id="intro-status-text">PIPELINE SYNC...</span>
+      </div>
+      <button type="button" id="pwa-intro-skip-btn" onclick="closePwaIntro()" aria-label="Salta introduzione animata" class="intro-skip-btn min-h-[44px]">
+        <span>Salta</span>
+        <i class="fa-solid fa-forward-step" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <div class="intro-center-stage">
+      <div class="intro-emblem-stage" id="intro-emblem-stage">
+        <div class="intro-emblem-halo" aria-hidden="true"></div>
+        <div class="intro-shockwave" id="intro-shockwave-1" aria-hidden="true"></div>
+        <div class="intro-shockwave" id="intro-shockwave-2" aria-hidden="true"></div>
+
+        <svg class="intro-rings-svg" viewBox="0 0 400 400" aria-hidden="true">
+          <defs>
+            <linearGradient id="introHudRingGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#d9f99d" stop-opacity="1" />
+              <stop offset="50%" stop-color="#b1cc5b" stop-opacity="0.65" />
+              <stop offset="100%" stop-color="#d9f99d" stop-opacity="1" />
+            </linearGradient>
+          </defs>
+          <g class="intro-ring-cw">
+            <circle cx="200" cy="200" r="186" fill="none" stroke="url(#introHudRingGrad)" stroke-width="2.75" stroke-dasharray="18 8 4 8" opacity="0.96" />
+            <circle cx="200" cy="14" r="5" fill="#d9f99d" />
+            <circle cx="200" cy="386" r="5" fill="#d9f99d" />
+          </g>
+          <g class="intro-ring-ccw">
+            <circle cx="200" cy="200" r="168" fill="none" stroke="#b1cc5b" stroke-width="3" stroke-dasharray="72 30 18 30" opacity="0.9" />
+          </g>
+          <g stroke="#d9f99d" stroke-width="2.5" opacity="0.96">
+            <line x1="200" y1="20" x2="200" y2="36" />
+            <line x1="200" y1="364" x2="200" y2="380" />
+            <line x1="200" y1="200" x2="36" y2="200" />
+            <line x1="364" y1="200" x2="380" y2="200" />
+          </g>
+        </svg>
+
+        <div class="intro-logo-aperture">
+          <img id="intro-logo-00" src="assets/logo/00.jpeg" alt="Logo ufficiale HYROX &amp; UTMB Coaching" class="intro-logo-img active" />
+          <img id="intro-logo-10" src="assets/logo/10.jpeg" alt="Logo 10 Titanium" class="intro-logo-img" />
+          <img id="intro-logo-20" src="assets/logo/20.jpeg" alt="Logo 20 Violet" class="intro-logo-img" />
+          <img id="intro-logo-30" src="assets/logo/30.jpeg" alt="Logo 30 Teal Lava" class="intro-logo-img" />
+          <div class="intro-logo-vignette" aria-hidden="true"></div>
+          <div class="intro-logo-sweep" id="intro-logo-sweep" aria-hidden="true"></div>
+        </div>
+
+        <div class="intro-boot-badge font-mono">00 // RELEASE HUD</div>
+      </div>
+
+      <div class="text-center space-y-1">
+        <div class="text-2xl sm:text-3xl font-black tracking-widest uppercase text-white">
+          HYROX <span class="text-[#b1cc5b]">&amp;</span> UTMB COACHING
+        </div>
+        <p class="text-xs font-mono tracking-[0.2em] uppercase text-slate-300">
+          RELEASE CONSOLE &amp; PROD PIPELINE
+        </p>
+      </div>
+    </div>
+
+    <div class="intro-ecg-panel">
+      <span class="intro-ecg-label font-mono" id="intro-ecg-label">RELEASE TELEMETRY // CALIBRATING</span>
+      <span class="intro-ecg-bpm font-mono">
+        <span id="intro-bpm-value">--</span>
+        <span>BPM</span>
+      </span>
+      <canvas id="intro-ecg-canvas"></canvas>
+    </div>
+  </div>
+
+  <!-- TOP HEADER -->
+  <header class="release-header border-b border-slate-800 bg-[#12171e]/90 backdrop-blur sticky top-0 z-50 px-4 sm:px-6 py-4">
+    <div class="max-w-5xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div class="flex items-center space-x-3 sm:space-x-4 min-w-0">
+        <div id="header-logo-container" class="relative shrink-0">
+          <button type="button" id="header-brand-logo-btn" onclick="triggerHeaderLogoReplay()" aria-label="Rivedi intro animata HUD Release Console" title="Tocca per rivedere l'intro animata HUD" class="header-logo-replay-btn w-11 h-11 min-w-[44px] min-h-[44px] rounded-full overflow-hidden border-2 border-[#b1cc5b] bg-[#12171e] shrink-0 transition hover:scale-105 active:scale-95 cursor-pointer relative">
+            <img src="assets/logo/00.jpeg" alt="Logo HYROX &amp; UTMB Release Console" class="w-full h-full object-cover scale-[1.16]" />
+          </button>
+          <span class="pointer-events-none absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-[#12171e] border border-[#b1cc5b] flex items-center justify-center shadow-[0_0_8px_rgba(177,204,91,0.85)]" aria-hidden="true">
+            <span class="w-1.5 h-1.5 rounded-full bg-[#b1cc5b]"></span>
+          </span>
+        </div>
+        <div class="min-w-0">
+          <div class="flex items-center flex-wrap gap-1.5">
+            <h1 class="text-base sm:text-lg font-bold tracking-tight text-white">RELEASE CONSOLE <span class="text-[#b1cc5b] font-normal">| HYROX &amp; UTMB</span></h1>
+            <span class="px-2 py-0.5 text-xs font-semibold bg-[#b1cc5b]/10 text-[#b1cc5b] border border-[#b1cc5b]/30 rounded-full flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-[#b1cc5b] animate-pulse" aria-hidden="true"></span> DEVELOP ➔ MAIN
+            </span>
+          </div>
+          <p class="text-xs text-slate-300 truncate">Head Coach: <strong class="text-slate-100">Coach</strong> • Gestione Rilasci Produzione</p>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto sm:justify-end">
+        <button type="button" id="btn-refresh-status" onclick="fetchStatus()" aria-label="Verifica e aggiorna stato rilasci" class="min-h-[44px] px-3.5 py-2 text-xs font-semibold rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition inline-flex items-center justify-center gap-1.5">
+          <i class="fa-solid fa-arrows-rotate" id="refresh-icon" aria-hidden="true"></i> Verifica Stato
+        </button>
+      </div>
+    </div>
+  </header>
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8 flex-1 w-full space-y-6">
+
+    <!-- BOT STATUS CARD -->
+    <div class="glass-card rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3 border border-slate-800 shadow-xl" id="bot-status-card" role="region" aria-label="Stato del demone Bot Telegram">
+      <span class="px-3 py-2 text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full flex items-center gap-1.5" id="bot-status-badge" role="status" aria-live="polite">
+        🤖 Bot: ATTIVO (PID <span id="bot-pid">‑</span>)
+      </span>
+      <button type="button" id="btn-restart-bot" onclick="restartBot(this)" aria-label="Riavvia il demone Bot Telegram" class="min-h-[44px] px-4 py-2 text-xs font-semibold rounded-xl bg-[#b1cc5b]/10 hover:bg-[#b1cc5b]/20 text-[#b1cc5b] border border-[#b1cc5b]/30 transition inline-flex items-center justify-center gap-1.5">
+        <i class="fa-solid fa-rotate" id="bot-restart-icon" aria-hidden="true"></i>
+        <i class="fa-solid fa-spinner fa-spin hidden" id="bot-restart-spinner" aria-hidden="true"></i>
+        🔄 Riavvia Bot Telegram
+      </button>
+    </div>
+
+    <!-- AMBIENTE DI STAGING (#300) -->
+    <section class="glass-card rounded-2xl p-4 sm:p-5 border border-slate-800 shadow-xl space-y-4" id="staging-status-card" aria-label="Ambiente di STAGING">
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div class="flex items-start sm:items-center gap-3 min-w-0">
+          <div class="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 flex items-center justify-center text-lg shrink-0" aria-hidden="true">
+            🧪
+          </div>
+          <div class="min-w-0 space-y-1">
+            <div class="flex flex-wrap items-center gap-2">
+              <h2 class="text-sm font-bold text-white">Ambiente di STAGING</h2>
+              <span class="text-xs font-mono text-cyan-300 bg-cyan-500/10 border border-cyan-500/20 px-2 py-0.5 rounded-full">hyroxbot-staging.service</span>
+              <span id="staging-status-badge" role="status" aria-live="polite" class="px-3 py-1 text-xs font-semibold bg-slate-800/80 text-slate-300 border border-slate-700 rounded-full inline-flex items-center gap-1.5">
+                ⚫ FERMO
+              </span>
+            </div>
+            <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-300">
+              <span id="staging-meta">PID <span id="staging-pid">-</span> • Verifica stato VPS in corso...</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2 shrink-0">
+          <button type="button" id="btn-staging-start" onclick="controlStaging('start')" aria-label="Avvia servizio Staging su VPS" class="min-h-[44px] px-3.5 py-2 text-xs font-bold rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 transition inline-flex items-center justify-center gap-1.5">
+            ▶️ Avvia Staging
+          </button>
+          <button type="button" id="btn-staging-restart" onclick="controlStaging('restart')" aria-label="Riavvia servizio Staging su VPS" class="min-h-[44px] px-3.5 py-2 text-xs font-bold rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 transition inline-flex items-center justify-center gap-1.5">
+            🔄 Riavvia Staging
+          </button>
+          <button type="button" id="btn-staging-stop" onclick="controlStaging('stop')" aria-label="Ferma servizio Staging su VPS" class="min-h-[44px] px-3.5 py-2 text-xs font-bold rounded-xl bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border border-rose-500/30 transition inline-flex items-center justify-center gap-1.5">
+            ⏹️ Ferma Staging
+          </button>
+          <button type="button" id="verify-staging-btn" onclick="verifyStaging()" aria-label="Esegui verifica completa ambiente Staging" class="min-h-[44px] px-3.5 py-2 text-xs font-bold rounded-xl bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 border border-cyan-500/30 transition inline-flex items-center justify-center gap-1.5">
+            <i class="fa-solid fa-spinner fa-spin hidden" id="verify-staging-spinner" aria-hidden="true"></i>
+            <span id="verify-staging-text">🧪 Verifica Staging</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- LINK RAPIDI WEB STAGING -->
+      <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-800/80 text-xs">
+        <span class="text-slate-300 font-medium">Link Rapidi Web Staging (<code>/staging/</code>):</span>
+        <div class="flex flex-wrap items-center gap-2">
+          <a id="staging-portal-link" href="https://andreacordy90.github.io/hyrox-web/staging/staging/interfaces/athlete_portal.html" target="_blank" rel="noopener noreferrer" aria-label="Apri Portale Atleta Staging in nuova scheda" class="min-h-[44px] px-3 py-2 rounded-xl bg-slate-900/80 hover:bg-slate-800 text-cyan-300 border border-cyan-500/30 font-semibold transition inline-flex items-center gap-1.5">
+            <i class="fa-solid fa-person-running" aria-hidden="true"></i> Portale Atleta Staging <i class="fa-solid fa-arrow-up-right-from-square text-xs" aria-hidden="true"></i>
+          </a>
+          <a id="staging-dashboard-link" href="https://andreacordy90.github.io/hyrox-web/staging/staging/interfaces/coach_dashboard.html" target="_blank" rel="noopener noreferrer" aria-label="Apri Coach Dashboard Staging in nuova scheda" class="min-h-[44px] px-3 py-2 rounded-xl bg-slate-900/80 hover:bg-slate-800 text-purple-300 border border-purple-500/30 font-semibold transition inline-flex items-center gap-1.5">
+            <i class="fa-solid fa-sliders" aria-hidden="true"></i> Coach Dashboard Staging <i class="fa-solid fa-arrow-up-right-from-square text-xs" aria-hidden="true"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- OUTPUT VERIFICA STAGING -->
+      <div id="staging-verify-output" class="hidden rounded-xl bg-slate-950/70 border border-slate-800 p-3.5 space-y-2.5 text-xs" aria-live="polite">
+        <div class="flex items-center justify-between gap-2">
+          <span class="font-bold text-white" id="staging-verify-summary">Esito Verifica Staging</span>
+          <span class="text-slate-300 font-mono" id="staging-verify-timestamp"></span>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+          <div id="staging-check-vps" class="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800">
+            <div class="font-semibold text-slate-200">🤖 VPS Staging</div>
+            <div class="text-slate-300 mt-0.5" id="staging-check-vps-detail">-</div>
+          </div>
+          <div id="staging-check-web" class="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800">
+            <div class="font-semibold text-slate-200">🌐 Web Staging</div>
+            <div class="text-slate-300 mt-0.5" id="staging-check-web-detail">-</div>
+          </div>
+          <div id="staging-check-gas" class="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800">
+            <div class="font-semibold text-slate-200">⚙️ GAS Staging</div>
+            <div class="text-slate-300 mt-0.5" id="staging-check-gas-detail">-</div>
+          </div>
+        </div>
+        <pre id="staging-verify-raw" class="hidden text-xs font-mono text-slate-300 bg-slate-900/90 border border-slate-800 rounded-lg p-2.5 overflow-x-auto whitespace-pre-wrap"></pre>
+      </div>
+    </section>
+
+    <!-- HERO VERSION CARD -->
+    <div class="glass-card rounded-2xl p-6 relative overflow-hidden border border-slate-800 shadow-2xl">
+      <div class="absolute top-0 right-0 w-96 h-96 bg-brand-yellow/5 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+        <!-- VERSIONE ATTUALE -->
+        <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4 text-center space-y-1">
+          <span class="text-xs font-semibold text-slate-300 uppercase tracking-wider">Versione Attuale (Produzione)</span>
+          <div class="text-4xl font-extrabold text-emerald-400 font-teko tracking-wider" id="current-version">v1.0.0</div>
+          <div class="text-xs text-slate-300 flex items-center justify-center gap-1">
+            <i class="fa-solid fa-circle-check text-emerald-400 text-xs" aria-hidden="true"></i> Live su branch <code>main</code>
+          </div>
+        </div>
+
+        <!-- FRECCIA DI PROMOZIONE -->
+        <div class="flex flex-col items-center justify-center space-y-2">
+          <div class="w-12 h-12 rounded-full bg-brand-yellow/10 border border-brand-yellow/30 flex items-center justify-center text-brand-yellow text-lg shadow-lg shadow-brand-yellow/10">
+            <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+          </div>
+          <span class="text-xs text-slate-300 font-medium">Promozione Controllata</span>
+        </div>
+
+        <!-- PROSSIMA VERSIONE -->
+        <div class="bg-slate-900/80 border border-brand-yellow/30 rounded-xl p-4 text-center space-y-1 shadow-lg shadow-brand-yellow/5">
+          <span class="text-xs font-semibold text-brand-yellow uppercase tracking-wider">Prossima Versione (Target)</span>
+          <div class="text-4xl font-extrabold text-brand-yellow font-teko tracking-wider flex items-center justify-center gap-2">
+            <span id="next-version">v1.1.0</span>
+          </div>
+          <div class="text-xs text-slate-300 flex items-center justify-center gap-1">
+            <i class="fa-solid fa-clock text-brand-yellow text-xs" aria-hidden="true"></i> Pronta per il rilascio
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GITHUB PROJECT BOARD BANNER -->
+    <div class="glass-card rounded-2xl p-4 border border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center space-x-3">
+        <div class="w-9 h-9 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center text-lg">
+          <i class="fa-solid fa-list-check" aria-hidden="true"></i>
+        </div>
+        <div>
+          <h4 class="text-xs font-bold text-white flex items-center gap-2">
+            GitHub Project Board: <span id="project-board-title" class="text-brand-yellow font-mono">v1.1.0</span>
+            <span class="text-xs text-slate-300 font-normal">(Multi-Repo: Backend + Frontend)</span>
+          </h4>
+          <p class="text-xs text-slate-300">Controlla l'avanzamento dei ticket. Trigger AI: <code class="text-purple-300">action:plan</code> (elabora piano) ➔ <code class="text-emerald-300">action:execute</code> (esegui codice).</p>
+        </div>
+      </div>
+      <a href="https://github.com/users/andreacordy90/projects" target="_blank" rel="noopener noreferrer" aria-label="Apri Tabellone GitHub Projects in nuova scheda" class="min-h-[44px] px-4 py-2 rounded-xl bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 border border-purple-500/30 text-xs font-bold transition inline-flex items-center justify-center gap-1.5 shrink-0 w-full sm:w-auto">
+        <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> Apri Tabellone GitHub
+      </a>
+    </div>
+
+    <!-- CODA SCRITTURA CODICE & SEQUENZA FIFO (ZERO-TOKEN) -->
+    <div class="glass-card rounded-2xl p-5 border border-slate-800 space-y-4 shadow-xl">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div class="flex items-center space-x-3">
+          <div class="w-9 h-9 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 flex items-center justify-center text-lg">
+            <i class="fa-solid fa-code" aria-hidden="true"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="text-sm font-bold text-white">Coda Scrittura Codice & Sequenza FIFO</h3>
+              <span class="px-2 py-0.5 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1">
+                <i class="fa-solid fa-bolt text-xs" aria-hidden="true"></i> 0 Token AI
+              </span>
+            </div>
+            <p class="text-xs text-slate-300">Tracciamento deterministico del worker e ordine di esecuzione ticket su <code>develop</code>.</p>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <button type="button" onclick="fetchCodeQueue()" id="btn-queue-refresh" aria-label="Ispeziona e aggiorna la coda di scrittura" class="min-h-[44px] px-3.5 py-2 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 text-xs font-bold transition inline-flex items-center justify-center gap-1.5 shadow-sm">
+            <i class="fa-solid fa-arrows-rotate" id="queue-refresh-icon" aria-hidden="true"></i> Ispeziona Coda
+          </button>
+        </div>
+      </div>
+
+      <!-- CONTAINER DINAMICO DELLA CODA -->
+      <div id="code-queue-container" class="space-y-3 pt-1" aria-live="polite" role="region" aria-label="Stato coda scrittura codice">
+        <div class="text-center py-4 text-slate-300 text-xs flex items-center justify-center gap-2">
+          <i class="fa-solid fa-circle-notch fa-spin text-cyan-400" aria-hidden="true"></i> Lettura coda di scrittura in corso...
+        </div>
+      </div>
+    </div>
+
+    <!-- PRE-FLIGHT CHECKLIST & COMMITS -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+      <!-- PRE-FLIGHT CHECKS -->
+      <div class="glass-card rounded-2xl p-5 border border-slate-800 space-y-4">
+        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-shield-halved text-cyan-400" aria-hidden="true"></i> Pre-Flight Health Checks
+        </h3>
+        <ul class="space-y-3 text-xs">
+          <li class="flex items-center justify-between p-2.5 rounded-lg bg-slate-900/50 border border-slate-800/80">
+            <span class="text-slate-200">Sintassi Python Scripts</span>
+            <span id="check-syntax" class="px-2 py-0.5 rounded text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">PASS ✅</span>
+          </li>
+          <li class="flex items-center justify-between p-2.5 rounded-lg bg-slate-900/50 border border-slate-800/80">
+            <span class="text-slate-200">Stato Git Repository</span>
+            <span id="check-git" class="px-2 py-0.5 rounded text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">PASS ✅</span>
+          </li>
+          <li class="flex items-center justify-between p-2.5 rounded-lg bg-slate-900/50 border border-slate-800/80">
+            <span class="text-slate-200">Isolamento Multi-Tenant</span>
+            <span id="check-isolation" class="px-2 py-0.5 rounded text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">PASS ✅</span>
+          </li>
+          <li class="flex items-center justify-between p-2.5 rounded-lg bg-slate-900/50 border border-slate-800/80">
+            <span class="text-slate-200">Ticket Aperti nel Progetto</span>
+            <span id="check-open-issues" class="px-2 py-0.5 rounded text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">0 aperti ✅</span>
+          </li>
+        </ul>
+
+        <div class="p-3 rounded-xl bg-cyan-500/5 border border-cyan-500/20 text-xs text-cyan-300 space-y-1">
+          <div class="font-bold flex items-center gap-1.5">
+            <i class="fa-solid fa-info-circle" aria-hidden="true"></i> Regola di Sicurezza:
+          </div>
+          <p class="text-slate-300">Il rilascio su <code>main</code> avvia automaticamente il server cloud 24/7 in zero-downtime.</p>
+        </div>
+      </div>
+
+      <!-- COMMITS PENDENTI SU DEVELOP -->
+      <div class="md:col-span-2 glass-card rounded-2xl p-5 border border-slate-800 space-y-4">
+        <div class="flex items-center justify-between">
+          <h3 class="text-sm font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-code-commit text-brand-yellow" aria-hidden="true"></i> Modifiche Pronte per il Rilascio
+          </h3>
+          <span id="pending-badge" class="px-2 py-0.5 rounded-full text-xs font-bold bg-brand-yellow/10 text-brand-yellow border border-brand-yellow/20">
+            0 commit
+          </span>
+        </div>
+
+        <div id="commits-container" class="space-y-2 max-h-48 overflow-y-auto pr-1" aria-live="polite">
+          <!-- Render dinamico commit -->
+          <div class="text-center py-6 text-slate-300 text-xs">
+            Nessuna modifica pendente rilevata tra develop e main.
+          </div>
+        </div>
+
+        <!-- NOTE DI RELEASE -->
+        <div>
+          <label for="release-summary" class="block text-xs font-semibold text-slate-300 mb-1">Note di Rilascio (Changelog opzionale):</label>
+          <input type="text" id="release-summary" placeholder="Es. Nuova architettura disaccoppiata e webhook separato Coach" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-brand-yellow">
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ACTION BUTTONS -->
+    <div id="release-action-panel" class="glass-card rounded-2xl p-5 sm:p-6 border border-slate-800 space-y-4">
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+        <div class="space-y-1">
+          <div class="flex flex-wrap items-center gap-2">
+            <h4 class="text-sm font-bold text-white">Pronto a Rilasciare?</h4>
+            <span id="open-issues-counter" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              Ticket aperti: <span id="open-issues-count">0</span>
+            </span>
+          </div>
+          <p class="text-xs text-slate-300">Verrà eseguito il merge controllato su <code>main</code>, creato il tag e notificato il cloud.</p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto">
+          <button type="button" onclick="handleRollback()" id="rollback-btn" aria-label="Esegui rollback alla versione precedente" class="min-h-[44px] w-full sm:w-auto px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-rose-400 font-bold text-xs border border-rose-500/20 transition flex items-center justify-center gap-2">
+            <i class="fa-solid fa-rotate-left" aria-hidden="true"></i> Rollback
+          </button>
+
+          <button type="button" onclick="handleDeploy()" id="deploy-btn" aria-label="Promuovi e rilascia nuova versione in produzione" class="min-h-[44px] w-full sm:w-auto px-6 py-2.5 rounded-xl bg-[#b1cc5b] text-[#12171e] font-bold hover:bg-[#c3dc72] transition shadow-lg shadow-[#b1cc5b]/20 flex items-center justify-center gap-2 font-teko text-lg tracking-wider">
+            <i class="fa-solid fa-rocket" aria-hidden="true"></i> <span id="deploy-text">RILASCIA IN PRODUZIONE</span>
+          </button>
+        </div>
+      </div>
+
+      <div id="open-issues-block-alert" role="alert" class="hidden p-3.5 rounded-xl bg-gradient-to-r from-orange-500/15 to-rose-500/15 border border-rose-500/40 text-xs text-rose-200 space-y-2">
+        <div class="font-bold text-orange-300 flex items-center gap-2">
+          <i class="fa-solid fa-triangle-exclamation text-rose-400" aria-hidden="true"></i>
+          <span id="open-issues-block-text">Blocco release attivo: 0 ticket ancora aperti</span>
+        </div>
+        <p class="text-slate-200">Tutti i ticket del progetto devono essere chiusi prima di promuovere il rilascio su <code>main</code>.</p>
+        <ul id="open-issues-preview-list" class="space-y-1 text-xs text-slate-200 list-disc list-inside"></ul>
+      </div>
+    </div>
+
+    <!-- MODALE SUCCESSO -->
+    <div id="success-modal" onclick="if (event.target === this) closeModal()" role="dialog" aria-modal="true" aria-labelledby="modal-title" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+      <div class="glass-card max-w-sm w-full p-6 rounded-2xl border border-emerald-500/30 text-center space-y-4 max-h-[90dvh] overflow-y-auto">
+        <div class="w-16 h-16 bg-emerald-500/10 text-emerald-400 rounded-full flex items-center justify-center text-3xl mx-auto border border-emerald-500/20 animate-bounce">
+          <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+        </div>
+        <div>
+          <h3 class="text-lg font-bold text-white" id="modal-title">Rilascio Completato!</h3>
+          <p class="text-xs text-slate-300 mt-1" id="modal-desc">La nuova versione è stata promossa con successo sul branch main ed è attiva sul cloud.</p>
+        </div>
+        <div class="flex flex-col-reverse sm:flex-row gap-2 pt-2">
+          <button type="button" onclick="closeModal()" class="min-h-[44px] w-full py-2.5 px-4 bg-emerald-500 text-slate-950 font-bold rounded-xl text-xs hover:bg-emerald-400 transition">
+            Ho Capito
+          </button>
+          <div id="modal-project-cta" class="hidden w-full"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODALE CONFERMA ROLLBACK -->
+    <div id="rollback-confirm-modal" onclick="if (event.target === this) closeRollbackConfirmModal()" role="dialog" aria-modal="true" aria-labelledby="rollback-modal-title" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+      <div class="glass-card max-w-sm w-full p-6 rounded-2xl border border-rose-500/30 text-center space-y-4 max-h-[90dvh] overflow-y-auto">
+        <div class="w-14 h-14 bg-rose-500/10 text-rose-400 rounded-full flex items-center justify-center text-2xl mx-auto border border-rose-500/20">
+          <i class="fa-solid fa-rotate-left" aria-hidden="true"></i>
+        </div>
+        <div>
+          <h3 class="text-lg font-bold text-white" id="rollback-modal-title">Conferma Rollback</h3>
+          <p class="text-xs text-slate-300 mt-1">Vuoi davvero eseguire il rollback alla versione precedente su <code>main</code>?</p>
+        </div>
+        <div class="flex flex-col-reverse sm:flex-row gap-2 pt-2">
+          <button type="button" id="rollback-cancel-btn" onclick="closeRollbackConfirmModal()" class="min-h-[44px] w-full sm:flex-1 py-2.5 px-4 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold rounded-xl text-xs border border-slate-700 transition">
+            Annulla
+          </button>
+          <button type="button" id="rollback-confirm-btn" onclick="executeRollbackConfirmed()" class="min-h-[44px] w-full sm:flex-1 py-2.5 px-4 bg-rose-500 hover:bg-rose-400 text-slate-950 font-bold rounded-xl text-xs transition">
+            Conferma Rollback
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- APP TOAST LIVE REGION -->
+  <div id="app-toast-container" class="app-toast-container" role="status" aria-live="polite" aria-atomic="true"></div>
+
+  <script>
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('app-toast-container');
+      if (!container) return;
+      const toast = document.createElement('div');
+      const allowed = ['success', 'error', 'warning', 'info'];
+      const variant = allowed.includes(type) ? type : 'info';
+      toast.className = `app-toast app-toast--${variant}`;
+      toast.setAttribute('role', variant === 'error' ? 'alert' : 'status');
+      toast.setAttribute('aria-live', 'polite');
+
+      const textEl = document.createElement('span');
+      textEl.textContent = String(message || '');
+      toast.appendChild(textEl);
+
+      const closeBtn = document.createElement('button');
+      closeBtn.type = 'button';
+      closeBtn.className = 'app-toast-close';
+      closeBtn.setAttribute('aria-label', 'Chiudi notifica');
+      closeBtn.textContent = '×';
+      closeBtn.onclick = () => toast.remove();
+      toast.appendChild(closeBtn);
+
+      container.appendChild(toast);
+      setTimeout(() => {
+        if (toast.parentNode) toast.remove();
+      }, 5000);
+    }
+    let releaseData = null;
+    let stagingBusy = false;
+
+    function _getReleaseApiBase() {
+      return window.location.protocol.startsWith('http') ? '' : 'http://localhost:5050';
+    }
+
+    function renderStagingUI(data) {
+      if (!data) return;
+      const active = !!data.active;
+      const badgeEl = document.getElementById('staging-status-badge');
+      if (badgeEl) {
+        if (active) {
+          badgeEl.textContent = '🟢 ATTIVO';
+          badgeEl.className = 'px-3 py-1 text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full inline-flex items-center gap-1.5';
+        } else {
+          badgeEl.textContent = '⚫ FERMO';
+          badgeEl.className = 'px-3 py-1 text-xs font-semibold bg-slate-800/80 text-slate-300 border border-slate-700 rounded-full inline-flex items-center gap-1.5';
+        }
+      }
+
+      const pidTxt = data.pid ? String(data.pid) : '-';
+      const metaEl = document.getElementById('staging-meta');
+      if (metaEl) {
+        const hostTxt = data.host ? ` • Host: ${data.host}` : '';
+        const detailTxt = data.detail ? ` • ${data.detail}` : '';
+        metaEl.innerHTML = `PID <span id="staging-pid">${pidTxt}</span>${hostTxt}${detailTxt}`;
+      }
+
+      if (data.urls) {
+        const portalLink = document.getElementById('staging-portal-link');
+        const dashLink = document.getElementById('staging-dashboard-link');
+        if (portalLink && data.urls.athlete_portal) {
+          portalLink.href = data.urls.athlete_portal;
+        }
+        if (dashLink && data.urls.coach_dashboard) {
+          dashLink.href = data.urls.coach_dashboard;
+        }
+      }
+    }
+
+    async function fetchStagingStatus() {
+      const baseApi = _getReleaseApiBase();
+      try {
+        const resp = await fetch(`${baseApi}/api/staging/status`);
+        if (!resp.ok) return null;
+        const data = await resp.json();
+        renderStagingUI(data);
+        return data;
+      } catch (err) {
+        console.warn("Errore lettura stato staging:", err);
+        return null;
+      }
+    }
+
+    function _setStagingControlsLoading(loading) {
+      stagingBusy = loading;
+      for (const id of ['btn-staging-start', 'btn-staging-restart', 'btn-staging-stop', 'verify-staging-btn']) {
+        const btn = document.getElementById(id);
+        if (btn) {
+          btn.disabled = loading;
+          btn.classList.toggle('opacity-60', loading);
+        }
+      }
+      const spinner = document.getElementById('verify-staging-spinner');
+      if (spinner) spinner.classList.toggle('hidden', !loading);
+    }
+
+    async function controlStaging(action) {
+      if (stagingBusy) return;
+      const baseApi = _getReleaseApiBase();
+      _setStagingControlsLoading(true);
+      try {
+        const resp = await fetch(`${baseApi}/api/staging/control`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action })
+        });
+        const data = await resp.json();
+        if (resp.ok && data.ok) {
+          showToast(data.message || `Staging ${action} completato.`, 'success');
+          renderStagingUI(data);
+        } else {
+          showToast(data.error || data.message || `Operazione staging (${action}) fallita.`, 'error');
+        }
+      } catch (err) {
+        showToast(`Errore di rete staging: ${err.message || err}`, 'error');
+      } finally {
+        _setStagingControlsLoading(false);
+        await fetchStagingStatus();
+      }
+    }
+
+    function renderStagingVerifyResult(data) {
+      const box = document.getElementById('staging-verify-output');
+      if (!box || !data) return;
+      box.classList.remove('hidden');
+
+      const summaryEl = document.getElementById('staging-verify-summary');
+      if (summaryEl) {
+        summaryEl.textContent = data.message || (data.ok ? 'Verifica STAGING: tutto OK' : 'Verifica STAGING: anomalia rilevata');
+        summaryEl.className = data.ok ? 'font-bold text-emerald-400' : 'font-bold text-rose-400';
+      }
+      const tsEl = document.getElementById('staging-verify-timestamp');
+      if (tsEl) {
+        tsEl.textContent = new Date().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      }
+
+      const checks = data.checks || {};
+      const mappings = [
+        ['vps', 'staging-check-vps', 'staging-check-vps-detail'],
+        ['web', 'staging-check-web', 'staging-check-web-detail'],
+        ['gas', 'staging-check-gas', 'staging-check-gas-detail']
+      ];
+      for (const [key, cardId, detailId] of mappings) {
+        const c = checks[key] || {};
+        const card = document.getElementById(cardId);
+        const det = document.getElementById(detailId);
+        if (det) det.textContent = c.detail || 'Non verificato';
+        if (card) {
+          card.className = c.ok
+            ? 'p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30'
+            : 'p-2.5 rounded-lg bg-rose-500/10 border border-rose-500/30';
+        }
+      }
+
+      const rawEl = document.getElementById('staging-verify-raw');
+      if (rawEl) {
+        if (data.output) {
+          rawEl.textContent = data.output;
+          rawEl.classList.remove('hidden');
+        } else {
+          rawEl.classList.add('hidden');
+        }
+      }
+    }
+
+    async function verifyStaging() {
+      if (stagingBusy) return;
+      const baseApi = _getReleaseApiBase();
+      _setStagingControlsLoading(true);
+      try {
+        const resp = await fetch(`${baseApi}/api/staging/verify`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({})
+        });
+        const data = await resp.json();
+        renderStagingVerifyResult(data);
+        showToast(data.message || 'Verifica Staging completata.', data.ok ? 'success' : 'warning');
+      } catch (err) {
+        showToast(`Errore verifica Staging: ${err.message || err}`, 'error');
+      } finally {
+        _setStagingControlsLoading(false);
+      }
+    }
+
+    async function fetchStatus() {
+      const icon = document.getElementById('refresh-icon');
+      icon.classList.add('fa-spin');
+      const apiUrl = window.location.protocol.startsWith('http') ? '/api/status' : 'http://localhost:5050/api/status';
+      try {
+        const resp = await fetch(apiUrl);
+        const data = await resp.json();
+        releaseData = data;
+        renderUI(data);
+      } catch (err) {
+        console.warn("Server release non raggiungibile:", err);
+        document.getElementById('commits-container').innerHTML = `
+          <div class="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs text-center space-y-2">
+            <div class="font-bold">⚠️ Server Locale Release non attivo</div>
+            <p class="text-slate-300 text-xs">Per abilitare i pulsanti e rilasciare con 1 clic, avvia il server con il comando:</p>
+            <code class="px-2 py-1 bg-slate-900 rounded font-mono text-xs text-brand-yellow block max-w-xs mx-auto">python scripts/ops_cli.py release-ui</code>
+          </div>
+        `;
+      } finally {
+        icon.classList.remove('fa-spin');
+      }
+    }
+
+    function applyOpenIssuesGateUI(data) {
+      const openCount = Number((data && data.open_issues_count) || 0);
+      const openList = Array.isArray(data && data.open_issues) ? data.open_issues : [];
+      const blocked = openCount > 0;
+
+      const checkEl = document.getElementById('check-open-issues');
+      if (checkEl) {
+        checkEl.textContent = blocked ? `${openCount} aperti ❌` : '0 aperti ✅';
+        checkEl.className = blocked
+          ? 'px-2 py-0.5 rounded text-xs font-bold bg-rose-500/10 text-rose-400 border border-rose-500/20'
+          : 'px-2 py-0.5 rounded text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20';
+      }
+
+      const counterEl = document.getElementById('open-issues-counter');
+      const countValEl = document.getElementById('open-issues-count');
+      if (countValEl) {
+        countValEl.textContent = String(openCount);
+      }
+      if (counterEl) {
+        counterEl.className = blocked
+          ? 'px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-500/15 text-rose-300 border border-rose-500/30'
+          : 'px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20';
+      }
+
+      const alertEl = document.getElementById('open-issues-block-alert');
+      const alertTextEl = document.getElementById('open-issues-block-text');
+      const listEl = document.getElementById('open-issues-preview-list');
+      if (alertEl) {
+        alertEl.classList.toggle('hidden', !blocked);
+      }
+      if (alertTextEl) {
+        alertTextEl.textContent = `Blocco release attivo: ${openCount} ticket ancora aperti`;
+      }
+      if (listEl) {
+        listEl.innerHTML = '';
+        if (blocked && openList.length > 0) {
+          openList.slice(0, 5).forEach((iss) => {
+            const li = document.createElement('li');
+            const num = iss && iss.number !== undefined ? `#${iss.number}` : '';
+            const title = (iss && iss.title) ? String(iss.title) : '';
+            li.textContent = num ? `${num} ${title}` : title;
+            listEl.appendChild(li);
+          });
+        }
+      }
+
+      const deployBtn = document.getElementById('deploy-btn');
+      if (deployBtn) {
+        deployBtn.disabled = blocked;
+        deployBtn.setAttribute('aria-disabled', blocked ? 'true' : 'false');
+        if (blocked) {
+          deployBtn.classList.add('opacity-50', 'cursor-not-allowed');
+          deployBtn.title = `Blocco release attivo: ${openCount} ticket ancora aperti`;
+        } else {
+          deployBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+          deployBtn.removeAttribute('title');
+        }
+      }
+    }
+
+    function renderUI(data) {
+      document.getElementById('current-version').innerText = `v${data.current_version}`;
+      document.getElementById('next-version').innerText = `v${data.next_version}`;
+      document.getElementById('deploy-text').innerText = `RILASCIA v${data.next_version} IN PRODUZIONE`;
+      if (data.active_project_title) {
+        const pElem = document.getElementById('project-board-title');
+        if (pElem) pElem.innerText = data.active_project_title;
+      }
+
+      // Preflight
+      document.getElementById('check-syntax').innerHTML = data.preflight.syntax_check ? 'PASS ✅' : 'FAIL ❌';
+      document.getElementById('check-syntax').className = data.preflight.syntax_check 
+        ? 'px-2 py-0.5 rounded text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+        : 'px-2 py-0.5 rounded text-xs font-bold bg-rose-500/10 text-rose-400 border border-rose-500/20';
+
+      applyOpenIssuesGateUI(data);
+
+      // Commits
+      const container = document.getElementById('commits-container');
+      const count = data.pending_commits ? data.pending_commits.length : 0;
+      document.getElementById('pending-badge').innerText = `${count} commit pendenti`;
+
+      if (count > 0) {
+        container.innerHTML = data.pending_commits.map(c => `
+          <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 text-xs">
+            <div class="flex items-center space-x-2.5 overflow-hidden">
+              <span class="font-mono text-xs text-brand-yellow font-bold bg-brand-yellow/10 px-1.5 py-0.5 rounded">${c.hash}</span>
+              <span class="text-slate-200 truncate font-medium">${c.message}</span>
+            </div>
+            <span class="text-xs text-slate-300 shrink-0 ml-2">${c.time}</span>
+          </div>
+        `).join('');
+      } else {
+        container.innerHTML = `
+          <div class="text-center py-6 text-slate-300 text-xs">
+            <i class="fa-solid fa-check-circle text-emerald-400 mb-1 text-sm block" aria-hidden="true"></i>
+            Tutto allineato! Nessun commit in sospeso tra <code>develop</code> e <code>main</code>.
+          </div>
+        `;
+      }
+      // Coda di scrittura
+      if (data.code_queue) {
+        renderQueueUI(data.code_queue);
+      } else {
+        fetchCodeQueue();
+      }
+    }
+
+    async function fetchCodeQueue() {
+      const icon = document.getElementById('queue-refresh-icon');
+      if (icon) icon.classList.add('fa-spin');
+      const baseApi = window.location.protocol.startsWith('http') ? '' : 'http://localhost:5050';
+      try {
+        const resp = await fetch(`${baseApi}/api/queue`);
+        if (!resp.ok) {
+          throw new Error(`HTTP error ${resp.status}: ${resp.statusText}`);
+        }
+        const data = await resp.json();
+        renderQueueUI(data);
+      } catch (err) {
+        console.warn("Errore lettura coda:", err);
+        const container = document.getElementById('code-queue-container');
+        if (container) {
+          container.innerHTML = `
+            <div class="card p-4 text-center border-warning bg-dark text-warning rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 space-y-2">
+              <i class="fas fa-exclamation-triangle mb-2 text-amber-400" style="font-size:1.5rem;" aria-hidden="true"></i>
+              <div><strong>Server locale non raggiungibile o in aggiornamento</strong></div>
+              <div class="small text-muted text-slate-300 text-xs mb-2">Impossibile recuperare la coda di scrittura (errore di connessione o HTTP).</div>
+              <button type="button" class="btn btn-sm btn-outline-warning min-h-[44px] px-4 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 border border-amber-500/40 text-xs font-bold transition inline-flex items-center gap-1.5 mt-1" onclick="fetchCodeQueue()">
+                <i class="fas fa-sync-alt" aria-hidden="true"></i> Riprova
+              </button>
+            </div>
+          `;
+        }
+      } finally {
+        if (icon) icon.classList.remove('fa-spin');
+      }
+    }
+
+    function renderQueueUI(q) {
+      const container = document.getElementById('code-queue-container');
+      if (!container || !q) return;
+
+      let html = '';
+
+      // 1. SEZIONE ATTIVITA' ATTIVA (WORKER)
+      if (q.active_worker) {
+        const w = q.active_worker;
+        html += `
+          <div class="p-3.5 rounded-xl bg-gradient-to-r from-cyan-950/40 to-slate-900 border border-cyan-500/30 shadow-lg relative overflow-hidden">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div class="flex items-center space-x-3">
+                <span class="relative flex h-3 w-3">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-3 w-3 bg-cyan-500"></span>
+                </span>
+                <div>
+                  <div class="flex items-center gap-2">
+                    <span class="text-xs font-bold px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">IN SCRITTURA ORA</span>
+                    <span class="font-mono text-xs font-bold text-brand-yellow">#${w.issue}</span>
+                    <span class="text-xs font-semibold text-white">${w.title || 'Implementazione Codice'}</span>
+                  </div>
+                  <div class="text-xs text-slate-300 mt-0.5 flex items-center gap-3 flex-wrap">
+                    <span><i class="fa-solid fa-code-branch text-slate-300 text-xs" aria-hidden="true"></i> develop</span>
+                    <span><i class="fa-solid fa-microchip text-slate-300 text-xs" aria-hidden="true"></i> PID: <code class="text-slate-200">${w.pid || 'n/a'}</code></span>
+                    <span><i class="fa-regular fa-clock text-slate-300 text-xs" aria-hidden="true"></i> In corso da: <strong class="text-cyan-300">${w.elapsed_formatted}</strong></span>
+                  </div>
+                </div>
+              </div>
+              <a href="https://github.com/${w.full_repo || 'andreacordy90/hyrox-utmb-coaching'}/issues/${w.issue}" target="_blank" rel="noopener noreferrer" aria-label="Apri ticket numero ${w.issue}" class="min-h-[44px] px-3 py-2 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 text-xs font-medium rounded-lg transition inline-flex items-center self-start sm:self-center shrink-0">
+                Apri Ticket <i class="fa-solid fa-external-link text-xs ml-1" aria-hidden="true"></i>
+              </a>
+            </div>
+          </div>
+        `;
+      } else {
+        html += `
+          <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800 flex items-center justify-between text-xs">
+            <div class="flex items-center space-x-2.5 text-slate-300">
+              <i class="fa-solid fa-circle-pause text-slate-300" aria-hidden="true"></i>
+              <span>Nessun worker attualmente in scrittura. Processi a riposo (0 token).</span>
+            </div>
+            <span class="text-xs font-mono text-slate-300 bg-slate-800/80 px-2 py-0.5 rounded">Idle</span>
+          </div>
+        `;
+      }
+
+      // 2. SEZIONE SEQUENZA FIFO DEI PROSSIMI TICKET
+      const pendingQueue = (q.sequence || []).filter(item => !q.active_worker || item.number !== q.active_worker.issue);
+      
+      html += `
+        <div class="space-y-1.5 pt-1">
+          <div class="flex items-center justify-between text-xs font-semibold text-slate-300 px-1">
+            <span>Sequenza Prossimi Ticket in Coda FIFO:</span>
+            <span class="text-slate-300">${pendingQueue.length} in attesa</span>
+          </div>
+      `;
+
+      if (pendingQueue.length > 0) {
+        pendingQueue.forEach((item, idx) => {
+          const rank = idx + 1;
+          html += `
+            <div class="flex items-center justify-between p-2 rounded-xl bg-slate-900/40 border border-slate-800/80 hover:border-slate-700 transition text-xs">
+              <div class="flex items-center space-x-2.5 overflow-hidden">
+                <span class="w-5 h-5 rounded-md bg-slate-800 text-slate-200 font-mono text-xs font-bold flex items-center justify-center shrink-0 border border-slate-700">
+                  ${rank}°
+                </span>
+                <span class="font-mono text-xs text-brand-yellow font-bold bg-brand-yellow/10 px-1.5 py-0.5 rounded shrink-0">#${item.number}</span>
+                <span class="text-slate-200 truncate font-medium">${item.title}</span>
+              </div>
+              <div class="flex items-center space-x-2 shrink-0 ml-2">
+                <span class="text-xs px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/20 font-medium">In Coda</span>
+                <a href="${item.url}" target="_blank" rel="noopener noreferrer" aria-label="Apri ticket numero ${item.number}" class="text-slate-300 hover:text-white transition text-xs p-1">
+                  <i class="fa-solid fa-arrow-up-right-from-square text-xs" aria-hidden="true"></i>
+                </a>
+              </div>
+            </div>
+          `;
+        });
+      } else {
+        html += `
+          <div class="p-2.5 rounded-xl bg-slate-900/30 border border-slate-800/60 text-slate-300 text-center text-xs">
+            <i class="fa-solid fa-circle-check text-emerald-400/80 mr-1.5" aria-hidden="true"></i>
+            Tutti i ticket con piano approvato sono stati completati o non ci sono altri ticket in coda FIFO.
+          </div>
+        `;
+      }
+      html += `</div>`;
+
+      // 3. SEZIONE TICKET IN FINAL CHECK O IN ERROR (se presenti)
+      const fc = q.final_check || [];
+      const errs = q.errors || [];
+
+      if (fc.length > 0 || errs.length > 0) {
+        html += `<div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">`;
+        
+        // FinalCheck
+        if (fc.length > 0) {
+          html += `
+            <div class="p-2.5 rounded-xl bg-orange-500/5 border border-orange-500/20 text-xs space-y-1.5">
+              <div class="font-bold text-orange-300 text-xs flex items-center justify-between">
+                <span>🟠 Pronti per Controllo Finale (${fc.length}):</span>
+                <span class="text-xs font-normal text-slate-300">FinalCheck</span>
+              </div>
+              <div class="space-y-1 max-h-24 overflow-y-auto">
+                ${fc.map(t => `
+                  <div class="flex items-center justify-between text-xs text-slate-200 truncate">
+                    <span class="truncate">• #${t.number} ${t.title}</span>
+                    <a href="${t.url}" target="_blank" rel="noopener noreferrer" class="text-orange-400 hover:underline shrink-0 ml-1 text-xs">Vedi</a>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          `;
+        }
+
+        // Errors
+        if (errs.length > 0) {
+          html += `
+            <div class="p-2.5 rounded-xl bg-rose-500/5 border border-rose-500/20 text-xs space-y-1.5">
+              <div class="font-bold text-rose-300 text-xs flex items-center justify-between">
+                <span>🔴 Errori / Timeout Rilevati (${errs.length}):</span>
+                <span class="text-xs font-normal text-slate-300">Error</span>
+              </div>
+              <div class="space-y-1 max-h-24 overflow-y-auto">
+                ${errs.map(t => `
+                  <div class="flex items-center justify-between text-xs text-slate-200 truncate">
+                    <span class="truncate">• #${t.number} ${t.title}</span>
+                    <a href="${t.url}" target="_blank" rel="noopener noreferrer" class="text-rose-400 hover:underline shrink-0 ml-1 text-xs">Vedi</a>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          `;
+        }
+
+        html += `</div>`;
+      }
+
+      container.innerHTML = html;
+    }
+
+    async function handleDeploy() {
+      if (!releaseData) return;
+      if (Number(releaseData.open_issues_count || 0) > 0) {
+        showToast(`Blocco release attivo: ${releaseData.open_issues_count} ticket ancora aperti`, 'error');
+        return;
+      }
+      const targetV = releaseData.next_version;
+      const summary = document.getElementById('release-summary').value.trim();
+
+      const btn = document.getElementById('deploy-btn');
+      btn.disabled = true;
+      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Rilascio in corso...`;
+
+      const baseApi = window.location.protocol.startsWith('http') ? '' : 'http://localhost:5050';
+      try {
+        const resp = await fetch(`${baseApi}/api/deploy`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ target_version: targetV, summary: summary })
+        });
+        const res = await resp.json();
+        if (res.status === 'ok') {
+          document.getElementById('modal-title').innerText = `🎉 Rilascio v${res.released_version} Completato!`;
+          document.getElementById('modal-desc').innerText = res.message;
+          const newProjUrl = res.new_project_url || (res.project_sync && res.project_sync.new_project_url) || (res.project_sync && res.project_sync.new_project && res.project_sync.new_project.url);
+          if (newProjUrl) {
+            window.open(newProjUrl, '_blank');
+          }
+          const ctaContainer = document.getElementById('modal-project-cta');
+          if (ctaContainer) {
+            ctaContainer.innerHTML = `<a id="modal-project-link" href="${newProjUrl || '#'}" target="_blank" rel="noopener noreferrer" class="min-h-[44px] w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#b1cc5b] hover:bg-[#c3dc72] text-[#12171e] font-bold rounded-xl text-xs transition">Apri Nuovo Project v${res.next_version} <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a>`;
+            if (newProjUrl) {
+              ctaContainer.classList.remove('hidden');
+            } else {
+              ctaContainer.classList.add('hidden');
+            }
+          }
+          document.getElementById('success-modal').classList.remove('hidden');
+          showToast(`Rilascio v${res.released_version} completato!`, 'success');
+          fetchStatus();
+        } else {
+          showToast(`Errore durante il rilascio: ${res.message || 'errore sconosciuto'}`, 'error');
+        }
+      } catch (err) {
+        showToast(`Errore di rete: ${err}`, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<i class="fa-solid fa-rocket" aria-hidden="true"></i> <span id="deploy-text">RILASCIA IN PRODUZIONE</span>`;
+        applyOpenIssuesGateUI(releaseData);
+      }
+    }
+
+    function handleRollback() {
+      const modal = document.getElementById('rollback-confirm-modal');
+      if (modal) {
+        modal.classList.remove('hidden');
+      }
+    }
+
+    function closeRollbackConfirmModal() {
+      const modal = document.getElementById('rollback-confirm-modal');
+      if (modal) {
+        modal.classList.add('hidden');
+      }
+    }
+
+    async function executeRollbackConfirmed() {
+      closeRollbackConfirmModal();
+      const baseApi = window.location.protocol.startsWith('http') ? '' : 'http://localhost:5050';
+      try {
+        const resp = await fetch(`${baseApi}/api/rollback`, { method: 'POST' });
+        const res = await resp.json();
+        showToast(res.message || 'Rollback eseguito.', res.status === 'ok' ? 'success' : 'warning');
+        fetchStatus();
+      } catch (err) {
+        showToast(`Errore rollback: ${err}`, 'error');
+      }
+    }
+
+    function closeModal() {
+      document.getElementById('success-modal').classList.add('hidden');
+    }
+
+    // --- RELEASE CONSOLE HUD SPLASH / INTRO ANIMATION (#182) ---
+    const PWA_INTRO_SEEN_KEY = "release_console_pwa_intro_seen";
+    const INTRO_LOGO_FRAMES = ["00", "10", "20", "30"];
+    let introTimers = [];
+    let introRafId = null;
+    let introActive = false;
+    let introEcgFlatline = true;
+    let introDisplayBpm = 62;
+    let introCursorX = 0;
+    let introPhase = 0;
+    let introLastTime = 0;
+    let introBeatTriggered = false;
+    let introTrail = [];
+    let introLogoCycleHandle = null;
+    let introLogoFrameIdx = 0;
+    let introLogoCycleTimer = null;
+
+    function _startIntroLogoCycle() {
+      const aperture = document.querySelector("#pwa-intro-overlay .intro-logo-aperture");
+      if (window.UIFeedback && typeof window.UIFeedback.mountFourLogoCycle === "function" && aperture) {
+        if (introLogoCycleHandle && introLogoCycleHandle.isRunning()) {
+          return introLogoCycleHandle;
+        }
+        introLogoCycleHandle = window.UIFeedback.mountFourLogoCycle(aperture, {
+          intervalMs: 650,
+          frames: INTRO_LOGO_FRAMES,
+          resetOnStop: true
+        });
+        return introLogoCycleHandle;
+      }
+
+      if (introLogoCycleTimer) return null;
+      introLogoFrameIdx = 0;
+      const cycle = () => {
+        if (!introActive) return;
+        const prevIdx = introLogoFrameIdx;
+        introLogoFrameIdx = (introLogoFrameIdx + 1) % INTRO_LOGO_FRAMES.length;
+        const prevEl = document.getElementById("intro-logo-" + INTRO_LOGO_FRAMES[prevIdx]);
+        const nextEl = document.getElementById("intro-logo-" + INTRO_LOGO_FRAMES[introLogoFrameIdx]);
+        if (prevEl) prevEl.classList.remove("active");
+        if (nextEl) nextEl.classList.add("active");
+        introLogoCycleTimer = setTimeout(cycle, 650);
+      };
+      introLogoCycleTimer = setTimeout(cycle, 650);
+      return null;
+    }
+
+    function _stopIntroLogoCycle() {
+      if (introLogoCycleHandle) {
+        introLogoCycleHandle.stop(true);
+        introLogoCycleHandle = null;
+      }
+      if (introLogoCycleTimer) {
+        clearTimeout(introLogoCycleTimer);
+        introLogoCycleTimer = null;
+      }
+      INTRO_LOGO_FRAMES.forEach((id, idx) => {
+        const el = document.getElementById("intro-logo-" + id);
+        if (el) {
+          if (idx === 0) el.classList.add("active");
+          else el.classList.remove("active");
+        }
+      });
+      introLogoFrameIdx = 0;
+    }
+
+    function _clearIntroTimers(keepLogoCycle = false) {
+      if (!keepLogoCycle) {
+        _stopIntroLogoCycle();
+      }
+      introTimers.forEach((id) => clearTimeout(id));
+      introTimers = [];
+    }
+
+    function _stopIntroLoop() {
+      if (introRafId !== null && typeof cancelAnimationFrame === "function") {
+        cancelAnimationFrame(introRafId);
+        introRafId = null;
+      }
+    }
+
+    function _ecgSample(u) {
+      if (introEcgFlatline) return 0;
+      if (u >= 0.08 && u < 0.16) return Math.sin(((u - 0.08) / 0.08) * Math.PI) * 0.16;
+      if (u >= 0.22 && u < 0.25) return -((u - 0.22) / 0.03) * 0.22;
+      if (u >= 0.25 && u < 0.285) return -0.22 + ((u - 0.25) / 0.035) * 1.22;
+      if (u >= 0.285 && u < 0.32) return 1.0 - ((u - 0.285) / 0.035) * 1.38;
+      if (u >= 0.32 && u < 0.36) return -0.38 + ((u - 0.32) / 0.04) * 0.38;
+      if (u >= 0.48 && u < 0.64) return Math.sin(((u - 0.48) / 0.16) * Math.PI) * 0.27;
+      return 0;
+    }
+
+    function _triggerIntroShockwave(doubleWave) {
+      const sw1 = document.getElementById("intro-shockwave-1");
+      const sw2 = document.getElementById("intro-shockwave-2");
+      if (sw1) {
+        sw1.classList.remove("animate");
+        void sw1.offsetWidth;
+        sw1.classList.add("animate");
+      }
+      if (doubleWave && sw2) {
+        introTimers.push(setTimeout(() => {
+          sw2.classList.remove("animate");
+          void sw2.offsetWidth;
+          sw2.classList.add("animate");
+        }, 140));
+      }
+    }
+
+    function _triggerIntroSweep() {
+      const sweep = document.getElementById("intro-logo-sweep");
+      if (!sweep) return;
+      sweep.classList.remove("run");
+      void sweep.offsetWidth;
+      sweep.classList.add("run");
+    }
+
+    function _renderIntroEcg(now) {
+      if (!introActive) return;
+      const canvas = document.getElementById("intro-ecg-canvas");
+      if (!canvas || typeof canvas.getContext !== "function") return;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+
+      const rect = canvas.parentElement.getBoundingClientRect();
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const width = Math.max(rect.width, 1);
+      const height = Math.max(rect.height, 1);
+      const targetW = Math.floor(width * dpr);
+      const targetH = Math.floor(height * dpr);
+      if (canvas.width !== targetW || canvas.height !== targetH) {
+        canvas.width = targetW;
+        canvas.height = targetH;
+      }
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      const dt = Math.min(0.05, Math.max(0.001, (now - introLastTime) / 1000));
+      introLastTime = now;
+
+      const bpmEl = document.getElementById("intro-bpm-value");
+      if (!introEcgFlatline) {
+        introDisplayBpm += (148 - introDisplayBpm) * Math.min(1, dt * 4.0);
+        if (bpmEl) bpmEl.textContent = String(Math.round(introDisplayBpm));
+      }
+
+      const effectiveBpm = introEcgFlatline ? 60 : Math.max(60, introDisplayBpm);
+      introPhase += dt * ((effectiveBpm / 60) * 0.85);
+      if (introPhase >= 1) {
+        introPhase -= 1;
+        introBeatTriggered = false;
+      }
+
+      if (!introEcgFlatline && !introBeatTriggered && introPhase >= 0.28) {
+        introBeatTriggered = true;
+        const stage = document.getElementById("intro-emblem-stage");
+        if (stage) {
+          stage.classList.add("beat-pulse");
+          introTimers.push(setTimeout(() => stage.classList.remove("beat-pulse"), 130));
+        }
+      }
+
+      introCursorX = (introCursorX + 185 * dt) % width;
+      const midY = height * 0.56;
+      const amp = height * 0.36;
+      const sampleY = midY - _ecgSample(introPhase) * amp;
+
+      introTrail.push({ x: introCursorX, y: sampleY });
+      if (introTrail.length > 260) introTrail.shift();
+
+      const rootStyles = getComputedStyle(document.documentElement);
+      const ecgAccent = rootStyles.getPropertyValue('--ds-accent').trim() || '#b1cc5b';
+      const ecgAccentRgb = rootStyles.getPropertyValue('--ds-accent-rgb').trim() || '177, 204, 91';
+
+      ctx.clearRect(0, 0, width, height);
+      ctx.strokeStyle = `rgba(${ecgAccentRgb}, 0.12)`;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      for (let gx = 0; gx < width; gx += 28) {
+        ctx.moveTo(gx, 0);
+        ctx.lineTo(gx, height);
+      }
+      ctx.moveTo(0, midY);
+      ctx.lineTo(width, midY);
+      ctx.stroke();
+
+      for (let i = 1; i < introTrail.length; i++) {
+        const p0 = introTrail[i - 1];
+        const p1 = introTrail[i];
+        if (Math.abs(p1.x - p0.x) > 40) continue;
+        const alpha = (i / introTrail.length) ** 1.6;
+        ctx.strokeStyle = `rgba(${ecgAccentRgb}, ${(alpha * 0.95).toFixed(3)})`;
+        ctx.lineWidth = 1.4 + alpha * 1.4;
+        ctx.shadowColor = ecgAccent;
+        ctx.shadowBlur = alpha > 0.6 ? 12 : 0;
+        ctx.beginPath();
+        ctx.moveTo(p0.x, p0.y);
+        ctx.lineTo(p1.x, p1.y);
+        ctx.stroke();
+      }
+
+      if (introTrail.length > 0) {
+        const head = introTrail[introTrail.length - 1];
+        ctx.shadowColor = "#ffffff";
+        ctx.shadowBlur = 14;
+        ctx.fillStyle = "#ffffff";
+        ctx.beginPath();
+        ctx.arc(head.x, head.y, 3, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      }
+
+      if (typeof requestAnimationFrame === "function") {
+        introRafId = requestAnimationFrame(_renderIntroEcg);
+      }
+    }
+
+    function _handleIntroEscape(e) {
+      if (e.key === "Escape" && introActive) {
+        e.preventDefault();
+        e.stopPropagation();
+        closePwaIntro(false);
+      }
+    }
+
+    function closePwaIntro(immediate = false) {
+      const overlay = document.getElementById("pwa-intro-overlay");
+      if (!overlay) return;
+      _clearIntroTimers();
+      introActive = false;
+      window.removeEventListener("keydown", _handleIntroEscape, true);
+      try {
+        sessionStorage.setItem(PWA_INTRO_SEEN_KEY, "1");
+      } catch (err) {
+        // Ignora errori storage
+      }
+
+      if (immediate) {
+        _stopIntroLoop();
+        overlay.classList.remove("is-fading-out");
+        overlay.classList.add("is-hidden");
+        return;
+      }
+
+      overlay.classList.add("is-fading-out");
+      introTimers.push(setTimeout(() => {
+        _stopIntroLoop();
+        overlay.classList.add("is-hidden");
+        overlay.classList.remove("is-fading-out");
+      }, 450));
+    }
+
+    function triggerHeaderLogoReplay() {
+      const btn = document.getElementById("header-brand-logo-btn");
+      if (btn) {
+        btn.classList.remove("is-replaying");
+        void btn.offsetWidth;
+        btn.classList.add("is-replaying");
+        setTimeout(() => btn.classList.remove("is-replaying"), 600);
+      }
+      playPwaIntro(true);
+    }
+
+    function playPwaIntro(forceReplay = false) {
+      try {
+        if (!forceReplay && sessionStorage.getItem(PWA_INTRO_SEEN_KEY)) {
+          return;
+        }
+      } catch (err) {
+        // Continua se storage non disponibile
+      }
+      const overlay = document.getElementById("pwa-intro-overlay");
+      if (!overlay) return;
+
+      _clearIntroTimers();
+      _stopIntroLoop();
+      introActive = true;
+      introEcgFlatline = true;
+      introDisplayBpm = 72;
+      introCursorX = 0;
+      introPhase = 0;
+      introBeatTriggered = false;
+      introTrail = [];
+      introLastTime = (typeof performance !== "undefined" && performance.now) ? performance.now() : Date.now();
+
+      const statusEl = document.getElementById("intro-status-text");
+      const ecgLabelEl = document.getElementById("intro-ecg-label");
+      const bpmEl = document.getElementById("intro-bpm-value");
+
+      overlay.classList.remove("is-hidden", "is-fading-out", "boot-rings", "boot-glow", "boot-logo");
+      if (statusEl) statusEl.textContent = "PIPELINE SYNC...";
+      if (ecgLabelEl) ecgLabelEl.textContent = "RELEASE TELEMETRY // CALIBRATING";
+      if (bpmEl) bpmEl.textContent = "--";
+
+      window.addEventListener("keydown", _handleIntroEscape, true);
+      if (typeof requestAnimationFrame === "function") {
+        introRafId = requestAnimationFrame(_renderIntroEcg);
+      }
+
+      const reducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (reducedMotion) {
+        introEcgFlatline = false;
+        overlay.classList.add("boot-rings", "boot-glow", "boot-logo");
+        if (statusEl) statusEl.textContent = "RELEASE HUD ONLINE";
+        if (ecgLabelEl) ecgLabelEl.textContent = "RELEASE TELEMETRY // SINUS LOCK";
+        if (bpmEl) bpmEl.textContent = "148";
+        introTimers.push(setTimeout(() => closePwaIntro(false), 1500));
+        return;
+      }
+
+      introTimers.push(setTimeout(() => {
+        if (!introActive) return;
+        introEcgFlatline = false;
+        overlay.classList.add("boot-rings");
+        if (statusEl) statusEl.textContent = "PULSE LOCKED";
+        if (ecgLabelEl) ecgLabelEl.textContent = "RELEASE TELEMETRY // SINUS LOCK";
+        _triggerIntroShockwave(false);
+      }, 80));
+
+      introTimers.push(setTimeout(() => {
+        if (!introActive) return;
+        overlay.classList.add("boot-glow", "boot-logo");
+        if (statusEl) statusEl.textContent = "OPTICAL SYNC";
+        _startIntroLogoCycle();
+        _triggerIntroSweep();
+        _triggerIntroShockwave(true);
+      }, 220));
+
+      introTimers.push(setTimeout(() => {
+        if (!introActive) return;
+        if (statusEl) statusEl.textContent = "RELEASE HUD ONLINE";
+      }, 1150));
+
+      introTimers.push(setTimeout(() => {
+        if (!introActive) return;
+        closePwaIntro(false);
+      }, 2250));
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const introOverlay = document.getElementById("pwa-intro-overlay");
+      if (introOverlay) {
+        introOverlay.addEventListener("click", (e) => {
+          if (e.target === introOverlay) {
+            closePwaIntro(false);
+          }
+        });
+      }
+      fetchStatus();
+      fetchStagingStatus();
+      setInterval(fetchStagingStatus, 5000);
+      playPwaIntro(false);
+    });
+  </script>
+  <script src="/scripts/static/bot_restart.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      fetchBotStatus();
+      setInterval(fetchBotStatus, 5000);
+    });
+  </script>
+</body>
+</html>

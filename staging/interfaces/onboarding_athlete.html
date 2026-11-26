@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="it" class="dark" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#b1cc5b">
+  <script>
+    (function () {
+      try {
+        var p = localStorage.getItem('hud_palette') || '00';
+        if (['00', '10', '20', '30'].indexOf(p) !== -1) {
+          document.documentElement.setAttribute('data-hud-palette', p);
+        }
+      } catch (e) {}
+    })();
+  </script>
+  <title>Candidatura Atleta | Hybrid Performance Hub</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              yellow: 'var(--ds-accent)',
+              lime: 'var(--ds-accent)',
+              gold: 'var(--ds-accent-sec)',
+              teal: '#2dd4bf',
+              purple: '#a855f7',
+              orange: '#FF5E00',
+              cyan: '#2dd4bf',
+              dark: '#12171e',
+              surface: '#161c24',
+              card: '#161c24',
+              elevated: '#1e252f',
+              border: '#2c3644'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="assets/ui-feedback.css">
+  <link rel="stylesheet" href="assets/theme.css">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/jpeg" href="assets/logo/00.jpeg">
+  <link rel="apple-touch-icon" href="assets/logo/00.jpeg">
+  <script src="assets/ui-feedback.js"></script>
+  <style>
+    body {
+      font-family: var(--ds-font-sans, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
+      background-color: var(--ds-bg, #12171e);
+      color: var(--ds-text, #f1f5f9);
+    }
+    .font-teko { font-family: var(--ds-font-display, inherit); }
+  </style>
+</head>
+<body class="bg-[#12171e] text-slate-100 min-h-screen flex flex-col justify-between antialiased overflow-x-hidden">
+
+  <!-- HEADER -->
+  <header class="hud-header-themed border-b border-[var(--ds-header-border)] px-6 py-4 bg-[#12171e]/90 backdrop-blur sticky top-0 z-40">
+    <div class="max-w-4xl mx-auto flex items-center justify-between gap-3 flex-wrap">
+      <div class="flex items-center space-x-3.5 min-w-0">
+        <div class="w-10 h-10 rounded-full border-2 border-[var(--ds-accent)] overflow-hidden bg-[#161c24] shadow-[var(--ds-glow-soft)] flex items-center justify-center shrink-0">
+          <img src="assets/logo/00.jpeg" alt="Logo Hybrid Performance Hub" class="w-full h-full object-cover">
+        </div>
+        <div class="min-w-0">
+          <h1 class="text-base font-bold text-white tracking-wide truncate">Hybrid Performance Hub</h1>
+          <p class="text-xs text-slate-300 truncate">Head Coach <strong class="text-[var(--ds-accent)]">Coach</strong></p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2.5 flex-wrap">
+        <span class="text-xs px-2.5 py-1 bg-[rgba(var(--ds-accent-rgb),0.12)] text-[var(--ds-accent-bright)] border border-[var(--ds-border-subtle)] rounded-full font-semibold">
+          Candidatura Atleta
+        </span>
+        <a href="../index.html" aria-label="Torna alla pagina principale" class="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs text-slate-300 hover:text-[var(--ds-accent)] hover:bg-slate-800/60 border border-slate-800 hover:border-[var(--ds-border-subtle)] transition">
+          <i class="fa-solid fa-arrow-left text-xs" aria-hidden="true"></i>
+          <span>Home</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="px-4 py-8 sm:py-12 flex-1 w-full">
+    <div class="max-w-xl mx-auto glass-card glass-card--themed rounded-2xl p-6 sm:p-8 border-t-4 border-t-[var(--ds-accent)] bg-[#161c24] border border-[var(--ds-border-subtle)] shadow-2xl space-y-6">
+
+      <!-- HERO INTRO -->
+      <div class="border-b border-slate-800 pb-4 space-y-1.5">
+        <div class="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[var(--ds-accent)]">
+          <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
+          <span>Richiesta di Accesso</span>
+        </div>
+        <h2 class="text-xl sm:text-2xl font-bold text-white tracking-tight">Candidatura Nuovo Atleta</h2>
+        <p class="text-xs text-slate-300 leading-relaxed">
+          Inserisci i tuoi dati anagrafici e di contatto per inviare la richiesta a <strong class="text-white">Coach Coach</strong>.
+        </p>
+      </div>
+
+      <!-- FORM ANAGRAFICO -->
+      <form id="athlete-onboard-form" onsubmit="submitAthleteForm(event)" novalidate class="space-y-4 text-xs">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label for="at-first-name" class="block text-slate-200 font-semibold mb-1.5">
+              Nome <span class="text-[var(--ds-accent)]">*</span>
+            </label>
+            <input
+              type="text"
+              id="at-first-name"
+              name="first_name"
+              required
+              autocomplete="given-name"
+              placeholder="Es. Luca"
+              aria-required="true"
+              aria-describedby="err-at-first-name"
+              class="w-full bg-[#10151c] border border-slate-700 rounded-xl px-3.5 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-[var(--ds-accent)] transition"
+            >
+            <span id="err-at-first-name" class="text-red-400 text-xs hidden mt-1 block" role="alert">
+              Inserisci il tuo nome.
+            </span>
+          </div>
+
+          <div>
+            <label for="at-last-name" class="block text-slate-200 font-semibold mb-1.5">
+              Cognome <span class="text-[var(--ds-accent)]">*</span>
+            </label>
+            <input
+              type="text"
+              id="at-last-name"
+              name="last_name"
+              required
+              autocomplete="family-name"
+              placeholder="Es. Bianchi"
+              aria-required="true"
+              aria-describedby="err-at-last-name"
+              class="w-full bg-[#10151c] border border-slate-700 rounded-xl px-3.5 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-[var(--ds-accent)] transition"
+            >
+            <span id="err-at-last-name" class="text-red-400 text-xs hidden mt-1 block" role="alert">
+              Inserisci il tuo cognome.
+            </span>
+          </div>
+        </div>
+
+        <div>
+          <label for="at-email" class="block text-slate-200 font-semibold mb-1.5">
+            Email <span class="text-[var(--ds-accent)]">*</span>
+          </label>
+          <input
+            type="email"
+            id="at-email"
+            name="email"
+            required
+            autocomplete="email"
+            placeholder="nome.cognome@dominio.it"
+            aria-required="true"
+            aria-describedby="err-at-email"
+            class="w-full bg-[#10151c] border border-slate-700 rounded-xl px-3.5 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-[var(--ds-accent)] transition"
+          >
+          <span id="err-at-email" class="text-red-400 text-xs hidden mt-1 block" role="alert">
+            Inserisci un indirizzo email valido.
+          </span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label for="at-phone" class="block text-slate-200 font-semibold mb-1.5">
+              Telefono / WhatsApp <span class="text-slate-400 font-normal">(consigliato)</span>
+            </label>
+            <input
+              type="tel"
+              id="at-phone"
+              name="phone"
+              autocomplete="tel"
+              placeholder="Es. +39 300 000 0000"
+              aria-describedby="err-at-phone"
+              class="w-full bg-[#10151c] border border-slate-700 rounded-xl px-3.5 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-[var(--ds-accent)] transition"
+            >
+            <span id="err-at-phone" class="text-red-400 text-xs hidden mt-1 block" role="alert">
+              Inserisci un numero di telefono valido oppure lascia vuoto.
+            </span>
+          </div>
+
+          <div>
+            <label for="at-city" class="block text-slate-200 font-semibold mb-1.5">
+              Città <span class="text-[var(--ds-accent)]">*</span>
+            </label>
+            <input
+              type="text"
+              id="at-city"
+              name="city"
+              required
+              autocomplete="address-level2"
+              placeholder="Es. Milano"
+              aria-required="true"
+              aria-describedby="err-at-city"
+              class="w-full bg-[#10151c] border border-slate-700 rounded-xl px-3.5 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-[var(--ds-accent)] transition"
+            >
+            <span id="err-at-city" class="text-red-400 text-xs hidden mt-1 block" role="alert">
+              Inserisci la tua città.
+            </span>
+          </div>
+        </div>
+
+        <!-- BOX INFORMATIVO 3 MICRO-PASSAGGI -->
+        <div class="p-4 rounded-xl bg-[#12171e]/80 border border-[var(--ds-border-subtle)] space-y-2.5" role="region" aria-label="Come funziona dopo la richiesta">
+          <div class="flex items-center gap-2 text-xs font-bold text-slate-100">
+            <i class="fa-solid fa-circle-info text-[var(--ds-accent)]" aria-hidden="true"></i>
+            <span>Come funziona dopo la richiesta</span>
+          </div>
+          <ol class="space-y-2 text-xs text-slate-300">
+            <li class="flex items-start gap-2.5">
+              <span class="w-5 h-5 rounded-full bg-[rgba(var(--ds-accent-rgb),0.15)] text-[var(--ds-accent)] border border-[var(--ds-border-subtle)] font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">1</span>
+              <span>Valutazione della candidatura da parte del Coach.</span>
+            </li>
+            <li class="flex items-start gap-2.5">
+              <span class="w-5 h-5 rounded-full bg-[rgba(var(--ds-accent-rgb),0.15)] text-[var(--ds-accent)] border border-[var(--ds-border-subtle)] font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">2</span>
+              <span>Dopo l'approvazione riceverai il link personale per accedere al Bot Telegram.</span>
+            </li>
+            <li class="flex items-start gap-2.5">
+              <span class="w-5 h-5 rounded-full bg-[rgba(var(--ds-accent-rgb),0.15)] text-[var(--ds-accent)] border border-[var(--ds-border-subtle)] font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">3</span>
+              <span>Su Telegram completerai il questionario tecnico e il collegamento sicuro a Garmin.</span>
+            </li>
+          </ol>
+        </div>
+
+        <!-- SUBMIT -->
+        <div class="pt-2">
+          <button
+            type="submit"
+            id="btn-submit-onboarding"
+            aria-label="Invia candidatura al Coach "
+            class="btn-tactical btn-tactical--primary w-full text-sm font-extrabold min-h-[44px]"
+          >
+            <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
+            <span>Invia Candidatura</span>
+          </button>
+        </div>
+      </form>
+
+      <!-- SUCCESS MESSAGE (HIDDEN INITIALLY) -->
+      <div id="success-box" aria-live="polite" role="status" class="hidden text-center py-6 space-y-4">
+        <div class="w-16 h-16 bg-[rgba(var(--ds-accent-rgb),0.12)] border border-[var(--ds-border-subtle)] text-[var(--ds-accent)] rounded-full flex items-center justify-center mx-auto text-2xl shadow-[var(--ds-glow-soft)]">
+          <i class="fa-solid fa-check" aria-hidden="true"></i>
+        </div>
+        <div class="space-y-2">
+          <span class="inline-block text-xs font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[rgba(var(--ds-accent-rgb),0.14)] text-[var(--ds-accent-bright)] border border-[var(--ds-border-subtle)]">
+            Richiesta Registrata
+          </span>
+          <h3 class="text-xl font-bold text-white">Candidatura Inviata con Successo!</h3>
+          <p id="success-summary" class="text-xs text-slate-300 max-w-md mx-auto leading-relaxed">
+            La tua richiesta è stata recapitata a <strong class="text-white">Coach Coach</strong>.
+          </p>
+        </div>
+
+        <!-- CTA COLLEGA TELEGRAM IMMEDIATO -->
+        <div id="telegram-connect-box" class="p-4 rounded-xl bg-[rgba(var(--ds-accent-rgb),0.08)] border border-[var(--ds-accent)] text-center max-w-md mx-auto space-y-3">
+          <div class="text-xs font-semibold text-white">
+            👉 <strong>Passaggio Fondamentale:</strong> Collega subito il tuo account Telegram per ricevere la notifica automatica di approvazione dal Coach.
+          </div>
+          <a
+            id="btn-connect-telegram"
+            href="https://t.me/hyrox_test_cordy2_bot?start=cand_pending"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="btn-tactical btn-tactical--primary w-full text-xs font-extrabold min-h-[44px] flex items-center justify-center gap-2"
+          >
+            <i class="fa-brands fa-telegram text-base" aria-hidden="true"></i>
+            <span>Collega il tuo account Telegram</span>
+          </a>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-[#12171e]/80 border border-[var(--ds-border-subtle)] text-xs text-slate-300 max-w-md mx-auto flex items-start gap-2.5 text-left">
+          <i class="fa-solid fa-shield-halved text-[var(--ds-accent)] mt-0.5 shrink-0" aria-hidden="true"></i>
+          <span>Dopo aver avviato il bot su Telegram, riceverai la notifica di benvenuto e il link per completare la configurazione non appena il Coach approverà la richiesta.</span>
+        </div>
+        <div class="pt-2">
+          <a href="../index.html" aria-label="Torna all'Hub Principale" class="btn-tactical btn-tactical--secondary px-5 py-2.5 text-xs min-h-[44px]">
+            <i class="fa-solid fa-house" aria-hidden="true"></i>
+            <span>Torna all'Hub Principale</span>
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- OVERLAY CARICAMENTO 4-LOGHI HUD -->
+  <div id="onboarding-hud-loader" class="fixed inset-0 z-50 hidden flex-col items-center justify-center gap-4 bg-[#0d1117]/90 backdrop-blur-md p-6 text-center" role="status" aria-live="polite" aria-label="Invio candidatura in corso">
+    <div class="relative flex items-center justify-center p-2 rounded-full border-2 border-[var(--ds-accent)] shadow-[var(--ds-glow-intense)] bg-[#12171e]">
+      <div id="onboarding-four-logo-mount" class="four-logo-loader w-24 h-24 rounded-full overflow-hidden" data-four-logo-loader="true">
+        <img data-hud-logo-frame="00" src="assets/logo/00.jpeg" alt="Logo Lime / Hyrox" class="intro-logo-img active" />
+        <img data-hud-logo-frame="10" src="assets/logo/10.jpeg" alt="Logo Titanium / Race PR" class="intro-logo-img" />
+        <img data-hud-logo-frame="20" src="assets/logo/20.jpeg" alt="Logo Viola / Night Trail" class="intro-logo-img" />
+        <img data-hud-logo-frame="30" src="assets/logo/30.jpeg" alt="Logo Teal / Lava Coral" class="intro-logo-img" />
+      </div>
+    </div>
+    <div class="space-y-1">
+      <div class="text-sm font-extrabold uppercase tracking-widest text-white">INVIO CANDIDATURA IN CORSO...</div>
+      <div class="text-xs font-mono uppercase tracking-[0.18em] text-[var(--ds-accent-bright)]">TRASMISSIONE PROFILO AL COACH</div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="border-t border-slate-800 py-6 text-center text-xs text-slate-400 bg-[#12171e]">
+    <p>Hybrid Performance Hub • Head Coach Coach</p>
+  </footer>
+
+  <script>
+    const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbyrgO6qYP-7tck-9XNHyhHFkX9jFhJ-fJxQvCLOSUE9CVxeE8czDvlrnYF6kK1y19Y9zQ/exec";
+    const BOT_HANDLE = "hyrox_test_cordy2_bot";
+
+    function setFieldError(inputId, errorId, hasError, customMessage) {
+      const inputEl = document.getElementById(inputId);
+      const errEl = document.getElementById(errorId);
+      if (inputEl) {
+        if (hasError) {
+          inputEl.setAttribute("aria-invalid", "true");
+          inputEl.classList.add("border-red-500");
+        } else {
+          inputEl.removeAttribute("aria-invalid");
+          inputEl.classList.remove("border-red-500");
+        }
+      }
+      if (errEl) {
+        if (customMessage) errEl.textContent = customMessage;
+        errEl.classList.toggle("hidden", !hasError);
+      }
+    }
+
+    function validateAthleteForm() {
+      const firstNameEl = document.getElementById("at-first-name");
+      const lastNameEl = document.getElementById("at-last-name");
+      const emailEl = document.getElementById("at-email");
+      const phoneEl = document.getElementById("at-phone");
+      const cityEl = document.getElementById("at-city");
+
+      const firstName = firstNameEl ? firstNameEl.value.trim() : "";
+      const lastName = lastNameEl ? lastNameEl.value.trim() : "";
+      const email = emailEl ? emailEl.value.trim() : "";
+      const phone = phoneEl ? phoneEl.value.trim() : "";
+      const city = cityEl ? cityEl.value.trim() : "";
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const phoneDigits = phone.replace(/\D/g, "");
+
+      let firstInvalidEl = null;
+
+      const invalidFirstName = firstName.length === 0;
+      setFieldError("at-first-name", "err-at-first-name", invalidFirstName);
+      if (invalidFirstName && !firstInvalidEl) firstInvalidEl = firstNameEl;
+
+      const invalidLastName = lastName.length === 0;
+      setFieldError("at-last-name", "err-at-last-name", invalidLastName);
+      if (invalidLastName && !firstInvalidEl) firstInvalidEl = lastNameEl;
+
+      const invalidEmail = !emailRegex.test(email);
+      setFieldError("at-email", "err-at-email", invalidEmail);
+      if (invalidEmail && !firstInvalidEl) firstInvalidEl = emailEl;
+
+      const invalidPhone = phone.length > 0 && phoneDigits.length < 6;
+      setFieldError("at-phone", "err-at-phone", invalidPhone);
+      if (invalidPhone && !firstInvalidEl) firstInvalidEl = phoneEl;
+
+      const invalidCity = city.length === 0;
+      setFieldError("at-city", "err-at-city", invalidCity);
+      if (invalidCity && !firstInvalidEl) firstInvalidEl = cityEl;
+
+      if (firstInvalidEl) {
+        firstInvalidEl.focus();
+        if (window.UIFeedback) {
+          UIFeedback.toast({
+            title: "Dati incompleti o non validi",
+            message: "Verifica i campi evidenziati prima di inviare la candidatura.",
+            type: "warning",
+            duration: 4500
+          });
+        }
+        return false;
+      }
+
+      return true;
+    }
+
+    let onboardingLogoCycle = null;
+
+    function showOnboardingHudLoader() {
+      const overlay = document.getElementById("onboarding-hud-loader");
+      const mount = document.getElementById("onboarding-four-logo-mount");
+      if (overlay) {
+        overlay.classList.remove("hidden");
+        overlay.classList.add("flex");
+      }
+      if (mount && window.UIFeedback && typeof window.UIFeedback.mountFourLogoCycle === "function") {
+        onboardingLogoCycle = window.UIFeedback.mountFourLogoCycle(mount, {
+          intervalMs: 650,
+          frames: ["00", "10", "20", "30"],
+          resetOnStop: true
+        });
+      }
+    }
+
+    function hideOnboardingHudLoader() {
+      if (onboardingLogoCycle && typeof onboardingLogoCycle.stop === "function") {
+        onboardingLogoCycle.stop(true);
+        onboardingLogoCycle = null;
+      }
+      const overlay = document.getElementById("onboarding-hud-loader");
+      if (overlay) {
+        overlay.classList.add("hidden");
+        overlay.classList.remove("flex");
+      }
+    }
+
+    async function submitAthleteForm(e) {
+      e.preventDefault();
+      if (!validateAthleteForm()) return;
+
+      const btn = document.getElementById("btn-submit-onboarding");
+      const originalBtnHtml = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin" aria-hidden="true"></i> <span>Invio in corso...</span>';
+      showOnboardingHudLoader();
+
+      const firstName = document.getElementById("at-first-name").value.trim();
+      const lastName = document.getElementById("at-last-name").value.trim();
+      const email = document.getElementById("at-email").value.trim();
+      const phone = document.getElementById("at-phone").value.trim();
+      const city = document.getElementById("at-city").value.trim();
+      const fullName = firstName + " " + lastName;
+
+      const candToken = "cand_" + Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
+      const payload = {
+        action: "submit_onboarding",
+        first_name: firstName,
+        last_name: lastName,
+        name: fullName,
+        email: email,
+        phone: phone,
+        contact: phone || email,
+        city: city,
+        candidature_token: candToken,
+        submitted_at: new Date().toISOString()
+      };
+
+      try {
+        await fetch(WEBHOOK_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify(payload)
+        });
+      } catch (err) {
+        console.warn("Errore invio candidatura:", err);
+        hideOnboardingHudLoader();
+        btn.disabled = false;
+        btn.innerHTML = originalBtnHtml;
+        if (window.UIFeedback) {
+          UIFeedback.toast({
+            title: "Errore di connessione",
+            message: "Impossibile inviare la candidatura in questo momento. Riprova tra poco.",
+            type: "error",
+            duration: 6000
+          });
+        }
+        return;
+      }
+      hideOnboardingHudLoader();
+
+      if (window.UIFeedback) {
+        UIFeedback.toast({
+          title: "Candidatura Inviata!",
+          message: `Richiesta inviata per ${fullName}. Attendi la valutazione del Coach.`,
+          type: "success",
+          duration: 5000
+        });
+      }
+
+      const summaryEl = document.getElementById("success-summary");
+      if (summaryEl) {
+        summaryEl.textContent = "";
+        summaryEl.appendChild(document.createTextNode("Grazie "));
+        const strongName = document.createElement("strong");
+        strongName.className = "text-white";
+        strongName.textContent = fullName;
+        summaryEl.appendChild(strongName);
+        summaryEl.appendChild(document.createTextNode(": la tua candidatura è stata recapitata a Coach Coach."));
+      }
+
+      const tgBtn = document.getElementById("btn-connect-telegram");
+      if (tgBtn) {
+        const cleanHandle = (BOT_HANDLE || "").replace(/^@/, "").trim();
+        if (cleanHandle && !cleanHandle.startsWith("{")) {
+          tgBtn.href = "https://t.me/" + cleanHandle + "?start=" + candToken;
+        }
+      }
+
+      document.getElementById("athlete-onboard-form").classList.add("hidden");
+      const successBox = document.getElementById("success-box");
+      successBox.classList.remove("hidden");
+      successBox.setAttribute("tabindex", "-1");
+      successBox.focus();
+    }
+  </script>
+</body>
+</html>
