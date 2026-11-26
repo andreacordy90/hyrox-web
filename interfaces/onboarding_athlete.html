@@ -252,12 +252,29 @@
           <h3 class="text-xl font-bold text-white">Candidatura Inviata con Successo!</h3>
           <p id="success-summary" class="text-xs text-slate-300 max-w-md mx-auto leading-relaxed">
             La tua richiesta è stata recapitata a <strong class="text-white">Coach Coach</strong>.
-            Dopo la valutazione e l'approvazione, il Coach ti invierà direttamente il tuo link personale per completare la configurazione.
           </p>
         </div>
+
+        <!-- CTA COLLEGA TELEGRAM IMMEDIATO -->
+        <div id="telegram-connect-box" class="p-4 rounded-xl bg-[rgba(var(--ds-accent-rgb),0.08)] border border-[var(--ds-accent)] text-center max-w-md mx-auto space-y-3">
+          <div class="text-xs font-semibold text-white">
+            👉 <strong>Passaggio Fondamentale:</strong> Collega subito il tuo account Telegram per ricevere la notifica automatica di approvazione dal Coach.
+          </div>
+          <a
+            id="btn-connect-telegram"
+            href="https://t.me/andrea_hyrox_coach_bot?start=cand_pending"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="btn-tactical btn-tactical--primary w-full text-xs font-extrabold min-h-[44px] flex items-center justify-center gap-2"
+          >
+            <i class="fa-brands fa-telegram text-base" aria-hidden="true"></i>
+            <span>Collega il tuo account Telegram</span>
+          </a>
+        </div>
+
         <div class="p-3.5 rounded-xl bg-[#12171e]/80 border border-[var(--ds-border-subtle)] text-xs text-slate-300 max-w-md mx-auto flex items-start gap-2.5 text-left">
           <i class="fa-solid fa-shield-halved text-[var(--ds-accent)] mt-0.5 shrink-0" aria-hidden="true"></i>
-          <span>Controlla la tua email o i tuoi messaggi: riceverai l'accesso personale riservato non appena la candidatura sarà approvata.</span>
+          <span>Dopo aver avviato il bot su Telegram, riceverai la notifica di benvenuto e il link per completare la configurazione non appena il Coach approverà la richiesta.</span>
         </div>
         <div class="pt-2">
           <a href="../index.html" aria-label="Torna all'Hub Principale" class="btn-tactical btn-tactical--secondary px-5 py-2.5 text-xs min-h-[44px]">
@@ -293,6 +310,7 @@
 
   <script>
     const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxPti1imOEgoYrJimCthCMkCyqwmTFwbIMOZoclu9ayNaC5WdkVjMfUlU3naunw_vJNuw/exec";
+    const BOT_HANDLE = "andrea_hyrox_coach_bot";
 
     function setFieldError(inputId, errorId, hasError, customMessage) {
       const inputEl = document.getElementById(inputId);
@@ -413,6 +431,7 @@
       const city = document.getElementById("at-city").value.trim();
       const fullName = firstName + " " + lastName;
 
+      const candToken = "cand_" + Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
       const payload = {
         action: "submit_onboarding",
         first_name: firstName,
@@ -422,6 +441,7 @@
         phone: phone,
         contact: phone || email,
         city: city,
+        candidature_token: candToken,
         submitted_at: new Date().toISOString()
       };
 
@@ -466,7 +486,15 @@
         strongName.className = "text-white";
         strongName.textContent = fullName;
         summaryEl.appendChild(strongName);
-        summaryEl.appendChild(document.createTextNode(": la tua candidatura è stata recapitata a Coach Coach. Dopo l'approvazione, il Coach ti invierà direttamente il link personale per accedere al percorso."));
+        summaryEl.appendChild(document.createTextNode(": la tua candidatura è stata recapitata a Coach Coach."));
+      }
+
+      const tgBtn = document.getElementById("btn-connect-telegram");
+      if (tgBtn) {
+        const cleanHandle = (BOT_HANDLE || "").replace(/^@/, "").trim();
+        if (cleanHandle && !cleanHandle.startsWith("{")) {
+          tgBtn.href = "https://t.me/" + cleanHandle + "?start=" + candToken;
+        }
       }
 
       document.getElementById("athlete-onboard-form").classList.add("hidden");

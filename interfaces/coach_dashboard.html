@@ -733,13 +733,14 @@
       <!-- =========================================================================
            SCHEDA ADATTAMENTO INTELLIGENTE SETTIMANALE 1-TAP (ISSUE #292 / ADAPT-04)
            ========================================================================= -->
-      <section id="weekly-adaptation-panel" aria-labelledby="weekly-adaptation-title" class="glass-card glass-card--themed rounded-2xl p-4 sm:p-6 border border-[var(--ds-border-subtle)] space-y-4">
+      <section id="weekly-adaptation-panel" aria-labelledby="weekly-adaptation-title" class="glass-card glass-card--themed rounded-2xl p-4 sm:p-6 border border-[var(--ds-border-subtle)] space-y-4 hidden">
         <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pb-3 border-b border-slate-800/80">
           <div class="min-w-0">
             <div class="flex items-center gap-2 flex-wrap">
               <h2 id="weekly-adaptation-title" class="text-base sm:text-lg font-bold text-white flex items-center gap-2">
                 <span>💡 Proposta Adattamento Settimanale (Entro le 15:00)</span>
               </h2>
+              <span id="weekly-adaptation-target-athlete" class="hidden px-2.5 py-0.5 text-xs font-bold rounded-full bg-cyan-500/20 text-cyan-200 border border-cyan-500/40"></span>
               <span id="weekly-adaptation-status-badge" class="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-slate-800 text-slate-200 border border-slate-700">
                 In attesa proposta
               </span>
@@ -1876,6 +1877,16 @@
       renderWeeklyAdaptationPanel();
     }
 
+    function focusWeeklyAdaptation(athleteId) {
+      if (!athleteId) return;
+      selectWeeklyAdaptationAthlete(athleteId);
+      const panel = document.getElementById("weekly-adaptation-panel");
+      if (panel) {
+        panel.classList.remove("hidden");
+        panel.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
+
     function setWeeklyAdaptationProposalsFromData(sourceData, athletesList) {
       const normalized = normalizeWeeklyAdaptationProposals(sourceData, athletesList);
       if (normalized.length > 0) {
@@ -1900,6 +1911,8 @@
       }
 
       const proposal = getSelectedWeeklyAdaptation();
+      const panelEl = document.getElementById("weekly-adaptation-panel");
+      const targetAthleteBadge = document.getElementById("weekly-adaptation-target-athlete");
       const selectorWrap = document.getElementById("weekly-adaptation-selector-wrap");
       const selectorEl = document.getElementById("adaptation-athlete-select");
       const statusBadge = document.getElementById("weekly-adaptation-status-badge");
@@ -1930,6 +1943,11 @@
       }
 
       if (!proposal) {
+        if (panelEl) panelEl.classList.add("hidden");
+        if (targetAthleteBadge) {
+          targetAthleteBadge.classList.add("hidden");
+          targetAthleteBadge.textContent = "";
+        }
         if (statusBadge) {
           statusBadge.textContent = "In attesa proposta";
           statusBadge.className = "px-2.5 py-0.5 text-xs font-semibold rounded-full bg-slate-800 text-slate-200 border border-slate-700";
@@ -1944,6 +1962,12 @@
           approveBtn.innerHTML = '<span>✅ Approva e Aggiorna Foglio</span>';
         }
         return;
+      }
+
+      if (panelEl) panelEl.classList.remove("hidden");
+      if (targetAthleteBadge) {
+        targetAthleteBadge.textContent = `Atleta: ${proposal.athlete_name}`;
+        targetAthleteBadge.classList.remove("hidden");
       }
 
       const runInfo = formatAdaptationActionBadge(proposal.pillars.running, "running");
@@ -2418,6 +2442,11 @@
           const questionnaireUrl = buildAthleteQuestionnaireUrl(ath.chat_id || "", ath.name || "");
           const disciplinesHtml = renderDisciplineBadges(ath.disciplines);
           const readinessBadgesHtml = renderAthleteReadinessBadges(ath, risk);
+          const hasWeeklyProposal = Boolean(
+            (ath.weekly_adaptation && ath.weekly_adaptation.pillars) ||
+            (ath.weekly_adaptation_proposal && ath.weekly_adaptation_proposal.pillars) ||
+            (Array.isArray(currentWeeklyAdaptations) && currentWeeklyAdaptations.some(p => String(p.athlete_id) === String(athleteId) || (ath.chat_id && String(p.chat_id) === String(ath.chat_id))))
+          );
 
           let nextRaceHtml = "";
           if (ath.next_race && ath.next_race.name) {
@@ -2466,6 +2495,7 @@
                       <h3 class="text-xl font-bold text-white">${safeName}</h3>
                       <span class="px-2 py-0.5 text-xs font-semibold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 rounded-md">CLIENTE</span>
                       <span class="px-2 py-0.5 text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-md">ATTIVO</span>
+                      ${hasWeeklyProposal ? `<button type="button" onclick="focusWeeklyAdaptation('${escapeHtml(athleteId)}')" class="px-2 py-0.5 text-xs font-semibold bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 rounded-md flex items-center gap-1 cursor-pointer transition animate-pulse" title="Proposta adattamento pronta da approvare"><i class="fa-solid fa-lightbulb text-amber-400"></i> Proposta Adattamento</button>` : ""}
                       ${ath.garmin_drift_count ? `<span class="px-2 py-0.5 text-xs font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-md flex items-center gap-1" title="${ath.garmin_drift_count} allenamenti modificati da riallineare"><i class="fa-solid fa-triangle-exclamation"></i> Modifiche (${ath.garmin_drift_count})</span>` : ""}
                     </div>
                     <p class="text-xs text-slate-300 mt-1 flex items-center gap-3 flex-wrap">
@@ -2481,6 +2511,10 @@
                 </div>
 
                 <div class="flex flex-wrap items-center gap-2">
+                  ${hasWeeklyProposal ? `
+                  <button type="button" onclick="focusWeeklyAdaptation('${escapeHtml(athleteId)}')" class="min-h-[44px] px-3 py-2 text-xs font-semibold bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 rounded-lg flex items-center gap-1.5 transition animate-pulse" title="Proposta di adattamento settimanale pendente: clicca per revisionare e approvare">
+                    <i class="fa-solid fa-lightbulb text-amber-400" aria-hidden="true"></i> Adattamento Settimanale
+                  </button>` : ""}
                   <button type="button" data-athlete-id="${escapeHtml(athleteId)}" onclick="openPlanGeneratorModal(this.getAttribute('data-athlete-id'))" class="min-h-[44px] px-3 py-2 text-xs font-medium bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-lg flex items-center gap-1.5 transition" title="Genera o aggiorna il piano di allenamento per questo atleta">
                     <i class="fa-solid fa-wand-magic-sparkles text-emerald-400" aria-hidden="true"></i> Genera Piano
                   </button>

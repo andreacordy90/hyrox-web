@@ -662,7 +662,7 @@
     /* ==================== HUD TAB NAVIGATION & QUESTIONNAIRE WIZARD (ISSUE #166) ==================== */
     .portal-nav-tabs {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
       gap: 0.25rem;
       padding: 0.25rem;
       border-radius: 1rem;
@@ -674,7 +674,7 @@
 
     @media (min-width: 640px) {
       .portal-nav-tabs {
-        grid-template-columns: repeat(6, minmax(0, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
       }
     }
 
@@ -1431,8 +1431,8 @@
   <!-- MAIN CONTAINER (PROTETTO DA GATE 2FA) -->
   <main id="athlete-main-content" class="max-w-4xl mx-auto px-4 sm:px-6 py-6 flex-1 w-full space-y-6 hidden" inert>
 
-    <!-- NAVIGAZIONE TAB HUD RAPIDA (6 ACCESSI PRIORITARI) -->
-    <nav id="portal-nav-tabs" class="portal-nav-tabs grid-cols-3 sm:grid-cols-6" role="tablist" aria-label="Accessi rapidi Portale Atleta">
+    <!-- NAVIGAZIONE TAB HUD RAPIDA (ACCESSI PRIORITARI PROGRESSIVI) -->
+    <nav id="portal-nav-tabs" class="portal-nav-tabs" role="tablist" aria-label="Accessi rapidi Portale Atleta">
       <button type="button" id="tab-btn-dashboard" role="tab" aria-selected="true" aria-controls="athlete-dashboard-section" data-portal-tab="dashboard" onclick="switchPortalTab('dashboard')" class="portal-tab-btn is-active">
         <span aria-hidden="true">⚡</span>
         <span>Oggi</span>
@@ -1441,21 +1441,25 @@
         <span aria-hidden="true">📅</span>
         <span>Settimana</span>
       </button>
-      <button type="button" id="tab-btn-races" role="tab" aria-selected="false" aria-controls="athlete-races-section" data-portal-tab="races" onclick="switchPortalTab('races')" class="portal-tab-btn">
-        <span aria-hidden="true">🏁</span>
-        <span>Gare</span>
-      </button>
       <button type="button" id="tab-btn-history" role="tab" aria-selected="false" aria-controls="athlete-history-section" data-portal-tab="history" onclick="switchPortalTab('history')" class="portal-tab-btn">
         <span aria-hidden="true">📊</span>
         <span>Storico</span>
+      </button>
+      <button type="button" id="tab-btn-questionnaire" role="tab" aria-selected="false" aria-controls="athlete-questionnaire-section" data-portal-tab="questionnaire" onclick="switchPortalTab('questionnaire')" class="portal-tab-btn">
+        <span aria-hidden="true">📋</span>
+        <span>Profilo</span>
       </button>
       <button type="button" id="tab-btn-garmin" role="tab" aria-selected="false" aria-controls="athlete-garmin-section" data-portal-tab="garmin" onclick="switchPortalTab('garmin')" class="portal-tab-btn">
         <span aria-hidden="true">⌚</span>
         <span>Garmin</span>
       </button>
-      <button type="button" id="tab-btn-questionnaire" role="tab" aria-selected="false" aria-controls="athlete-questionnaire-section" data-portal-tab="questionnaire" onclick="switchPortalTab('questionnaire')" class="portal-tab-btn">
-        <span aria-hidden="true">📋</span>
-        <span>Profilo</span>
+      <button type="button" id="tab-btn-vacations" role="tab" aria-selected="false" aria-controls="athlete-vacations-section" data-portal-tab="vacations" onclick="switchPortalTab('vacations')" class="portal-tab-btn">
+        <span aria-hidden="true">🏖️</span>
+        <span>Ferie</span>
+      </button>
+      <button type="button" id="tab-btn-races" role="tab" aria-selected="false" aria-controls="athlete-races-section" data-portal-tab="races" onclick="switchPortalTab('races')" class="portal-tab-btn">
+        <span aria-hidden="true">🏁</span>
+        <span>Gare</span>
       </button>
     </nav>
 
@@ -1525,10 +1529,10 @@
               <span class="font-semibold uppercase text-slate-300 flex items-center gap-1.5">
                 <i class="fa-solid fa-bed text-sky-400"></i> Recupero &amp; Sonno
               </span>
-              <span id="health-garmin-sync" class="font-mono text-[10px] text-emerald-400">SYNC ATTIVO</span>
+              <span id="health-garmin-sync" class="font-mono text-xs text-emerald-400">SYNC ATTIVO</span>
             </div>
             <div id="health-readiness-summary" class="text-sm font-bold text-white">In attesa metriche...</div>
-            <div id="health-metrics-tags" class="flex flex-wrap gap-1.5 text-[11px] text-slate-300 pt-0.5">
+            <div id="health-metrics-tags" class="flex flex-wrap gap-1.5 text-xs text-slate-300 pt-0.5">
               <span id="health-hrv-tag" class="px-2 py-0.5 bg-[#1e252f] rounded border border-brand-border">HRV: --</span>
               <span id="health-sleep-tag" class="px-2 py-0.5 bg-[#1e252f] rounded border border-brand-border">Sonno: --</span>
               <span id="health-bb-tag" class="px-2 py-0.5 bg-[#1e252f] rounded border border-brand-border">Body Battery: --</span>
@@ -1558,7 +1562,7 @@
               <span aria-hidden="true">🩹</span> <span>Aggiorna Dolori</span>
             </button>
           </div>
-          <span class="text-[11px] text-slate-400">Auto-calibrato su algoritmo clinico</span>
+          <span class="text-xs text-slate-400">Auto-calibrato su algoritmo clinico</span>
         </div>
       </div>
 
@@ -2028,11 +2032,11 @@
                   <label for="q-sched-enabled-monday" class="text-xs font-bold text-white uppercase font-mono cursor-pointer">Lunedì</label>
                 </div>
                 <div class="flex items-center gap-1.5">
-                  <span class="text-[11px] text-slate-400 font-mono">Inizio:</span>
+                  <label for="q-sched-time-monday" class="text-xs text-slate-400 font-mono">Inizio:</label>
                   <input type="time" id="q-sched-time-monday" onchange="updateQuestionnaireDaySchedule('monday')" value="18:00" class="auth-hud-input py-1 px-2 text-xs font-mono">
                 </div>
                 <div class="flex items-center gap-1.5">
-                  <span class="text-[11px] text-slate-400 font-mono">Budget:</span>
+                  <label for="q-sched-duration-monday" class="text-xs text-slate-400 font-mono">Budget:</label>
                   <input type="number" id="q-sched-duration-monday" onchange="updateQuestionnaireDaySchedule('monday')" min="20" max="240" step="5" value="60" name="max_duration_min" class="auth-hud-input py-1 px-2 text-xs font-mono w-20">
                   <span class="text-xs text-slate-400 font-mono">min</span>
                 </div>
@@ -2044,11 +2048,11 @@
                   <label for="q-sched-enabled-tuesday" class="text-xs font-bold text-white uppercase font-mono cursor-pointer">Martedì</label>
                 </div>
                 <div class="flex items-center gap-1.5">
-                  <span class="text-[11px] text-slate-400 font-mono">Inizio:</span>
+                  <label for="q-sched-time-tuesday" class="text-xs text-slate-400 font-mono">Inizio:</label>
                   <input type="time" id="q-sched-time-tuesday" onchange="updateQuestionnaireDaySchedule('tuesday')" value="18:00" class="auth-hud-input py-1 px-2 text-xs font-mono">
                 </div>
                 <div class="flex items-center gap-1.5">
-                  <span class="text-[11px] text-slate-400 font-mono">Budget:</span>
+                  <label for="q-sched-duration-tuesday" class="text-xs text-slate-400 font-mono">Budget:</label>
                   <input type="number" id="q-sched-duration-tuesday" onchange="updateQuestionnaireDaySchedule('tuesday')" min="20" max="240" step="5" value="60" name="max_duration_min" class="auth-hud-input py-1 px-2 text-xs font-mono w-20">
                   <span class="text-xs text-slate-400 font-mono">min</span>
                 </div>
@@ -2060,11 +2064,11 @@
                   <label for="q-sched-enabled-wednesday" class="text-xs font-bold text-white uppercase font-mono cursor-pointer">Mercoledì</label>
                 </div>
                 <div class="flex items-center gap-1.5">
-                  <span class="text-[11px] text-slate-400 font-mono">Inizio:</span>
+                  <label for="q-sched-time-wednesday" class="text-xs text-slate-400 font-mono">Inizio:</label>
                   <input type="time" id="q-sched-time-wednesday" onchange="updateQuestionnaireDaySchedule('wednesday')" value="18:00" class="auth-hud-input py-1 px-2 text-xs font-mono">
                 </div>
                 <div class="flex items-center gap-1.5">
-                  <span class="text-[11px] text-slate-400 font-mono">Budget:</span>
+                  <label for="q-sched-duration-wednesday" class="text-xs text-slate-400 font-mono">Budget:</label>
                   <input type="number" id="q-sched-duration-wednesday" onchange="updateQuestionnaireDaySchedule('wednesday')" min="20" max="240" step="5" value="60" name="max_duration_min" class="auth-hud-input py-1 px-2 text-xs font-mono w-20">
                   <span class="text-xs text-slate-400 font-mono">min</span>
                 </div>
@@ -2076,11 +2080,11 @@
                   <label for="q-sched-enabled-thursday" class="text-xs font-bold text-white uppercase font-mono cursor-pointer">Giovedì</label>
                 </div>
                 <div class="flex items-center gap-1.5">
-                  <span class="text-[11px] text-slate-400 font-mono">Inizio:</span>
+                  <label for="q-sched-time-thursday" class="text-xs text-slate-400 font-mono">Inizio:</label>
                   <input type="time" id="q-sched-time-thursday" onchange="updateQuestionnaireDaySchedule('thursday')" value="18:00" class="auth-hud-input py-1 px-2 text-xs font-mono">
                 </div>
                 <div class="flex items-center gap-1.5">
-                  <span class="text-[11px] text-slate-400 font-mono">Budget:</span>
+                  <label for="q-sched-duration-thursday" class="text-xs text-slate-400 font-mono">Budget:</label>
                   <input type="number" id="q-sched-duration-thursday" onchange="updateQuestionnaireDaySchedule('thursday')" min="20" max="240" step="5" value="60" name="max_duration_min" class="auth-hud-input py-1 px-2 text-xs font-mono w-20">
                   <span class="text-xs text-slate-400 font-mono">min</span>
                 </div>
@@ -2092,11 +2096,11 @@
                   <label for="q-sched-enabled-friday" class="text-xs font-bold text-white uppercase font-mono cursor-pointer">Venerdì</label>
                 </div>
                 <div class="flex items-center gap-1.5">
-                  <span class="text-[11px] text-slate-400 font-mono">Inizio:</span>
+                  <label for="q-sched-time-friday" class="text-xs text-slate-400 font-mono">Inizio:</label>
                   <input type="time" id="q-sched-time-friday" onchange="updateQuestionnaireDaySchedule('friday')" value="18:00" class="auth-hud-input py-1 px-2 text-xs font-mono">
                 </div>
                 <div class="flex items-center gap-1.5">
-                  <span class="text-[11px] text-slate-400 font-mono">Budget:</span>
+                  <label for="q-sched-duration-friday" class="text-xs text-slate-400 font-mono">Budget:</label>
                   <input type="number" id="q-sched-duration-friday" onchange="updateQuestionnaireDaySchedule('friday')" min="20" max="240" step="5" value="60" name="max_duration_min" class="auth-hud-input py-1 px-2 text-xs font-mono w-20">
                   <span class="text-xs text-slate-400 font-mono">min</span>
                 </div>
@@ -2108,11 +2112,11 @@
                   <label for="q-sched-enabled-saturday" class="text-xs font-bold text-white uppercase font-mono cursor-pointer">Sabato</label>
                 </div>
                 <div class="flex items-center gap-1.5">
-                  <span class="text-[11px] text-slate-400 font-mono">Inizio:</span>
+                  <label for="q-sched-time-saturday" class="text-xs text-slate-400 font-mono">Inizio:</label>
                   <input type="time" id="q-sched-time-saturday" onchange="updateQuestionnaireDaySchedule('saturday')" value="09:00" class="auth-hud-input py-1 px-2 text-xs font-mono">
                 </div>
                 <div class="flex items-center gap-1.5">
-                  <span class="text-[11px] text-slate-400 font-mono">Budget:</span>
+                  <label for="q-sched-duration-saturday" class="text-xs text-slate-400 font-mono">Budget:</label>
                   <input type="number" id="q-sched-duration-saturday" onchange="updateQuestionnaireDaySchedule('saturday')" min="20" max="240" step="5" value="90" name="max_duration_min" class="auth-hud-input py-1 px-2 text-xs font-mono w-20">
                   <span class="text-xs text-slate-400 font-mono">min</span>
                 </div>
@@ -2124,11 +2128,11 @@
                   <label for="q-sched-enabled-sunday" class="text-xs font-bold text-white uppercase font-mono cursor-pointer">Domenica</label>
                 </div>
                 <div class="flex items-center gap-1.5">
-                  <span class="text-[11px] text-slate-400 font-mono">Inizio:</span>
+                  <label for="q-sched-time-sunday" class="text-xs text-slate-400 font-mono">Inizio:</label>
                   <input type="time" id="q-sched-time-sunday" onchange="updateQuestionnaireDaySchedule('sunday')" value="09:00" class="auth-hud-input py-1 px-2 text-xs font-mono">
                 </div>
                 <div class="flex items-center gap-1.5">
-                  <span class="text-[11px] text-slate-400 font-mono">Budget:</span>
+                  <label for="q-sched-duration-sunday" class="text-xs text-slate-400 font-mono">Budget:</label>
                   <input type="number" id="q-sched-duration-sunday" onchange="updateQuestionnaireDaySchedule('sunday')" min="20" max="240" step="5" value="60" name="max_duration_min" class="auth-hud-input py-1 px-2 text-xs font-mono w-20">
                   <span class="text-xs text-slate-400 font-mono">min</span>
                 </div>
@@ -2142,7 +2146,7 @@
                   <i class="fa-regular fa-calendar-check text-[var(--ds-accent)]" aria-hidden="true"></i>
                   <span>Orari e giorni variabili di settimana in settimana</span>
                 </label>
-                <p class="text-[11px] text-slate-300">
+                <p class="text-xs text-slate-300">
                   Se attivo, ogni Sabato alle 10:00 riceverai un messaggio automatico con link per aggiornare giorni e orari della settimana entrante (già calibrati con le ferie). In assenza di modifiche, restano validi gli orari correnti.
                 </p>
               </div>
@@ -2156,7 +2160,7 @@
                   <i class="fa-solid fa-bolt text-emerald-400" aria-hidden="true"></i>
                   <span>Modifiche orari pronte?</span>
                 </div>
-                <p class="text-[11px] text-slate-300">
+                <p class="text-xs text-slate-300">
                   Puoi salvare direttamente adesso senza dover scorrere i passi successivi.
                 </p>
               </div>
@@ -2198,7 +2202,7 @@
                   <button type="button" onclick="adjustQuestionnaireWater(0.2)" aria-label="Aumenta target acqua di 0.2 litri" class="btn-tactical btn-tactical--secondary px-3 py-1.5 text-xs font-mono">+0.2 L</button>
                 </div>
               </div>
-              <p id="q-water-physio-hint" class="text-[11px] text-teal-300 font-mono">
+              <p id="q-water-physio-hint" class="text-xs text-teal-300 font-mono">
                 ✓ Calcolato automaticamente su peso, bioimpedenza bilancia, carico allenamento e meteo.
               </p>
             </div>
@@ -2308,7 +2312,7 @@
                 </label>
                 <input type="text" id="q-pain-notes" oninput="questionnaireDraft.painNotes = this.value" placeholder="es. Compare solo dopo 15km o negli affondi pesanti..." class="auth-hud-input py-2 px-3 text-xs">
               </div>
-              <p class="text-[11px] text-amber-300/90 font-mono">
+              <p class="text-xs text-amber-300/90 font-mono">
                 ℹ️ Avendo un dolore attivo (VAS &gt; 0), il Sabato mattina riceverai un check-in per aggiornare l'intensità o confermare la remissione.
               </p>
             </div>
@@ -2328,7 +2332,7 @@
                 <i class="fa-solid fa-kit-medical text-amber-400" aria-hidden="true"></i>
                 <span>Stato dolori aggiornato?</span>
               </div>
-              <p class="text-[11px] text-slate-300">
+              <p class="text-xs text-slate-300">
                 Salva subito la nuova condizione articolare/muscolare per allineare il carico di lavoro.
               </p>
             </div>
@@ -2807,6 +2811,12 @@
             <span id="athlete-vacations-season-badge" class="px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/40 text-xs font-bold">
               🟢 Stagione Attiva
             </span>
+            <span id="athlete-vacations-confirmed-badge" class="hidden px-3 py-1 rounded-full bg-purple-500/15 text-purple-300 border border-purple-400/40 text-xs font-bold">
+              🏖️ Nessuna Ferie Programmata
+            </span>
+            <button type="button" id="btn-confirm-no-vacations" onclick="confirmNoVacations()" aria-label="Conferma che non hai periodi di ferie programmati" class="btn-tactical min-h-[44px] px-3.5 py-2 text-xs bg-purple-500/20 hover:bg-purple-500/30 text-purple-200 border border-purple-400/45">
+              <span>🏖️ Nessun periodo di ferie programmato</span>
+            </button>
             <button type="button" id="add-vacation-btn" onclick="openVacationModal()" aria-label="Aggiungi un nuovo periodo di ferie o pausa" class="btn-tactical btn-tactical--primary min-h-[44px] px-4 py-2 text-xs">
               <i class="fa-solid fa-plus" aria-hidden="true"></i>
               <span>+ Nuove Ferie / Pausa</span>
@@ -4137,6 +4147,9 @@
       if (typeof closePwaIntro === "function") closePwaIntro(true);
       renderAthleteGarminStatus();
       renderSecondaryPortalViews();
+      if (athleteLatestData && typeof applyProgressiveTabDisclosure === "function") {
+        applyProgressiveTabDisclosure(athleteLatestData);
+      }
       switchPortalTab("dashboard", { updateHash: false });
       showAuthError("");
       lockPortalUI();
@@ -4187,6 +4200,9 @@
           await secondaryPromise;
           renderAthleteDashboard(res.data);
           renderSecondaryPortalViews();
+      if (athleteLatestData && typeof applyProgressiveTabDisclosure === "function") {
+        applyProgressiveTabDisclosure(athleteLatestData);
+      }
           if (window.__initialWeeklyPlanningModal) {
             window.__initialWeeklyPlanningModal = false;
             if (typeof openWeeklyPlanningModal === "function") {
@@ -4221,6 +4237,10 @@
 
     function renderAthleteDashboard(data) {
       if (!data) return;
+
+      if (typeof applyProgressiveTabDisclosure === "function") {
+        applyProgressiveTabDisclosure(data);
+      }
 
       // 1. Profilo Atleta
       if (data.profile) {
@@ -5305,6 +5325,9 @@
       }
       if (typeof renderSecondaryPortalViews === "function") {
         renderSecondaryPortalViews();
+      if (athleteLatestData && typeof applyProgressiveTabDisclosure === "function") {
+        applyProgressiveTabDisclosure(athleteLatestData);
+      }
       }
 
       const filtered = sorted.filter((race) => {
@@ -5720,6 +5743,45 @@
       return "Riposo totale";
     }
 
+    let athleteVacationsConfirmed = false;
+
+    function updateVacationsConfirmedBadge() {
+      const badge = document.getElementById("athlete-vacations-confirmed-badge");
+      if (badge) {
+        if (athleteVacationsConfirmed) {
+          badge.classList.remove("hidden");
+        } else {
+          badge.classList.add("hidden");
+        }
+      }
+    }
+
+    async function confirmNoVacations() {
+      const token = getAthleteToken();
+      if (!token) return;
+      const btn = document.getElementById("btn-confirm-no-vacations");
+      if (btn) btn.disabled = true;
+      try {
+        const response = await fetch(GAS_API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain" },
+          body: JSON.stringify({ action: "athlete_confirm_no_vacations", athlete_token: token })
+        });
+        const res = await response.json();
+        if (res.status === "ok") {
+          athleteVacationsConfirmed = true;
+          updateVacationsConfirmedBadge();
+          showToast("Confermato: nessun periodo di ferie programmato.", "success");
+        } else {
+          showToast(res.message || "Impossibile registrare la conferma.", "warning");
+        }
+      } catch (err) {
+        showToast("Errore di rete durante la conferma.", "error");
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    }
+
     function sortAthleteVacations(vacations) {
       return [...(Array.isArray(vacations) ? vacations : [])].sort((a, b) => {
         const ca = getVacationCountdownInfo(a.start_date, a.end_date);
@@ -5885,6 +5947,10 @@
         const res = await response.json();
         if (res.status === "ok") {
           athleteVacations = Array.isArray(res.vacations) ? res.vacations : [];
+          if (res.vacations_confirmed !== undefined) {
+            athleteVacationsConfirmed = Boolean(res.vacations_confirmed);
+            updateVacationsConfirmedBadge();
+          }
           renderAthleteVacations();
           didSucceed = true;
         } else if (res.status === "unauthorized") {
@@ -6172,7 +6238,7 @@
       notes: "athlete-notes-section",
       notifications: "athlete-notifications-section"
     };
-    const QUICK_TAB_NAMES = ["dashboard", "week", "races", "history", "garmin", "questionnaire"];
+    const QUICK_TAB_NAMES = ["dashboard", "week", "history", "questionnaire", "garmin", "vacations", "races"];
     const HASH_ROUTE_ALIASES = {
       dashboard: "dashboard",
       today: "dashboard",
@@ -6483,9 +6549,59 @@
         renderAthleteVacations();
       } else if (["calendar", "weight", "water", "stats", "notifications"].includes(targetTab)) {
         renderSecondaryPortalViews();
+      if (athleteLatestData && typeof applyProgressiveTabDisclosure === "function") {
+        applyProgressiveTabDisclosure(athleteLatestData);
+      }
       }
       if (targetTab === "notifications") {
         renderNotificationSettingsUI();
+      }
+    }
+
+    function applyProgressiveTabDisclosure(data) {
+      if (!data) return;
+
+      if (data.vacations_confirmed !== undefined) {
+        athleteVacationsConfirmed = Boolean(data.vacations_confirmed);
+        updateVacationsConfirmedBadge();
+      }
+
+      const hasPlan = Boolean(
+        data.has_plan === true ||
+        (Array.isArray(data.weekly_program) && data.weekly_program.length > 0) ||
+        (data.today_workout && !/riposo o sessione libera/i.test(data.today_workout))
+      );
+
+      const garminActs = (athleteGarminData && Array.isArray(athleteGarminData.activities)) ? athleteGarminData.activities : [];
+      const hasActivities = Boolean(
+        data.has_activities === true ||
+        (data.activities_count !== undefined && Number(data.activities_count) > 0) ||
+        garminActs.length > 0
+      );
+
+      // 1. Tab legate al piano: Dashboard (Oggi) e Settimana
+      const dashboardTabBtn = document.getElementById("tab-btn-dashboard");
+      const weekTabBtn = document.getElementById("tab-btn-week");
+      const drawerDashboardBtn = document.querySelector("#portal-drawer-menu [data-drawer-tab='dashboard']");
+      const drawerCalendarBtn = document.querySelector("#portal-drawer-menu [data-drawer-tab='calendar']");
+
+      if (dashboardTabBtn) dashboardTabBtn.classList.toggle("hidden", !hasPlan);
+      if (weekTabBtn) weekTabBtn.classList.toggle("hidden", !hasPlan);
+      if (drawerDashboardBtn) drawerDashboardBtn.classList.toggle("hidden", !hasPlan);
+      if (drawerCalendarBtn) drawerCalendarBtn.classList.toggle("hidden", !hasPlan);
+
+      // 2. Tab legata allo storico attività Garmin/manuali
+      const historyTabBtn = document.getElementById("tab-btn-history");
+      const drawerHistoryBtn = document.querySelector("#portal-drawer-menu [data-drawer-tab='history']");
+
+      if (historyTabBtn) historyTabBtn.classList.toggle("hidden", !hasActivities);
+      if (drawerHistoryBtn) drawerHistoryBtn.classList.toggle("hidden", !hasActivities);
+
+      // 3. Fallback di routing se la tab attiva corrente è stata nascosta
+      if (!hasPlan && (activePortalTab === "dashboard" || activePortalTab === "week" || activePortalTab === "calendar")) {
+        switchPortalTab("questionnaire");
+      } else if (!hasActivities && activePortalTab === "history") {
+        switchPortalTab(hasPlan ? "dashboard" : "questionnaire");
       }
     }
 
@@ -7266,6 +7382,9 @@
       }
 
       renderSecondaryPortalViews();
+      if (athleteLatestData && typeof applyProgressiveTabDisclosure === "function") {
+        applyProgressiveTabDisclosure(athleteLatestData);
+      }
     }
 
     async function fetchAthleteGarminStatus(silent = false) {
@@ -7765,6 +7884,9 @@
           if (feedbackEl) feedbackEl.innerHTML = "";
           renderAthleteGarminStatus();
           renderSecondaryPortalViews();
+      if (athleteLatestData && typeof applyProgressiveTabDisclosure === "function") {
+        applyProgressiveTabDisclosure(athleteLatestData);
+      }
           showToast("🔌 <strong>Garmin Connect scollegato.</strong><br><span class=\"text-xs text-slate-200\">Gli allenamenti futuri del coach verranno rimossi dal calendario; i tuoi allenamenti personali restano intatti.</span>", "success");
           await fetchAthleteGarminStatus(true);
         } else {
@@ -8275,7 +8397,7 @@
         : '<p class="text-xs text-slate-400 mt-1">Nessuna nota nutrizionale aggiuntiva</p>';
 
       const varSchedBadge = parsed.variableSchedule
-        ? '<span class="ml-2 px-2 py-0.5 rounded bg-sky-500/20 text-sky-400 border border-sky-500/40 text-[10px] font-mono">Orari variabili ON</span>'
+        ? '<span class="ml-2 px-2 py-0.5 rounded bg-sky-500/20 text-sky-400 border border-sky-500/40 text-xs font-mono">Orari variabili ON</span>'
         : "";
 
       grid.innerHTML = [
@@ -8287,7 +8409,7 @@
         `<div class="hud-summary-tile space-y-2">
           <div class="flex items-center justify-between">
             <div class="text-xs font-mono uppercase tracking-wider text-[#2dd4bf] font-bold">02 // Orari &amp; Palestra</div>
-            <button type="button" id="btn-summary-direct-schedule" onclick="openDirectScheduleModal()" class="btn-tactical btn-tactical--secondary min-h-[32px] px-2.5 py-1 text-[11px] text-sky-400 border-sky-500/40 hover:border-sky-400">
+            <button type="button" id="btn-summary-direct-schedule" onclick="openDirectScheduleModal()" class="btn-tactical btn-tactical--secondary min-h-[32px] px-2.5 py-1 text-xs text-sky-400 border-sky-500/40 hover:border-sky-400">
               <i class="fa-solid fa-calendar-days mr-1" aria-hidden="true"></i> Modifica Orari
             </button>
           </div>
@@ -8306,7 +8428,7 @@
         `<div class="hud-summary-tile space-y-2">
           <div class="flex items-center justify-between">
             <div class="text-xs font-mono uppercase tracking-wider text-purple-300 font-bold">05 // Infortuni, Dolori &amp; Fastidi</div>
-            <button type="button" id="btn-summary-direct-pain" onclick="openDirectPainVasModal()" class="btn-tactical btn-tactical--secondary min-h-[32px] px-2.5 py-1 text-[11px] text-amber-300 border-amber-500/40 hover:border-amber-400">
+            <button type="button" id="btn-summary-direct-pain" onclick="openDirectPainVasModal()" class="btn-tactical btn-tactical--secondary min-h-[32px] px-2.5 py-1 text-xs text-amber-300 border-amber-500/40 hover:border-amber-400">
               <i class="fa-solid fa-kit-medical mr-1" aria-hidden="true"></i> Aggiorna Dolori
             </button>
           </div>
@@ -8349,6 +8471,9 @@
         goToQuestionnaireStep(questionnaireWizardStep);
       }
       renderSecondaryPortalViews();
+      if (athleteLatestData && typeof applyProgressiveTabDisclosure === "function") {
+        applyProgressiveTabDisclosure(athleteLatestData);
+      }
     }
 
     function openQuestionnaireWizard() {
@@ -9478,6 +9603,19 @@
     }
 
     function initPortal() {
+      initPortalMagicAuth();
+      updateStagingQuickLoginVisibility();
+
+      const token = getAthleteToken();
+      if (token) {
+        unlockPortalUI();
+        playPwaIntro(false);
+        fetchAthleteData();
+      } else {
+        lockPortalUI();
+        closePwaIntro(true);
+      }
+
       const overlay = document.getElementById("pwa-intro-overlay");
       if (overlay) {
         overlay.addEventListener("click", (e) => {
@@ -9543,19 +9681,6 @@
           applyHashRoute(true);
         }
       });
-
-      initPortalMagicAuth();
-      updateStagingQuickLoginVisibility();
-
-      const token = getAthleteToken();
-      if (token) {
-        unlockPortalUI();
-        playPwaIntro(false);
-        fetchAthleteData();
-      } else {
-        lockPortalUI();
-        closePwaIntro(true);
-      }
 
       initWaterModals();
       initRacePriorityButtons();
