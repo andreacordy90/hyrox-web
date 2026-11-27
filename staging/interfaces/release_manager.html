@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="it" data-theme="dark" class="dark">
 <head>
+  <meta name="build-sha" content="a1ea61fb4ce7">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#b1cc5b">
@@ -853,6 +854,24 @@
         <p class="text-slate-200">Tutti i ticket del progetto devono essere chiusi prima di promuovere il rilascio su <code>main</code>.</p>
         <ul id="open-issues-preview-list" class="space-y-1 text-xs text-slate-200 list-disc list-inside"></ul>
       </div>
+
+      <div id="release-layers-status" role="status" aria-live="polite" class="hidden p-3.5 rounded-xl bg-slate-900/70 border border-slate-800 text-xs space-y-2">
+        <div class="font-bold text-white" id="release-layers-summary">Esito Release Atomica (3 Layer)</div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+          <div id="release-layer-gas" class="p-2.5 rounded-lg bg-slate-950/70 border border-slate-800">
+            <div class="font-semibold text-slate-200">⚙️ GAS Produzione</div>
+            <div class="text-slate-300 mt-0.5" id="release-layer-gas-detail">-</div>
+          </div>
+          <div id="release-layer-web" class="p-2.5 rounded-lg bg-slate-950/70 border border-slate-800">
+            <div class="font-semibold text-slate-200">🌐 Web Produzione</div>
+            <div class="text-slate-300 mt-0.5" id="release-layer-web-detail">-</div>
+          </div>
+          <div id="release-layer-vps" class="p-2.5 rounded-lg bg-slate-950/70 border border-slate-800">
+            <div class="font-semibold text-slate-200">🤖 Bot VPS &amp; Telegram</div>
+            <div class="text-slate-300 mt-0.5" id="release-layer-vps-detail">-</div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- MODALE SUCCESSO -->
@@ -1390,6 +1409,39 @@
       container.innerHTML = html;
     }
 
+    function renderReleaseLayersStatus(res) {
+      const box = document.getElementById('release-layers-status');
+      if (!box || !res || !res.layers) return;
+      box.classList.remove('hidden');
+
+      const summaryEl = document.getElementById('release-layers-summary');
+      if (summaryEl) {
+        summaryEl.textContent = res.message || (res.status === 'ok' ? 'Release completata su tutti i 3 layer.' : 'Release fallita con rollback automatico.');
+        summaryEl.className = res.status === 'ok' ? 'font-bold text-emerald-400' : 'font-bold text-rose-400';
+      }
+
+      const mappings = [
+        ['gas', 'release-layer-gas', 'release-layer-gas-detail'],
+        ['web', 'release-layer-web', 'release-layer-web-detail'],
+        ['vps', 'release-layer-vps', 'release-layer-vps-detail']
+      ];
+      for (const [key, cardId, detailId] of mappings) {
+        const layer = res.layers[key] || {};
+        const card = document.getElementById(cardId);
+        const det = document.getElementById(detailId);
+        if (det) det.textContent = layer.message || (layer.status || 'Non eseguito');
+        if (card) {
+          if (layer.ok) {
+            card.className = 'p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30';
+          } else if (layer.status === 'error') {
+            card.className = 'p-2.5 rounded-lg bg-rose-500/10 border border-rose-500/30';
+          } else {
+            card.className = 'p-2.5 rounded-lg bg-slate-950/70 border border-slate-800';
+          }
+        }
+      }
+    }
+
     async function handleDeploy() {
       if (!releaseData) return;
       if (Number(releaseData.open_issues_count || 0) > 0) {
@@ -1411,6 +1463,7 @@
           body: JSON.stringify({ target_version: targetV, summary: summary })
         });
         const res = await resp.json();
+        renderReleaseLayersStatus(res);
         if (res.status === 'ok') {
           document.getElementById('modal-title').innerText = `🎉 Rilascio v${res.released_version} Completato!`;
           document.getElementById('modal-desc').innerText = res.message;
@@ -1430,8 +1483,10 @@
           document.getElementById('success-modal').classList.remove('hidden');
           showToast(`Rilascio v${res.released_version} completato!`, 'success');
           fetchStatus();
+          if (typeof fetchBotStatus === 'function') fetchBotStatus();
         } else {
           showToast(`Errore durante il rilascio: ${res.message || 'errore sconosciuto'}`, 'error');
+          if (typeof fetchBotStatus === 'function') fetchBotStatus();
         }
       } catch (err) {
         showToast(`Errore di rete: ${err}`, 'error');
