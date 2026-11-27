@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="it" data-theme="dark" class="dark">
 <head>
-  <meta name="build-sha" content="f6812b9d17d5">
+  <meta name="build-sha" content="2e06a6c77e7e">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>HYROX & UTMB Coach HQ | Coach</title>
@@ -4704,6 +4704,12 @@
       "doubles_women",
       "doubles_mixed"
     ];
+    const HYROX_RACE_STRUCTURE_MODES = ["full_31", "compact_24", "simple_16"];
+    const HYROX_RACE_MODE_LABELS = {
+      full_31: "31 step",
+      compact_24: "24 step",
+      simple_16: "16 step"
+    };
     let currentHyroxRaceTarget = null;
     let lastHyroxRaceTriggerEl = null;
 
@@ -4740,7 +4746,7 @@
       return null;
     }
 
-    function openHyroxRaceModal(target, athleteName, optionalNextRaceDate = "", optionalCategory = "") {
+    function openHyroxRaceModal(target, athleteName, optionalNextRaceDate = "", optionalCategory = "", optionalStructureMode = "") {
       currentHyroxRaceTarget = {
         id: String(target || "").trim(),
         name: String(athleteName || "Atleta").trim()
@@ -4801,6 +4807,17 @@
         catSelect.value = HYROX_RACE_CATEGORIES.includes(rawCat) ? rawCat : "single_open_men";
       }
 
+      const modeSelect = document.getElementById("hyrox-race-mode");
+      if (modeSelect) {
+        const rawMode = String(
+          optionalStructureMode ||
+          (isHyroxNextRace && nextRace && nextRace.structure_mode ? nextRace.structure_mode : "") ||
+          (ath && ath.hyrox_structure_mode ? ath.hyrox_structure_mode : "") ||
+          "full_31"
+        ).trim();
+        modeSelect.value = HYROX_RACE_STRUCTURE_MODES.includes(rawMode) ? rawMode : "full_31";
+      }
+
       modal.classList.remove("hidden");
       setTimeout(() => {
         if (dateInput && typeof dateInput.focus === "function") dateInput.focus();
@@ -4826,16 +4843,19 @@
       }
     }
 
-    async function requestCoachScheduleHyroxRace(target, targetDate, category) {
+    async function requestCoachScheduleHyroxRace(target, targetDate, category, structureMode = "full_31") {
       if (!CURRENT_TOKEN || !WEBHOOK_URL || !/^https?:\/\//i.test(WEBHOOK_URL)) {
         return null;
       }
+      const rawMode = String(structureMode || "").trim();
+      const normalizedMode = HYROX_RACE_STRUCTURE_MODES.includes(rawMode) ? rawMode : "full_31";
       const payload = {
         action: "coach_schedule_hyrox_race",
         coach_token: CURRENT_TOKEN,
         target: target,
         target_date: targetDate,
-        category: category
+        category: category,
+        structure_mode: normalizedMode
       };
       const res = await fetch(WEBHOOK_URL, {
         method: "POST",
@@ -4864,6 +4884,7 @@
       }
       const dateInput = document.getElementById("hyrox-race-date");
       const catSelect = document.getElementById("hyrox-race-category");
+      const modeSelect = document.getElementById("hyrox-race-mode");
       const targetDate = dateInput ? dateInput.value.trim() : "";
       if (!/^\d{4}-\d{2}-\d{2}$/.test(targetDate)) {
         if (window.UIFeedback) {
@@ -4886,18 +4907,30 @@
         }
         return;
       }
+      const structureMode = modeSelect ? String(modeSelect.value || "").trim() : "full_31";
+      if (!HYROX_RACE_STRUCTURE_MODES.includes(structureMode)) {
+        if (window.UIFeedback) {
+          UIFeedback.toast({
+            title: "Struttura non valida",
+            message: "Seleziona una struttura workout HYROX valida.",
+            type: "warning"
+          });
+        }
+        return;
+      }
 
       const athleteName = currentHyroxRaceTarget.name;
       const target = currentHyroxRaceTarget.id;
+      const modeLabel = HYROX_RACE_MODE_LABELS[structureMode] || "31 step";
 
       closeHyroxRaceModal();
 
       if (typeof showHudLoader === "function") {
-        showHudLoader("PIANIFICAZIONE GARA HYROX...", `CARICAMENTO GARMIN CARDIO 31 STEP PER ${athleteName.toUpperCase()}`);
+        showHudLoader("PIANIFICAZIONE GARA HYROX...", `CARICAMENTO GARMIN CARDIO ${modeLabel.toUpperCase()} PER ${athleteName.toUpperCase()}`);
       }
 
       try {
-        const cloudRes = await requestCoachScheduleHyroxRace(target, targetDate, category);
+        const cloudRes = await requestCoachScheduleHyroxRace(target, targetDate, category, structureMode);
         if (typeof hideHudLoader === "function") hideHudLoader();
 
         if (cloudRes && (cloudRes.status === "unauthorized" || cloudRes.code === "unauthorized")) {
@@ -4909,7 +4942,7 @@
           if (window.UIFeedback) {
             UIFeedback.toast({
               title: `Gara HYROX programmata (${escapeHtml(athleteName)})`,
-              message: `Workout Cardio 31 step caricato su Garmin Connect per il ${escapeHtml(targetDate)} (${escapeHtml(category)}). Notifica inviata su Telegram!`,
+              message: `Workout Cardio ${escapeHtml(modeLabel)} caricato su Garmin Connect per il ${escapeHtml(targetDate)} (${escapeHtml(category)}). Notifica inviata su Telegram!`,
               type: "success",
               duration: 7000
             });
@@ -5855,10 +5888,19 @@
           </select>
         </div>
 
+        <div>
+          <label for="hyrox-race-mode" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Struttura Workout Garmin</label>
+          <select id="hyrox-race-mode" aria-label="Struttura workout HYROX Garmin" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:border-amber-400 focus:outline-none min-h-[44px]">
+            <option value="full_31" selected>Completa — 31 step (Run + Roxzone IN/OUT + Stazione)</option>
+            <option value="compact_24">Compatta — 24 step (Run + Roxzone + Stazione)</option>
+            <option value="simple_16">Essenziale — 16 step (Solo Run + Stazione)</option>
+          </select>
+        </div>
+
         <div class="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-200 flex items-start gap-2.5">
           <i class="fa-solid fa-circle-info text-amber-400 mt-0.5 shrink-0" aria-hidden="true"></i>
           <p class="leading-relaxed">
-            Workout <strong>Cardio 31 step</strong> (8 Run + 8 Stazioni + 15 Roxzone) a tasto Lap, zero bip FC/passo, con note PB/Obj automatiche solo se l'atleta ha storico nella stessa categoria.
+            Workout <strong>Cardio</strong> a tasto Lap (zero bip FC/passo) in 3 formati: <strong>31 step</strong> (8 Run + 8 Stazioni + 15 Roxzone), <strong>24 step</strong> (Roxzone unica) o <strong>16 step</strong> (Run + Stazione), con note PB/Obj automatiche solo se l'atleta ha storico nella stessa categoria.
           </p>
         </div>
       </div>
