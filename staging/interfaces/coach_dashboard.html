@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="it" data-theme="dark" class="dark">
 <head>
-  <meta name="build-sha" content="bb8379cb03c6">
+  <meta name="build-sha" content="f6812b9d17d5">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>HYROX & UTMB Coach HQ | Coach</title>
@@ -2339,7 +2339,13 @@
       const safeName = escapeHtml(owner.name || "Coach");
       const safeCity = escapeHtml(owner.city || "");
       const safeGoals = escapeHtml(owner.goals || "");
-      const garminKey = escapeHtml(owner.garmin_email || owner.name || "");
+      const ownerTarget = String(owner.user_id || owner.chat_id || owner.garmin_email || owner.name || "").trim();
+      const safeOwnerTarget = escapeHtml(ownerTarget);
+      const ownerPlanId = String(owner.chat_id || owner.sheet_id || owner.user_id || owner.garmin_email || owner.name || "owner").trim();
+      window._activeAthletesMap = window._activeAthletesMap || {};
+      window._activeAthletesMap[ownerPlanId] = owner;
+      if (ownerTarget) window._activeAthletesMap[ownerTarget] = owner;
+      const garminKey = escapeHtml(owner.garmin_email || owner.user_id || owner.chat_id || owner.name || "");
       const sheetId = owner.sheet_id || MASTER_SHEET_ID;
       const attivitaId = owner.attivita_sheet_id || MASTER_ATTIVITA_SHEET_ID;
       const validId = id => !!id;
@@ -2347,6 +2353,20 @@
       const attivitaLink = owner.attivita_sheet_url
         ? escapeHtml(owner.attivita_sheet_url)
         : (validId(attivitaId) ? `https://docs.google.com/spreadsheets/d/${escapeHtml(attivitaId)}/edit` : "");
+      const questionnaireUrl = buildAthleteQuestionnaireUrl(owner.chat_id || "", owner.name || "");
+      const ownerProposal = Array.isArray(currentWeeklyAdaptations)
+        ? currentWeeklyAdaptations.find(p =>
+            String(p.athlete_id) === String(ownerPlanId) ||
+            (owner.user_id && String(p.athlete_id) === String(owner.user_id)) ||
+            (owner.chat_id && String(p.chat_id) === String(owner.chat_id))
+          )
+        : null;
+      const hasWeeklyProposal = Boolean(
+        (owner.weekly_adaptation && owner.weekly_adaptation.pillars) ||
+        (owner.weekly_adaptation_proposal && owner.weekly_adaptation_proposal.pillars) ||
+        ownerProposal
+      );
+      const ownerAdaptationId = ownerProposal ? ownerProposal.athlete_id : (owner.user_id || ownerPlanId);
       container.innerHTML = `
         <div class="glass-card glass-card--themed rounded-2xl p-4 sm:p-6 border border-[var(--ds-border-subtle)] border-l-4 border-l-[var(--ds-accent)] shadow-[var(--ds-glow-soft)] hover:border-[rgba(var(--ds-accent-rgb),0.45)] transition">
           <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
@@ -2358,6 +2378,7 @@
                 <div class="flex items-center gap-2 flex-wrap">
                   <h3 class="text-xl font-bold text-white">${safeName}</h3>
                   <span class="px-2 py-0.5 text-xs font-semibold bg-[rgba(var(--ds-accent-rgb),0.14)] text-[var(--ds-accent)] border border-[rgba(var(--ds-accent-rgb),0.3)] rounded-md">OWNER / COACH</span>
+                  ${hasWeeklyProposal ? `<button type="button" onclick="focusWeeklyAdaptation('${escapeHtml(ownerAdaptationId)}')" class="px-2 py-0.5 text-xs font-semibold bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 rounded-md flex items-center gap-1 cursor-pointer transition animate-pulse" title="Proposta adattamento pronta da approvare"><i class="fa-solid fa-lightbulb text-amber-400"></i> Proposta Adattamento</button>` : ""}
                   ${owner.garmin_drift_count ? `<span class="px-2 py-0.5 text-xs font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-md flex items-center gap-1" title="${owner.garmin_drift_count} allenamenti modificati da riallineare"><i class="fa-solid fa-triangle-exclamation"></i> Modifiche (${owner.garmin_drift_count})</span>` : ""}
                 </div>
                 <p class="text-xs text-slate-300 mt-1 flex items-center gap-3 flex-wrap">
@@ -2367,16 +2388,35 @@
               </div>
             </div>
             <div class="flex flex-wrap items-center gap-2">
+              ${hasWeeklyProposal ? `
+              <button type="button" onclick="focusWeeklyAdaptation('${escapeHtml(ownerAdaptationId)}')" class="min-h-[44px] px-3 py-2 text-xs font-semibold bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 rounded-lg flex items-center gap-1.5 transition animate-pulse" title="Proposta di adattamento settimanale pendente: clicca per revisionare e approvare">
+                <i class="fa-solid fa-lightbulb text-amber-400" aria-hidden="true"></i> Adattamento Settimanale
+              </button>` : ""}
+              <button type="button" data-athlete-id="${escapeHtml(ownerPlanId)}" onclick="openPlanGeneratorModal(this.getAttribute('data-athlete-id'), '${escapeHtml(sheetId || '')}', '${safeName}')" class="min-h-[44px] px-3 py-2 text-xs font-medium bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-lg flex items-center gap-1.5 transition" title="Genera o aggiorna il piano di allenamento">
+                <i class="fa-solid fa-wand-magic-sparkles text-emerald-400" aria-hidden="true"></i> Genera Piano
+              </button>
               <button onclick="syncGarminAthlete('${garminKey}', this)" class="min-h-[44px] px-3 py-2 text-xs font-medium ${owner.garmin_drift_count ? 'bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 shadow-sm animate-pulse' : 'bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'} rounded-lg flex items-center gap-1.5 transition" title="${owner.garmin_drift_count ? 'Rilevate modifiche al piano: aggiorna Garmin ora' : 'Aggiorna calendario Garmin (0 token)'}">
                 <i class="fa-solid fa-arrows-rotate"></i> ${owner.garmin_drift_count ? 'Aggiorna Modifiche Garmin' : 'Aggiorna Garmin'}
               </button>
-              <button type="button" onclick="openConconiModal('${garminKey}', '${safeName}', 8.0)" class="min-h-[44px] px-3 py-2 text-xs font-medium bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/30 rounded-lg flex items-center gap-1.5 transition" title="Pianifica Test Conconi su Garmin e avvisa l'atleta">
+              <button type="button" onclick="openConconiModal('${safeOwnerTarget}', '${safeName}', 8.0)" class="min-h-[44px] px-3 py-2 text-xs font-medium bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/30 rounded-lg flex items-center gap-1.5 transition" title="Pianifica Test Conconi su Garmin e avvisa l'atleta">
                 <i class="fa-solid fa-heart-pulse text-rose-400" aria-hidden="true"></i> Test Conconi
               </button>
+              <button type="button" onclick="openHyroxRaceModal('${safeOwnerTarget}', '${safeName}')" class="min-h-[44px] px-3 py-2 text-xs font-medium bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-lg flex items-center gap-1.5 transition" title="Pianifica Gara HYROX su Garmin (Cardio 31 step) e avvisa l'atleta">
+                <i class="fa-solid fa-flag-checkered text-amber-400" aria-hidden="true"></i> Gara HYROX
+              </button>
+              <button onclick="sendQuestionnaireToAthlete('${safeName}', '${escapeHtml(owner.chat_id || '')}', this)" data-questionnaire-url="${escapeHtml(questionnaireUrl)}" class="btn-sm btn-outline btn-secondary min-h-[44px] px-3 py-2 text-xs font-medium bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-lg flex items-center gap-1.5 transition" title="Invia link questionario Telegram">
+                <i class="fa-solid fa-clipboard-question"></i> Invia Questionario
+              </button>
               ${owner.garmin_connected ? `
-              <button type="button" onclick="openCoachGarminDisconnectModal('${garminKey}', '${safeName}')" class="min-h-[44px] px-3 py-2 text-xs font-medium bg-red-500/10 hover:bg-red-500/20 text-red-300 border border-red-500/30 rounded-lg flex items-center gap-1.5 transition" title="Scollega account Garmin Connect e rimuovi i soli allenamenti futuri di sistema">
+              <button type="button" onclick="openCoachGarminDisconnectModal('${safeOwnerTarget}', '${safeName}')" class="min-h-[44px] px-3 py-2 text-xs font-medium bg-red-500/10 hover:bg-red-500/20 text-red-300 border border-red-500/30 rounded-lg flex items-center gap-1.5 transition" title="Scollega account Garmin Connect e rimuovi i soli allenamenti futuri di sistema">
                 <i class="fa-solid fa-link-slash text-red-400" aria-hidden="true"></i> Scollega Garmin
-              </button>` : ""}
+              </button>` : `
+              <button onclick="sendGarminInviteToAthlete('${safeName}', '${escapeHtml(owner.chat_id || '')}', this)" class="btn-sm btn-outline min-h-[44px] px-3 py-2 text-xs font-medium bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 rounded-lg flex items-center gap-1.5 transition" title="Invia il promemoria Telegram per collegare Garmin Connect">
+                <i class="fa-solid fa-link text-cyan-400"></i> Invia Richiesta Garmin
+              </button>`}
+              <button type="button" onclick="syncAthleteActivitiesHistory('${safeOwnerTarget}', 180, this)" class="min-h-[44px] px-3 py-2 text-xs font-medium bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 rounded-lg flex items-center gap-1.5 transition" title="Scarica lo storico delle attività Garmin degli ultimi 6 mesi (180 giorni)">
+                <i class="fa-solid fa-cloud-arrow-down mr-1.5" aria-hidden="true"></i> Scarica storico attività (6 mesi)
+              </button>
               ${sheetLink ? `<a href="${sheetLink}" target="_blank" rel="noopener noreferrer" class="min-h-[44px] px-3 py-2 text-xs font-medium bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-200 flex items-center gap-1.5 transition" title="Foglio Master Programmazione">
                 <i class="fa-solid fa-table text-emerald-400"></i> Foglio Master
               </a>` : ""}
@@ -2524,6 +2564,9 @@
                   </button>
                   <button type="button" onclick="openConconiModal('${escapeHtml(ath.user_id || ath.chat_id || ath.name || ath.garmin_email || '')}', '${safeName}', 8.0)" class="min-h-[44px] px-3 py-2 text-xs font-medium bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/30 rounded-lg flex items-center gap-1.5 transition" title="Pianifica Test Conconi su Garmin e invia notifica Telegram all'atleta">
                     <i class="fa-solid fa-heart-pulse text-rose-400" aria-hidden="true"></i> Test Conconi
+                  </button>
+                  <button type="button" onclick="openHyroxRaceModal('${escapeHtml(ath.user_id || ath.chat_id || ath.name || ath.garmin_email || '')}', '${safeName}')" class="min-h-[44px] px-3 py-2 text-xs font-medium bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-lg flex items-center gap-1.5 transition" title="Pianifica Gara HYROX su Garmin (Cardio 31 step) e invia notifica Telegram all'atleta">
+                    <i class="fa-solid fa-flag-checkered text-amber-400" aria-hidden="true"></i> Gara HYROX
                   </button>
                   <button onclick="sendQuestionnaireToAthlete('${escapeHtml(ath.name)}', '${escapeHtml(ath.chat_id || '')}', this)" data-questionnaire-url="${escapeHtml(questionnaireUrl)}" class="btn-sm btn-outline btn-secondary min-h-[44px] px-3 py-2 text-xs font-medium bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-lg flex items-center gap-1.5 transition" title="Invia link questionario Telegram all'atleta">
                     <i class="fa-solid fa-clipboard-question"></i> Invia Questionario
@@ -4259,6 +4302,7 @@
       }
       if (Array.isArray(currentActiveAthletes)) {
         const found = currentActiveAthletes.find(a =>
+          (key && String(a.user_id || "").trim() === key) ||
           (key && String(a.chat_id || "").trim() === key) ||
           (key && String(a.sheet_id || "").trim() === key) ||
           (key && String(a.rowIndex || "").trim() === key) ||
@@ -4651,6 +4695,248 @@
       }
     }
 
+    const HYROX_RACE_CATEGORIES = [
+      "single_open_men",
+      "single_pro_men",
+      "single_open_women",
+      "single_pro_women",
+      "doubles_men",
+      "doubles_women",
+      "doubles_mixed"
+    ];
+    let currentHyroxRaceTarget = null;
+    let lastHyroxRaceTriggerEl = null;
+
+    function formatIsoDateLocal(dateObj) {
+      const yyyy = dateObj.getFullYear();
+      const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+      const dd = String(dateObj.getDate()).padStart(2, '0');
+      return `${yyyy}-${mm}-${dd}`;
+    }
+
+    function parseHyroxRaceIsoDate(rawDate) {
+      const s = String(rawDate || "").trim();
+      if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+      const dmy = s.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+      if (dmy) return `${dmy[3]}-${dmy[2]}-${dmy[1]}`;
+      return "";
+    }
+
+    function findAthleteForHyroxModal(athleteId, athleteName) {
+      const key = String(athleteId || "").trim();
+      if (key && window._activeAthletesMap && window._activeAthletesMap[key]) {
+        return window._activeAthletesMap[key];
+      }
+      if (Array.isArray(currentActiveAthletes)) {
+        const found = currentActiveAthletes.find(a =>
+          (key && String(a.user_id || "").trim() === key) ||
+          (key && String(a.chat_id || "").trim() === key) ||
+          (key && String(a.garmin_email || "").trim() === key) ||
+          (key && String(a.name || "").trim() === key) ||
+          (athleteName && String(a.name || "").trim() === String(athleteName).trim())
+        );
+        if (found) return found;
+      }
+      return null;
+    }
+
+    function openHyroxRaceModal(target, athleteName, optionalNextRaceDate = "", optionalCategory = "") {
+      currentHyroxRaceTarget = {
+        id: String(target || "").trim(),
+        name: String(athleteName || "Atleta").trim()
+      };
+      lastHyroxRaceTriggerEl = document.activeElement;
+
+      const modal = document.getElementById("hyrox-race-modal");
+      if (!modal) return;
+
+      const nameEl = document.getElementById("hyrox-race-athlete-name");
+      if (nameEl) nameEl.textContent = currentHyroxRaceTarget.name;
+
+      const ath = findAthleteForHyroxModal(currentHyroxRaceTarget.id, currentHyroxRaceTarget.name);
+      const nextRace = ath && ath.next_race && typeof ath.next_race === "object" ? ath.next_race : null;
+      const isHyroxNextRace = Boolean(
+        nextRace && (
+          (nextRace.discipline && /hyrox/i.test(String(nextRace.discipline))) ||
+          (nextRace.name && /hyrox/i.test(String(nextRace.name)))
+        )
+      );
+
+      const dateInput = document.getElementById("hyrox-race-date");
+      const prefillHint = document.getElementById("hyrox-race-prefill-hint");
+      const today = new Date();
+      const todayStr = formatIsoDateLocal(today);
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const tomorrowStr = formatIsoDateLocal(tomorrow);
+
+      const candidateNextDate = parseHyroxRaceIsoDate(
+        optionalNextRaceDate || (isHyroxNextRace ? nextRace.date : "")
+      );
+      const useNextRaceDate = Boolean(candidateNextDate && candidateNextDate >= todayStr);
+
+      if (dateInput) {
+        dateInput.min = todayStr;
+        dateInput.value = useNextRaceDate ? candidateNextDate : tomorrowStr;
+      }
+      if (prefillHint) {
+        if (useNextRaceDate) {
+          const raceLabel = nextRace && nextRace.name ? ` (${nextRace.name})` : "";
+          prefillHint.textContent = `Data pre-compilata dalla prossima gara HYROX in calendario${raceLabel}.`;
+          prefillHint.classList.remove("hidden");
+        } else {
+          prefillHint.textContent = "";
+          prefillHint.classList.add("hidden");
+        }
+      }
+
+      const catSelect = document.getElementById("hyrox-race-category");
+      if (catSelect) {
+        const rawCat = String(
+          optionalCategory ||
+          (isHyroxNextRace && nextRace && nextRace.category ? nextRace.category : "") ||
+          (ath && ath.hyrox_category ? ath.hyrox_category : "") ||
+          "single_open_men"
+        ).trim();
+        catSelect.value = HYROX_RACE_CATEGORIES.includes(rawCat) ? rawCat : "single_open_men";
+      }
+
+      modal.classList.remove("hidden");
+      setTimeout(() => {
+        if (dateInput && typeof dateInput.focus === "function") dateInput.focus();
+      }, 50);
+    }
+
+    function closeHyroxRaceModal() {
+      const modal = document.getElementById("hyrox-race-modal");
+      if (modal && !modal.classList.contains("hidden")) {
+        modal.classList.add("hidden");
+        if (lastHyroxRaceTriggerEl && typeof lastHyroxRaceTriggerEl.focus === "function") {
+          lastHyroxRaceTriggerEl.focus();
+        }
+      }
+    }
+
+    function setHyroxRaceDateOffset(offsetDays) {
+      const d = new Date();
+      d.setDate(d.getDate() + offsetDays);
+      const dateInput = document.getElementById("hyrox-race-date");
+      if (dateInput) {
+        dateInput.value = formatIsoDateLocal(d);
+      }
+    }
+
+    async function requestCoachScheduleHyroxRace(target, targetDate, category) {
+      if (!CURRENT_TOKEN || !WEBHOOK_URL || !/^https?:\/\//i.test(WEBHOOK_URL)) {
+        return null;
+      }
+      const payload = {
+        action: "coach_schedule_hyrox_race",
+        coach_token: CURRENT_TOKEN,
+        target: target,
+        target_date: targetDate,
+        category: category
+      };
+      const res = await fetch(WEBHOOK_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload)
+      });
+      return await res.json();
+    }
+
+    async function submitHyroxRaceModal() {
+      if (!currentHyroxRaceTarget || !currentHyroxRaceTarget.id) {
+        closeHyroxRaceModal();
+        return;
+      }
+      if (!isAuthenticated || !CURRENT_TOKEN) {
+        closeHyroxRaceModal();
+        if (typeof lockDashboardUI === "function") lockDashboardUI();
+        if (window.UIFeedback) {
+          UIFeedback.toast({
+            title: "Autenticazione richiesta",
+            message: "Inserisci un codice OTP valido per pianificare la gara HYROX.",
+            type: "error"
+          });
+        }
+        return;
+      }
+      const dateInput = document.getElementById("hyrox-race-date");
+      const catSelect = document.getElementById("hyrox-race-category");
+      const targetDate = dateInput ? dateInput.value.trim() : "";
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(targetDate)) {
+        if (window.UIFeedback) {
+          UIFeedback.toast({
+            title: "Data non valida",
+            message: "Seleziona una data valida (YYYY-MM-DD) dal calendario.",
+            type: "warning"
+          });
+        }
+        return;
+      }
+      const category = catSelect ? String(catSelect.value || "").trim() : "single_open_men";
+      if (!HYROX_RACE_CATEGORIES.includes(category)) {
+        if (window.UIFeedback) {
+          UIFeedback.toast({
+            title: "Categoria non valida",
+            message: "Seleziona una categoria HYROX valida.",
+            type: "warning"
+          });
+        }
+        return;
+      }
+
+      const athleteName = currentHyroxRaceTarget.name;
+      const target = currentHyroxRaceTarget.id;
+
+      closeHyroxRaceModal();
+
+      if (typeof showHudLoader === "function") {
+        showHudLoader("PIANIFICAZIONE GARA HYROX...", `CARICAMENTO GARMIN CARDIO 31 STEP PER ${athleteName.toUpperCase()}`);
+      }
+
+      try {
+        const cloudRes = await requestCoachScheduleHyroxRace(target, targetDate, category);
+        if (typeof hideHudLoader === "function") hideHudLoader();
+
+        if (cloudRes && (cloudRes.status === "unauthorized" || cloudRes.code === "unauthorized")) {
+          if (typeof handleCoachUnauthorized === "function") handleCoachUnauthorized(cloudRes.message);
+          return;
+        }
+
+        if (cloudRes && cloudRes.status === "ok") {
+          if (window.UIFeedback) {
+            UIFeedback.toast({
+              title: `Gara HYROX programmata (${escapeHtml(athleteName)})`,
+              message: `Workout Cardio 31 step caricato su Garmin Connect per il ${escapeHtml(targetDate)} (${escapeHtml(category)}). Notifica inviata su Telegram!`,
+              type: "success",
+              duration: 7000
+            });
+          }
+        } else {
+          if (window.UIFeedback) {
+            UIFeedback.toast({
+              title: "Impossibile pianificare la gara HYROX",
+              message: escapeHtml(cloudRes ? (cloudRes.message || "Errore sconosciuto") : "Errore di connessione."),
+              type: "error",
+              duration: 8000
+            });
+          }
+        }
+      } catch (err) {
+        if (typeof hideHudLoader === "function") hideHudLoader();
+        console.warn("Errore richiesta Gara HYROX:", err);
+        if (window.UIFeedback) {
+          UIFeedback.toast({
+            title: "Errore di rete",
+            message: "Impossibile inviare la richiesta di pianificazione Gara HYROX.",
+            type: "error"
+          });
+        }
+      }
+    }
+
     let currentCoachDisconnectTarget = null;
     let lastCoachDisconnectTriggerEl = null;
 
@@ -4927,6 +5213,7 @@
       if (e.key === 'Escape') {
         closePlanGeneratorModal();
         closeConconiModal();
+        closeHyroxRaceModal();
         closeCoachGarminDisconnectModal();
         toggleShortcutsModal(false);
         if (isInput) document.activeElement.blur();
@@ -5520,6 +5807,66 @@
         <button type="button" id="cancel-conconi-btn" onclick="closeConconiModal()" class="min-h-[44px] w-full sm:w-auto px-4 py-2 text-xs font-medium text-slate-300 hover:bg-slate-800 rounded-lg transition">Annulla</button>
         <button type="button" id="confirm-conconi-btn" onclick="submitConconiTest()" class="min-h-[44px] w-full sm:w-auto px-5 py-2.5 text-xs font-semibold bg-rose-500 hover:bg-rose-400 text-white rounded-lg flex items-center justify-center gap-2 transition shadow-lg shadow-rose-900/30">
           <i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Invia Test Conconi
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Pianificazione Gara HYROX -->
+  <div id="hyrox-race-modal" onclick="if (event.target === this) closeHyroxRaceModal()" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden" role="dialog" aria-modal="true" aria-labelledby="hyrox-race-modal-title">
+    <div class="bg-slate-900 border border-[var(--ds-border-subtle)] rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-[var(--ds-glow-soft)] relative text-slate-200 max-h-[90dvh] overflow-y-auto">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+        <div class="flex items-center gap-2.5 min-w-0">
+          <div class="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0">
+            <i class="fa-solid fa-flag-checkered" aria-hidden="true"></i>
+          </div>
+          <div class="min-w-0">
+            <h3 id="hyrox-race-modal-title" class="text-base font-bold text-white truncate">🏁 Gara HYROX</h3>
+            <p class="text-xs text-slate-400 truncate">Atleta: <span id="hyrox-race-athlete-name" class="font-semibold text-amber-300">--</span></p>
+          </div>
+        </div>
+        <button type="button" onclick="closeHyroxRaceModal()" aria-label="Chiudi finestra Gara HYROX" class="min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-400 hover:text-white rounded-lg transition shrink-0">&times;</button>
+      </div>
+
+      <div class="py-4 space-y-4">
+        <div>
+          <label for="hyrox-race-date" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Data Gara HYROX</label>
+          <div class="flex items-center gap-2 mb-2">
+            <input type="date" id="hyrox-race-date" aria-label="Data Gara HYROX" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white font-mono focus:border-amber-400 focus:outline-none min-h-[44px]">
+          </div>
+          <p id="hyrox-race-prefill-hint" class="text-xs text-amber-300/90 mb-2 hidden"></p>
+          <div class="flex items-center gap-1.5 flex-wrap">
+            <button type="button" onclick="setHyroxRaceDateOffset(0)" class="min-h-[44px] px-3 py-1.5 text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg transition border border-slate-700">Oggi</button>
+            <button type="button" onclick="setHyroxRaceDateOffset(1)" class="min-h-[44px] px-3 py-1.5 text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg transition border border-slate-700">Domani</button>
+            <button type="button" onclick="setHyroxRaceDateOffset(7)" class="min-h-[44px] px-3 py-1.5 text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg transition border border-slate-700">+7gg</button>
+          </div>
+        </div>
+
+        <div>
+          <label for="hyrox-race-category" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Categoria Ufficiale</label>
+          <select id="hyrox-race-category" aria-label="Categoria ufficiale HYROX" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:border-amber-400 focus:outline-none min-h-[44px]">
+            <option value="single_open_men">Single Open Men</option>
+            <option value="single_pro_men">Single Pro Men</option>
+            <option value="single_open_women">Single Open Women</option>
+            <option value="single_pro_women">Single Pro Women</option>
+            <option value="doubles_men">Doubles Men</option>
+            <option value="doubles_women">Doubles Women</option>
+            <option value="doubles_mixed">Doubles Mixed</option>
+          </select>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-200 flex items-start gap-2.5">
+          <i class="fa-solid fa-circle-info text-amber-400 mt-0.5 shrink-0" aria-hidden="true"></i>
+          <p class="leading-relaxed">
+            Workout <strong>Cardio 31 step</strong> (8 Run + 8 Stazioni + 15 Roxzone) a tasto Lap, zero bip FC/passo, con note PB/Obj automatiche solo se l'atleta ha storico nella stessa categoria.
+          </p>
+        </div>
+      </div>
+
+      <div class="pt-4 border-t border-slate-800 flex flex-col-reverse sm:flex-row sm:justify-end gap-2.5">
+        <button type="button" id="cancel-hyrox-race-btn" onclick="closeHyroxRaceModal()" class="min-h-[44px] w-full sm:w-auto px-4 py-2 text-xs font-medium text-slate-300 hover:bg-slate-800 rounded-lg transition">Annulla</button>
+        <button type="button" id="confirm-hyrox-race-btn" onclick="submitHyroxRaceModal()" class="min-h-[44px] w-full sm:w-auto px-5 py-2.5 text-xs font-semibold bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-lg flex items-center justify-center gap-2 transition shadow-lg shadow-amber-900/30">
+          <i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Invia Gara HYROX
         </button>
       </div>
     </div>
