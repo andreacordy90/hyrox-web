@@ -10,6 +10,7 @@
 <!DOCTYPE html>
 <html lang="it" data-theme="dark" class="dark">
 <head>
+  <meta name="build-sha" content="3041b8fb6a06">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#b1cc5b">
@@ -6916,10 +6917,91 @@
       };
     }
 
+    function decode1899ActivityTimeParts(rawValue) {
+      if (rawValue === null || rawValue === undefined || rawValue === "") return null;
+      const str = String(rawValue).trim();
+      if (!str) return null;
+
+      const mText = str.match(/(Dec|Jan)\s+(\d{1,2})\s+(1899|1900)\s+(\d{1,2}):(\d{2})(?::(\d{2}))?/i);
+      if (mText) {
+        const monthIdx = mText[1].toLowerCase() === "dec" ? 11 : 0;
+        const dayNum = parseInt(mText[2], 10);
+        const yearNum = parseInt(mText[3], 10);
+        const daysOffset = Math.round((Date.UTC(yearNum, monthIdx, dayNum) - Date.UTC(1899, 11, 30)) / 86400000);
+        if (daysOffset < 0 || daysOffset > 10) return null;
+        return {
+          totalHours: daysOffset * 24 + parseInt(mText[4], 10),
+          mm: parseInt(mText[5], 10),
+          ss: mText[6] !== undefined ? parseInt(mText[6], 10) : 0
+        };
+      }
+
+      if (/^(1899-12-(?:29|30|31)|1900-01-0\d)T\d{2}:\d{2}:\d{2}/.test(str)) {
+        const dt = new Date(str);
+        if (!Number.isNaN(dt.getTime())) {
+          let y = dt.getFullYear();
+          let mo = dt.getMonth() + 1;
+          let d = dt.getDate();
+          let hh = dt.getHours();
+          let mm = dt.getMinutes();
+          let ss = dt.getSeconds();
+          try {
+            const parts = new Intl.DateTimeFormat("en-GB", {
+              timeZone: "Europe/Rome",
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+              hourCycle: "h23"
+            }).formatToParts(dt);
+            const map = {};
+            parts.forEach((p) => { map[p.type] = p.value; });
+            y = parseInt(map.year, 10);
+            mo = parseInt(map.month, 10);
+            d = parseInt(map.day, 10);
+            hh = parseInt(map.hour, 10);
+            mm = parseInt(map.minute, 10);
+            ss = parseInt(map.second, 10);
+          } catch (_intlErr) {}
+          const daysOffset = Math.round((Date.UTC(y, mo - 1, d) - Date.UTC(1899, 11, 30)) / 86400000);
+          if (daysOffset >= 0 && daysOffset <= 10) {
+            return { totalHours: daysOffset * 24 + hh, mm, ss };
+          }
+        }
+      }
+
+      return null;
+    }
+
+    function normalizeActivityDistanceValue(rawValue) {
+      if (rawValue === null || rawValue === undefined) return "";
+      const str = String(rawValue).trim();
+      if (!str) return "";
+      const parts = decode1899ActivityTimeParts(str);
+      if (parts) {
+        return `${parts.totalHours}.${String(parts.mm).padStart(2, "0")}`;
+      }
+      return str;
+    }
+
+    function normalizeActivityDurationValue(rawValue) {
+      if (rawValue === null || rawValue === undefined) return "";
+      const str = String(rawValue).trim();
+      if (!str) return "";
+      const parts = decode1899ActivityTimeParts(str);
+      if (parts) {
+        return `${String(parts.totalHours).padStart(2, "0")}:${String(parts.mm).padStart(2, "0")}:${String(parts.ss).padStart(2, "0")}`;
+      }
+      return str;
+    }
+
     function parsePositiveActivityMetric(rawValue) {
       if (rawValue === null || rawValue === undefined) return null;
-      const str = String(rawValue).trim();
+      const str = normalizeActivityDistanceValue(rawValue);
       if (!str || str === "--" || str === "-") return null;
+      if (/\bGMT\b|\b1899\b/i.test(str)) return null;
       const match = str.replace(",", ".").match(/[+-]?\d+(?:\.\d+)?/);
       if (!match) return null;
       const num = parseFloat(match[0]);
@@ -6929,8 +7011,9 @@
 
     function isPositiveActivityDuration(rawValue) {
       if (rawValue === null || rawValue === undefined) return false;
-      const str = String(rawValue).trim();
+      const str = normalizeActivityDurationValue(rawValue);
       if (!str || str === "--" || str === "-") return false;
+      if (/\bGMT\b|\b1899\b/i.test(str)) return false;
       const nums = str.match(/\d+(?:[.,]\d+)?/g);
       if (!nums || nums.length === 0) return false;
       return nums.some((token) => {
@@ -7291,10 +7374,10 @@
         } else {
           aListEl.innerHTML = activities.map((act) => {
             const sport = getSportMetaFromText(`${act.type || ""} ${act.title || ""}`);
-            const distParsed = parsePositiveActivityMetric(act.distance);
+            const distParsed = parsePositiveActivityMetric(normalizeActivityDistanceValue(act.distance));
             const hrParsed = parsePositiveActivityMetric(act.avg_hr);
             const elevParsed = parsePositiveActivityMetric(act.elevation_gain);
-            const durRaw = act.duration !== null && act.duration !== undefined ? String(act.duration).trim() : "";
+            const durRaw = normalizeActivityDurationValue(act.duration);
             const hasDuration = isPositiveActivityDuration(durRaw);
 
             const optionalBadges = [];
@@ -8062,8 +8145,9 @@
       let totalDist = 0;
       let totalElev = 0;
       activities.forEach((act) => {
-        const d = parseFloat(String(act.distance || "0").replace(",", "."));
-        if (!Number.isNaN(d)) totalDist += d;
+        const distNorm = normalizeActivityDistanceValue(act.distance);
+        const d = /\bGMT\b|\b1899\b/i.test(distNorm) ? 0 : parseFloat(String(distNorm || "0").replace(",", "."));
+        if (!Number.isNaN(d) && d > 0) totalDist += d;
         const e = Number(act.elevation_gain || 0);
         if (!Number.isNaN(e)) totalElev += e;
       });
